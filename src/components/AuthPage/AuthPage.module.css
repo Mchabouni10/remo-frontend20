@@ -1,0 +1,18 @@
+.AuthPage {
+    height: 100%;
+    display: flex;
+    /* justify-content: space-evenly; */
+    align-items: center;
+    margin-left: 2em;
+    background-color: var(--white);
+    border-radius: 2vmin;
+  }
+  
+  .AuthPage h3 {
+    margin-top: 10vmin;
+    margin-left: auto;
+
+    text-align: left;
+    color: var(--text-light);
+    cursor: pointer;
+  }

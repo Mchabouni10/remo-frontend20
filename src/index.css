@@ -11,3 +11,167 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+
+/* CSS Custom Properties */
+:root {
+  --primary: #1845ad;
+  --secondary: #23a2f6;
+  --tertiary: #ff512f;
+  --quaternary: #f09819;
+  --background-dark: #080710;
+  --background-light: rgba(255, 255, 255, 0.13);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --shadow-color: rgba(8, 7, 16, 0.6);
+  --text-light: #ffffff;
+  --text-dark: #e5e5e5;
+  --placeholder-color: #e5e5e5;
+}
+
+*,
+*:before,
+*:after {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--background-dark);
+}
+
+.background {
+  width: 430px;
+  height: 520px;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  left: 50%;
+  top: 50%;
+}
+
+
+.section-heading {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background-color: var(--tan-1);
+  color: var(--text-dark);
+  border: .1vmin solid var(--tan-3);
+  border-radius: 1vmin;
+  padding: .6vmin;
+  text-align: center;
+  font-size: 2vmin;
+}
+
+.form-container  {
+  position: relative; /* Set position to relative */
+  z-index: 1; /* Set a higher z-index to bring it in front of other elements */
+  height: 520px;
+  width: 400px;
+  background-color: var(--background-light);
+  transform: translate(-50%, -50%);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  border: 2px solid var(--border-color);
+  box-shadow: 0 0 40px var(--shadow-color);
+  padding: 60px 25px;
+}
+
+p.error-message {
+  position: absolute; /* Set position to absolute */
+  top: 70%; /* Adjust the top position as needed */
+  left: 50%; /* Adjust the left position as needed */
+  transform: translate(-50%, -50%);
+  color: white;
+  text-align: center;
+  z-index: 2; /* Set a higher z-index to bring it in front of the form */
+}
+
+
+form * {
+  font-family: 'Poppins', sans-serif;
+  color: var(--text-light);
+  letter-spacing: 0.5px;
+  outline: none;
+  border: none;
+}
+
+.form-container  h3 {
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 42px;
+  text-align: center;
+}
+
+.form-container label {
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.form-container input {
+  display: block;
+  height: 38px;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.07);
+  border-radius: 3px;
+  padding: 0 10px;
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--text-dark);
+}
+
+input:focus {
+  border-color: var(--blue);
+}
+
+.form-container::placeholder {
+  color: var(--placeholder-color);
+}
+
+.form-container input[type="password"] {
+  margin-bottom: 10px;
+}
+
+
+
+button, a.button {
+  margin-top: 30px;
+  width: 100%;
+  background-color: var(--text-light);
+  color: var(--background-dark);
+  padding: 10px 0;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button.btn-sm {
+  margin-top: 30px;
+  font-size: 1.5vmin;
+  padding: .6vmin .8vmin;
+}
+
+button.btn-xs {
+  margin-top: 30px;
+  font-size: 1vmin;
+  padding: .4vmin .5vmin;
+}
+
+button:disabled, form:invalid button[type="submit"] {
+  margin-top: 30px;
+  cursor: not-allowed;
+  background-color: var(--text-dark);
+}
+
+button[type="submit"] {
+  /* margin-top: 100px; */
+  grid-column: span 2;
+  margin: 1vmin 0 0;
+}

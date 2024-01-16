@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import { getUser } from "./utilities/users-service";
 import NewOrderPage from "./components/NewOrderPage";
-import AuthPage from "./components/AuthPage";
+import AuthPage from "./components/AuthPage/AuthPage";
 import OrderHistoryPage from "./components/OrderHistoryPage";
 import Navbar from "./components/Navbar";
 
