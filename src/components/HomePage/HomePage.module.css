@@ -1,0 +1,95 @@
+.container {
+  max-width: 1400px; /* Wider to accommodate all components */
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #080710; /* Light background */
+  min-height: 100vh; /* Full height */
+  color: #333; /* Dark text */
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr; /* Three equal columns */
+  gap: 20px; /* Space between components */
+}
+
+.customerSection,
+.calculatorSection,
+.summarySection {
+  background-color: #fff; /* White background for contrast */
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+}
+
+.customerSection {
+  grid-column: 1 / 2; /* Left column */
+}
+
+.calculatorSection {
+  grid-column: 2 / 3; /* Middle column */
+}
+
+.summarySection {
+  grid-column: 3 / 4; /* Right column */
+}
+
+.buttonGroup {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.saveButton,
+.loadButton,
+.resetButton {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.2s;
+}
+
+.saveButton {
+  background-color: #4caf50; /* Green */
+}
+
+.saveButton:hover {
+  background-color: #45a049;
+}
+
+.loadButton {
+  background-color: #2196f3; /* Blue */
+}
+
+.loadButton:hover {
+  background-color: #1976d2;
+}
+
+.resetButton {
+  background-color: #ff4d4d; /* Red */
+}
+
+.resetButton:hover {
+  background-color: #e04343;
+}
+
+.backButton {
+  background-color: #6c757d;
+  color: white;
+}
+
+.backButton:hover {
+  background-color: #5a6268;
+}

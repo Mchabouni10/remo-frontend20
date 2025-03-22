@@ -1,0 +1,243 @@
+/* src/components/Calculator/Calculator.module.css */
+.calculator {
+  padding: 25px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05); /* Softer shadow */
+}
+
+.title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #2c3e50; /* Darker, elegant gray */
+  text-align: center;
+}
+
+.categoryControls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  justify-content: center; /* Center buttons */
+}
+
+.addCategoryButton {
+  padding: 8px 16px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+  margin-bottom: 10px;
+}
+
+.addCategoryButton:hover {
+  background-color: #218838;
+}
+
+.removeCategoryButton {
+  padding: 8px 16px; /* Same size as Add Category */
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.removeCategoryButton:hover {
+  background-color: #c82333;
+}
+
+.categories {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.category {
+  padding: 20px;
+  border: 2px solid black;
+  border-radius: 8px;
+  background-color: #fff;
+}
+
+.categoryHeader {
+  margin-bottom: 15px;
+  border: 2px solid red;
+}
+
+.categoryInput {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #2c3e50;
+}
+
+.categoryInput:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+}
+
+.workNameContainer {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  align-items: center;
+}
+
+.workNameInput {
+  flex-grow: 1;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  color: #2c3e50;
+}
+
+.workNameInput:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+}
+
+.workControls {
+  display: flex;
+  gap: 10px;
+}
+
+.addWorkButton {
+  padding: 10px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.addWorkButton:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.addWorkButton:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.workItems {
+  display: flex;
+  flex-direction: column;
+}
+
+.totalsSection {
+  margin-top: 25px;
+  padding: 20px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background-color: #fff;
+  border: 2px solid red;
+}
+
+.totalsSection h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #2c3e50;
+}
+
+.totalsSection p {
+  font-size: 1rem;
+  /* margin: 8px 0; */
+  color: #4b5563;
+}
+
+.totalsSection strong {
+  color: black;
+  font-weight: 700;
+}
+
+.settingsSection {
+  padding: 20px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background-color: #fff;
+  border: 2px solid red;
+}
+
+.settingsTitle {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #2c3e50;
+}
+
+.settingsField {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.settingsField label {
+  min-width: 160px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.miscFeesSection {
+  margin-top: 15px;
+  border: 2px solid red;
+}
+
+.miscFeeRow {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.addMiscFeeButton {
+  padding: 8px 16px;
+  background-color: #17a2b8;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.addMiscFeeButton:hover {
+  background-color: #138496;
+}
+
+.removeMiscFeeButton {
+  padding: 8px 16px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.removeMiscFeeButton:hover {
+  background-color: #c82333;
+}

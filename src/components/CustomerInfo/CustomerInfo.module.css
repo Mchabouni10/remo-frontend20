@@ -1,0 +1,56 @@
+.customerInfo {
+  padding: 20px;
+  background-color: #fff; /* Matches HomePage sections */
+  border-radius: 5px;
+  max-height: 700px; /* Slightly taller but capped */
+  overflow-y: auto; /* Scroll if needed */
+}
+
+.title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* More space between fields */
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.required {
+  color: #ff4d4d; /* Red for emphasis */
+}
+
+.input,
+.phoneInput {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: #fafafa; /* Subtle background */
+}
+
+.input.error,
+.phoneInput.error {
+  border-color: #ff4d4d;
+}
+
+.phoneContainer {
+  width: 100%;
+}

@@ -1,9 +1,104 @@
-.UserLogOut {
-    font-size: 1.5vmin;
-    color: var(--text-light);
-    text-align: center;
-    }
-    
-    .UserLogOut .email {
-      font-size: smaller;
-    }
+.userLogOut {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(15px);
+  border-radius: 15px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 400px;
+  margin: 2rem auto;
+  animation: fadeIn 0.5s ease-in;
+}
+
+.userDetails {
+  text-align: center;
+  width: 100%;
+}
+
+.userName {
+  font-size: 1.5rem;
+  color: var(--text-light);
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  background: linear-gradient(45deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.userEmail {
+  font-size: 1rem;
+  color: var(--text-dark);
+  margin: 0;
+  opacity: 0.8;
+}
+
+.label {
+  color: var(--text-dark);
+  font-size: 0.9rem;
+  opacity: 0.6;
+  margin-right: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.logoutButton {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 1rem;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: var(--text-light);
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.logoutButton:hover {
+  background: linear-gradient(45deg, var(--primary), var(--secondary));
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(24, 69, 173, 0.3);
+}
+
+.logoutButton::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: all 0.5s ease;
+}
+
+.logoutButton:hover::after {
+  left: 100%;
+}
+
+.logoutIcon {
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+
+.logoutButton:hover .logoutIcon {
+  transform: translateX(5px);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

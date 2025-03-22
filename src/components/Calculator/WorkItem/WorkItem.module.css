@@ -1,0 +1,175 @@
+/* src/components/Calculator/WorkItem.module.css */
+.workCard {
+  padding: 20px;
+  border: 2px solid #1845ad; /* Light gray border */
+  border-radius: 8px;
+  background-color: #fff;
+  margin-bottom: 20px; /* Added margin for spacing between work items */
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.workName {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 10px;
+
+}
+
+.select,
+.input {
+  width: 100%;
+  padding: 10px 12px; /* Consistent padding */
+  font-size: 0.95rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #2c3e50;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.select:focus,
+.input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+}
+
+.pricingField {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 5px;
+}
+
+.pricingField label {
+  min-width: 130px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.surfaces {
+  margin-top: 15px;
+  padding-left: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+    border: 2px solid red; 
+}
+
+.addSurfaceButton {
+  padding: 8px 16px; /* Consistent with other buttons */
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  align-self: flex-start; /* Left-aligned, not oversized */
+  transition: background-color 0.2s ease;
+}
+
+.addSurfaceButton:hover {
+  background-color: #23a2f6;
+}
+
+.pricingSection {
+  margin-top: 15px;
+  padding: 15px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.workControls {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end; /* Right-aligned */
+  margin-top: 15px;
+}
+
+.removeButton {
+  padding: 8px 16px; /* Same size as Add Work */
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+  align-self: flex-end; /* Right-aligned, not oversized */  
+}
+
+.removeButton:hover {
+  background-color: #c82333; /* Darker red */
+}
+
+.workItemRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.workItemRow label {
+  flex: 0 0 110px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #555;
+}
+
+.workItemRow input,
+.workItemRow select {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 0.95rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #333;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.workItemRow input:focus,
+.workItemRow select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+}
+
+/* Additional styles for better spacing and alignment */
+.workItemRow + .workItemRow {
+  margin-top: 10px;
+}
+
+.workItemRow input[type="number"] {
+  width: 100%;
+}
+
+.workItemRow select {
+  width: 100%;
+}
+
+/* Hover effects for buttons */
+button {
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+button:hover {
+  transform: scale(1.02);
+}
+
+button:active {
+  transform: scale(0.98);
+}

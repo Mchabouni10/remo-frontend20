@@ -1,70 +1,84 @@
-// LoginForm.jsx
-
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import { login } from '../../utilities/users-service';
+import styles from './LoginForm.module.css';
 
-const LoginForm = ({ setUser }) => {
+export default function LoginForm({ setUser }) {
   const [credentials, setCredentials] = useState({
-    email: "",
-    password: "",
+    email: '',
+    password: '',
   });
-
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (evt) => {
     setCredentials({
       ...credentials,
       [evt.target.name]: evt.target.value,
     });
-    setError("");
+    setError('');
   };
 
   const handleSubmit = async (evt) => {
     evt.preventDefault();
+    setIsLoading(true);
     try {
       const user = await login(credentials);
-      setUser(user); // Assuming login function returns user data
+      setUser(user);
     } catch {
-      setError("Login Failed - Try Again");
+      setError('Authentication Failed');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div>
-      <div className="form-container">
-        <form autoComplete="off" onSubmit={handleSubmit}>
-          <label>Email</label>
+    <div className={styles.formContainer}>
+      <form autoComplete="off" onSubmit={handleSubmit} className={styles.form}>
+        <h2 className={styles.title}>Access Portal</h2>
+        
+        <div className={styles.inputGroup}>
+          <label htmlFor="email">Email Interface</label>
           <input
-            type="text"
+            type="email"
+            id="email"
             name="email"
             value={credentials.email}
             onChange={handleChange}
-            placeholder="example@mail.com" // Placeholder text
+            placeholder="Enter your email"
             required
+            className={styles.input}
           />
-          <label>Password</label>
-          <div style={{ position: 'relative' }}>
-            <input
-              type="password"
-              name="password"
-              value={credentials.password}
-              onChange={handleChange}
-              placeholder="********" // Placeholder text with stars
-              required
-            />
-            <div style={{ position: 'absolute', top: '50%', right: '10px', transform: 'translateY(-50%)', color: 'gray' }}>
-              {/* Add any icon or text you want to use for password visibility */}
-              &#9679;&#9679;&#9679;&#9679;
-            </div>
-          </div>
-          <button type="submit">LOG IN</button>
-        </form>
-      </div>
-      <p className="error-message">&nbsp;{error}</p>
+        </div>
+
+        <div className={styles.inputGroup}>
+          <label htmlFor="password">Security Key</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            value={credentials.password}
+            onChange={handleChange}
+            placeholder="Enter security key"
+            required
+            className={styles.input}
+          />
+        </div>
+
+        <button
+          type="submit"
+          className={`${styles.submitButton} ${isLoading ? styles.loading : ''}`}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <span className={styles.loader}></span>
+          ) : (
+            'Initialize Access'
+          )}
+        </button>
+
+        {error && <p className={styles.errorMessage}>{error}</p>}
+      </form>
     </div>
   );
-};
-
-export default LoginForm;
-
+}
 

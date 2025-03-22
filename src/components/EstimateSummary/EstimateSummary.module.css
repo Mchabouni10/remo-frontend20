@@ -1,0 +1,107 @@
+.summary {
+  padding: 20px;
+  background-color: #fff; /* Matches HomePage sections */
+  border-radius: 5px;
+  max-height: 700px; /* Consistent with others */
+  overflow-y: auto;
+}
+
+.header {
+  margin-bottom: 20px;
+}
+
+.totalTitle {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.customerInfo p {
+  font-size: 16px;
+  margin: 8px 0;
+  color: #333;
+}
+
+.breakdown {
+  margin-bottom: 20px;
+}
+
+.categoryBreakdown {
+  margin-bottom: 15px;
+}
+
+.categoryName {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.workTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 15px;
+}
+
+.workTable th,
+.workTable td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  font-size: 16px;
+  text-align: left;
+}
+
+.workTable th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+}
+
+.categoryTotal {
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 5px;
+  color: #333;
+}
+
+.noItems {
+  font-size: 16px;
+  font-style: italic;
+  color: #666;
+}
+
+.grandTotal {
+  margin-top: 20px;
+}
+
+.totalTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.totalTable td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  font-size: 16px;
+}
+
+.totalTable tr:last-child td {
+  font-weight: bold;
+  background-color: #f5f5f5;
+}
+
+.printButton {
+  background-color: #2196f3;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 16px;
+  width: 100%; /* Full width */
+  margin-top: 20px;
+}
+
+.printButton:hover {
+  background-color: #1976d2;
+}
