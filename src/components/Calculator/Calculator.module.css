@@ -1,28 +1,27 @@
-/* src/components/Calculator/Calculator.module.css */
 .calculator {
   padding: 25px;
   background-color: #fff;
   border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05); /* Softer shadow */
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
 }
 
 .title {
   font-size: 1.6rem;
   font-weight: 700;
-  margin-bottom: 20px;
-  color: #2c3e50; /* Darker, elegant gray */
+  margin-bottom: 25px;
+  color: #2c3e50;
   text-align: center;
 }
 
 .categoryControls {
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-  justify-content: center; /* Center buttons */
+  gap: 12px;
+  margin-bottom: 25px;
+  justify-content: center;
 }
 
 .addCategoryButton {
-  padding: 8px 16px;
+  padding: 10px 20px;
   background-color: #28a745;
   color: white;
   border: none;
@@ -30,16 +29,16 @@
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 500;
-  transition: background-color 0.2s ease;
-  margin-bottom: 10px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .addCategoryButton:hover {
   background-color: #218838;
+  transform: scale(1.02);
 }
 
 .removeCategoryButton {
-  padding: 8px 16px; /* Same size as Add Category */
+  padding: 10px 14px;
   background-color: #dc3545;
   color: white;
   border: none;
@@ -47,17 +46,18 @@
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 500;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .removeCategoryButton:hover {
   background-color: #c82333;
+  transform: scale(1.02);
 }
 
 .categories {
   display: flex;
   flex-direction: column;
-  gap: 25px;
+  gap: 30px;
 }
 
 .category {
@@ -68,19 +68,20 @@
 }
 
 .categoryHeader {
-  margin-bottom: 15px;
-  border: 2px solid red;
+  margin-bottom: 20px;
+  border: 1px solid #d1d5db;
 }
 
 .categoryInput {
   width: 100%;
-  padding: 10px 12px;
+  padding: 12px 14px;
   font-size: 1.1rem;
   font-weight: 600;
   border: 1px solid #d1d5db;
   border-radius: 6px;
   background-color: #fff;
   color: #2c3e50;
+  margin-bottom: 15px;
 }
 
 .categoryInput:focus {
@@ -91,14 +92,14 @@
 
 .workNameContainer {
   display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
+  gap: 12px;
+  margin-bottom: 20px;
   align-items: center;
 }
 
 .workNameInput {
   flex-grow: 1;
-  padding: 10px 12px;
+  padding: 12px 14px;
   border: 1px solid #d1d5db;
   border-radius: 6px;
   font-size: 0.95rem;
@@ -113,11 +114,12 @@
 
 .workControls {
   display: flex;
-  gap: 10px;
+  gap: 12px;
+  align-items: center;
 }
 
 .addWorkButton {
-  padding: 10px 16px;
+  padding: 10px 20px;
   background-color: #007bff;
   color: white;
   border: none;
@@ -125,7 +127,7 @@
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 500;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .addWorkButton:disabled {
@@ -135,33 +137,141 @@
 
 .addWorkButton:hover:not(:disabled) {
   background-color: #0056b3;
+  transform: scale(1.02);
+}
+
+.removeWorkButton {
+  padding: 8px 12px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.removeWorkButton:hover {
+  background-color: #c82333;
+  transform: scale(1.02);
 }
 
 .workItems {
   display: flex;
   flex-direction: column;
+  gap: 15px;
+}
+
+.workItem {
+  padding: 20px;
+  border: 2px solid #1845ad;
+  border-radius: 8px;
+  background-color: #fff;
+}
+
+/* Background variations for work items */
+.workBackground0 { background-color: #f9fafb; }
+.workBackground1 { background-color: #f1f5f9; }
+.workBackground2 { background-color: #e2e8f0; }
+.workBackground3 { background-color: #e5e7eb; }
+.workBackground4 { background-color: #d1d5db; }
+
+.workName {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 15px;
+}
+
+.select,
+.input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #2c3e50;
+}
+
+.select:focus,
+.input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+}
+
+.pricingField {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.pricingField label {
+  min-width: 140px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.surfaces {
+  margin-top: 15px;
+  padding-left: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.addSurfaceButton {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  align-self: flex-start;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.addSurfaceButton:hover {
+  background-color: #0056b3;
+  transform: scale(1.02);
+}
+
+.pricingSection {
+  margin-top: 15px;
+  padding: 15px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .totalsSection {
-  margin-top: 25px;
+  margin-top: 30px;
   padding: 20px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   background-color: #fff;
-  border: 2px solid red;
 }
 
 .totalsSection h3 {
   font-size: 1.2rem;
   font-weight: 600;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
   color: #2c3e50;
 }
 
 .totalsSection p {
   font-size: 1rem;
-  /* margin: 8px 0; */
   color: #4b5563;
+  margin-bottom: 10px;
 }
 
 .totalsSection strong {
@@ -170,17 +280,17 @@
 }
 
 .settingsSection {
+  margin-top: 30px;
   padding: 20px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   background-color: #fff;
-  border: 2px solid red;
 }
 
 .settingsTitle {
   font-size: 1.3rem;
   font-weight: 600;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
   color: #2c3e50;
 }
 
@@ -188,7 +298,7 @@
   display: flex;
   align-items: center;
   gap: 15px;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .settingsField label {
@@ -199,8 +309,10 @@
 }
 
 .miscFeesSection {
-  margin-top: 15px;
-  border: 2px solid red;
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
 }
 
 .miscFeeRow {
@@ -211,7 +323,7 @@
 }
 
 .addMiscFeeButton {
-  padding: 8px 16px;
+  padding: 10px 20px;
   background-color: #17a2b8;
   color: white;
   border: none;
@@ -219,15 +331,16 @@
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 500;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .addMiscFeeButton:hover {
   background-color: #138496;
+  transform: scale(1.02);
 }
 
 .removeMiscFeeButton {
-  padding: 8px 16px;
+  padding: 8px 12px;
   background-color: #dc3545;
   color: white;
   border: none;
@@ -235,9 +348,46 @@
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 500;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .removeMiscFeeButton:hover {
   background-color: #c82333;
+  transform: scale(1.02);
+}
+
+.surfaceRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.toggleLabel {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.sqft {
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.removeSurfaceButton {
+  padding: 6px 10px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.removeSurfaceButton:hover {
+  background-color: #c82333;
+  transform: scale(1.02);
 }

@@ -16,11 +16,6 @@ export default function WorkItem5({ workItem, updateWorkItem, removeWorkItem, di
         className={styles.input}
         disabled={disabled}
       />
-      {!disabled && (
-        <button onClick={removeWorkItem} className={styles.removeButton}>
-          Remove
-        </button>
-      )}
     </>
   );
 }

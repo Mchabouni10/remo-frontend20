@@ -1,4 +1,3 @@
-// src/components/Calculator/Calculator.jsx
 import React, { useState } from 'react';
 import CategoryList from './CategoryList';
 import { calculateTotal } from './calculatorFunctions';
@@ -17,13 +16,25 @@ export default function Calculator({ categories, setCategories, settings, setSet
     ]);
   };
 
+  const removeLastCategory = () => {
+    if (disabled) return;
+    setCategories((prevCategories) => prevCategories.slice(0, -1));
+  };
+
   return (
     <div className={styles.calculator}>
       <h2 className={styles.title}>Remodeling Calculator</h2>
       {!disabled && (
-        <button onClick={addCategory} className={styles.addCategoryButton}>
-          + Add Category
-        </button>
+        <div className={styles.categoryControls}>
+          <button onClick={addCategory} className={styles.addCategoryButton}>
+            + Add Category
+          </button>
+          {categories.length > 0 && (
+            <button onClick={removeLastCategory} className={styles.removeCategoryButton}>
+              × Remove Category
+            </button>
+          )}
+        </div>
       )}
       <CategoryList
         categories={categories}

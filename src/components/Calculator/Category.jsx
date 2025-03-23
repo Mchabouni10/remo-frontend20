@@ -1,14 +1,22 @@
-// src/components/Calculator/Category.jsx
 import React from 'react';
 import WorkItem from '../Calculator/WorkItem/WorkItem';
 import styles from './Calculator.module.css';
 
-export default function Category({ catIndex, category, setCategories, removeCategory, addWorkItem, newWorkName, setNewWorkName, disabled = false }) {
+export default function Category({ catIndex, category, setCategories, addWorkItem, newWorkName, setNewWorkName, disabled = false }) {
   const updateCategoryName = (value) => {
     if (disabled) return;
     setCategories((prevCategories) =>
       prevCategories.map((cat, i) =>
         i === catIndex ? { ...cat, name: value } : cat
+      )
+    );
+  };
+
+  const removeWorkItem = (workIndex) => {
+    if (disabled) return;
+    setCategories((prevCategories) =>
+      prevCategories.map((cat, i) =>
+        i === catIndex ? { ...cat, workItems: cat.workItems.filter((_, idx) => idx !== workIndex) } : cat
       )
     );
   };
@@ -24,14 +32,6 @@ export default function Category({ catIndex, category, setCategories, removeCate
           placeholder="Room or Phase Name"
           disabled={disabled}
         />
-        {!disabled && (
-          <button
-            onClick={() => removeCategory(catIndex)}
-            className={styles.removeCategoryButton}
-          >
-            ×
-          </button>
-        )}
       </div>
       {!disabled && (
         <div className={styles.workNameContainer}>
@@ -42,13 +42,15 @@ export default function Category({ catIndex, category, setCategories, removeCate
             onChange={(e) => setNewWorkName(e.target.value)}
             className={styles.workNameInput}
           />
-          <button
-            onClick={() => addWorkItem(catIndex)}
-            className={styles.addWorkButton}
-            disabled={!newWorkName.trim()}
-          >
-            + Add Work
-          </button>
+          <div className={styles.workControls}>
+            <button
+              onClick={() => addWorkItem(catIndex)}
+              className={styles.addWorkButton}
+              disabled={!newWorkName.trim()}
+            >
+              + Add Work
+            </button>
+          </div>
         </div>
       )}
       <div className={styles.workItems}>
@@ -59,6 +61,7 @@ export default function Category({ catIndex, category, setCategories, removeCate
             workIndex={workIndex}
             workItem={item}
             setCategories={setCategories}
+            removeWorkItem={() => removeWorkItem(workIndex)} // Pass remove function
             disabled={disabled}
           />
         ))}
