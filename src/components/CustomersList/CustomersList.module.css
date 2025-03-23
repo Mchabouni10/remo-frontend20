@@ -1,87 +1,169 @@
-/* src/components/CustomersList/CustomersList.module.css */
+/* Existing styles with modifications */
+
+/* Table styling for horizontal and vertical borders */
+.table {
+  width: 100%;
+  border-collapse: collapse; /* Keeps borders clean */
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0; /* Light gray border around table */
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+/* Add borders to both th and td for vertical and horizontal lines */
+.table th,
+.table td {
+  padding: 1rem;
+  text-align: left;
+  color: #000000;
+  border: 1px solid #e2e8f0; /* Vertical and horizontal borders */
+}
+
+/* Header styling */
+.table th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+/* Highlight Grand Total */
+.grandTotal {
+  font-weight: 700; /* Bold text */
+  color: #2c3e50; /* Darker color for emphasis (matches button gradient) */
+  background-color: #f0f4f8; /* Light background for highlighting */
+  text-align: right; /* Align numbers to the right for better readability */
+}
+
+/* Hover effect for rows */
+.table tr:hover {
+  background-color: #f3f4f6;
+}
+
+/* Rest of the existing styles remain unchanged */
+.mainContent {
+  background-color: #ffffff;
+  min-height: calc(100vh - 60px);
+  padding-top: 1rem;
+  margin: 0;
+}
+
 .container {
-  padding: 20px;
-  max-width: 1200px;
+  max-width: 1440px;
   margin: 0 auto;
-  background-color: #f5f5f5; /* Light gray background */
+  padding: 1.5rem;
+  background-color: #ffffff;
   border-radius: 8px;
+  box-shadow: 0 6px 24px rgba(44, 62, 80, 0.15);
 }
 
 .title {
-  font-size: 2rem;
-  margin-bottom: 20px;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
   text-align: center;
-  color: #333; /* Dark gray text */
+  color: #000000;
+  letter-spacing: 1px;
 }
 
 .searchSection {
-  margin-bottom: 20px;
-  text-align: center;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.searchWrapper {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+}
+
+.searchIcon {
+  position: absolute;
+  top: 50%;
+  left: 1rem;
+  transform: translateY(-50%);
+  color: #6b7280;
+  font-size: 1.1rem;
 }
 
 .searchInput {
-  padding: 10px;
-  width: 300px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
   font-size: 1rem;
-  background-color: #fff; /* White input background */
-  color: #333; /* Dark text */
+  background-color: #ffffff;
+  color: #000000;
+  transition: all 0.3s ease;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #2c3e50;
+  box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.2);
 }
 
 .searchInput::placeholder {
-  color: #888; /* Lighter placeholder text */
+  color: #9ca3af;
 }
 
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  background-color: #fff; /* White table background */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.table th,
-.table td {
-  padding: 12px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-  color: #333; /* Dark text for readability */
-}
-
-.table th {
-  background-color: #e9ecef; /* Light gray header */
-  font-weight: bold;
-}
-
-.table tr:hover {
-  background-color: #f1f3f5; /* Slightly darker gray on hover */
+.actions {
+  display: flex;
+  gap: 0.5rem;
 }
 
 .actionButton {
-  margin-right: 10px;
-  padding: 5px 10px;
+  padding: 0.5rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
-  background-color: #007bff; /* Blue button */
-  color: #fff; /* White text */
-  transition: background-color 0.2s;
+  background: linear-gradient(135deg, #2c3e50 0%, #1a2634 100%);
+  color: #ffffff;
+  font-size: 1rem;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
 }
 
 .actionButton:hover {
-  background-color: #0056b3; /* Darker blue on hover */
+  background: linear-gradient(135deg, #1a2634 0%, #2c3e50 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(44, 62, 80, 0.3);
 }
 
 .deleteButton {
-  background-color: #dc3545; /* Red delete button */
+  background: #dc3545;
 }
 
 .deleteButton:hover {
-  background-color: #c82333; /* Darker red on hover */
+  background: #c82333;
+  box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
 }
 
-p {
+.noResults {
   text-align: center;
-  color: #666; /* Medium gray for "No customers found" */
+  color: #6b7280;
   font-size: 1.1rem;
+  padding: 2rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .container {
+    padding: 1rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
 }

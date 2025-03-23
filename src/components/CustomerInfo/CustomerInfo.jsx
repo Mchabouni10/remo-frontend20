@@ -1,18 +1,16 @@
-// src/components/CustomerInfo/CustomerInfo.jsx
 import React from 'react';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser, faEnvelope, faPhone, faMapMarkerAlt, faHome, faCreditCard, faCalendarAlt, faStickyNote } from '@fortawesome/free-solid-svg-icons';
 import styles from './CustomerInfo.module.css';
 
 export default function CustomerInfo({ customer, setCustomer, disabled = false }) {
   const today = new Date().toISOString().split('T')[0];
 
-  // Normalize ISO date strings to yyyy-MM-dd format
   const normalizeDate = (date) => {
     if (!date) return '';
-    // If date is already in yyyy-MM-dd format, return it as is
     if (/^\d{4}-\d{2}-\d{2}$/.test(date)) return date;
-    // Convert ISO string to yyyy-MM-dd
     return new Date(date).toISOString().split('T')[0];
   };
 
@@ -62,52 +60,60 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
       <div className={styles.form}>
         <div className={styles.field}>
           <label className={styles.label}>
-            First Name <span className={styles.required}>*</span>
+            <FontAwesomeIcon icon={faUser} className={styles.icon} /> First Name <span className={styles.required}>*</span>
           </label>
           <input
             type="text"
             value={customer.firstName || ''}
             onChange={(e) => handleNameChange('firstName', e.target.value)}
-            className={`${styles.input} ${!customer.firstName && styles.error}`}
+            className={`${styles.input} ${!customer.firstName && !disabled && styles.error}`}
             disabled={disabled}
+            placeholder="Enter first name"
           />
         </div>
         <div className={styles.field}>
           <label className={styles.label}>
-            Last Name <span className={styles.required}>*</span>
+            <FontAwesomeIcon icon={faUser} className={styles.icon} /> Last Name <span className={styles.required}>*</span>
           </label>
           <input
             type="text"
             value={customer.lastName || ''}
             onChange={(e) => handleNameChange('lastName', e.target.value)}
-            className={`${styles.input} ${!customer.lastName && styles.error}`}
+            className={`${styles.input} ${!customer.lastName && !disabled && styles.error}`}
             disabled={disabled}
+            placeholder="Enter last name"
           />
         </div>
         <div className={styles.field}>
           <label className={styles.label}>
-            Street Number and Name <span className={styles.required}>*</span>
+            <FontAwesomeIcon icon={faMapMarkerAlt} className={styles.icon} /> Street <span className={styles.required}>*</span>
           </label>
           <input
             type="text"
             value={customer.street || ''}
             onChange={(e) => setCustomer({ ...customer, street: e.target.value })}
-            className={`${styles.input} ${!customer.street && styles.error}`}
+            className={`${styles.input} ${!customer.street && !disabled && styles.error}`}
             disabled={disabled}
+            placeholder="Enter street address"
           />
         </div>
         <div className={styles.field}>
-          <label className={styles.label}>Unit (if any)</label>
+          <label className={styles.label}>
+            <FontAwesomeIcon icon={faHome} className={styles.icon} /> Unit
+          </label>
           <input
             type="text"
             value={customer.unit || ''}
             onChange={(e) => setCustomer({ ...customer, unit: e.target.value })}
             className={styles.input}
             disabled={disabled}
+            placeholder="Enter unit (if any)"
           />
         </div>
         <div className={styles.field}>
-          <label className={styles.label}>State</label>
+          <label className={styles.label}>
+            <FontAwesomeIcon icon={faMapMarkerAlt} className={styles.icon} /> State
+          </label>
           <select
             value={customer.state || 'IL'}
             onChange={(e) => setCustomer({ ...customer, state: e.target.value })}
@@ -121,21 +127,22 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
         </div>
         <div className={styles.field}>
           <label className={styles.label}>
-            ZIP Code <span className={styles.required}>*</span>
+            <FontAwesomeIcon icon={faMapMarkerAlt} className={styles.icon} /> ZIP Code <span className={styles.required}>*</span>
           </label>
           <input
             type="text"
             value={customer.zipCode || ''}
             onChange={(e) => handleZipChange(e.target.value)}
             onBlur={handleZipBlur}
-            className={`${styles.input} ${!customer.zipCode && styles.error}`}
+            className={`${styles.input} ${!customer.zipCode && !disabled && styles.error}`}
             maxLength="5"
             disabled={disabled}
+            placeholder="Enter 5-digit ZIP"
           />
         </div>
         <div className={styles.field}>
           <label className={styles.label}>
-            Phone Number <span className={styles.required}>*</span>
+            <FontAwesomeIcon icon={faPhone} className={styles.icon} /> Phone <span className={styles.required}>*</span>
           </label>
           <PhoneInput
             country={'us'}
@@ -144,35 +151,44 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
             countryCodeEditable={false}
             value={customer.phone || ''}
             onChange={(phone) => !disabled && setCustomer({ ...customer, phone })}
-            inputClass={`${styles.phoneInput} ${!customer.phone && styles.error}`}
+            inputClass={`${styles.phoneInput} ${!customer.phone && !disabled && styles.error}`}
             containerClass={styles.phoneContainer}
             disableCountryCode={false}
             specialLabel={''}
             disabled={disabled}
+            placeholder="Enter phone number"
           />
         </div>
         <div className={styles.field}>
-          <label className={styles.label}>Email</label>
+          <label className={styles.label}>
+            <FontAwesomeIcon icon={faEnvelope} className={styles.icon} /> Email
+          </label>
           <input
             type="email"
             value={customer.email || ''}
             onChange={(e) => setCustomer({ ...customer, email: e.target.value })}
-            className={`${styles.input} ${customer.email && !validateEmail(customer.email) && styles.error}`}
+            className={`${styles.input} ${customer.email && !validateEmail(customer.email) && !disabled && styles.error}`}
             disabled={disabled}
+            placeholder="Enter email address"
           />
         </div>
         <div className={styles.field}>
-          <label className={styles.label}>Project Name</label>
+          <label className={styles.label}>
+            <FontAwesomeIcon icon={faHome} className={styles.icon} /> Project Name
+          </label>
           <input
             type="text"
             value={customer.projectName || ''}
             onChange={(e) => setCustomer({ ...customer, projectName: e.target.value })}
             className={styles.input}
             disabled={disabled}
+            placeholder="Enter project name"
           />
         </div>
         <div className={styles.field}>
-          <label className={styles.label}>Customer Type</label>
+          <label className={styles.label}>
+            <FontAwesomeIcon icon={faHome} className={styles.icon} /> Customer Type
+          </label>
           <select
             value={customer.type || 'Residential'}
             onChange={(e) => setCustomer({ ...customer, type: e.target.value })}
@@ -184,7 +200,9 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
           </select>
         </div>
         <div className={styles.field}>
-          <label className={styles.label}>Payment Type</label>
+          <label className={styles.label}>
+            <FontAwesomeIcon icon={faCreditCard} className={styles.icon} /> Payment Type
+          </label>
           <select
             value={customer.paymentType || 'Cash'}
             onChange={(e) => setCustomer({ ...customer, paymentType: e.target.value })}
@@ -200,19 +218,21 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
         </div>
         <div className={styles.field}>
           <label className={styles.label}>
-            Estimated Start Date <span className={styles.required}>*</span>
+            <FontAwesomeIcon icon={faCalendarAlt} className={styles.icon} /> Start Date <span className={styles.required}>*</span>
           </label>
           <input
             type="date"
             value={normalizeDate(customer.startDate)}
             onChange={(e) => handleDateChange('startDate', e.target.value)}
             min={today}
-            className={`${styles.input} ${!customer.startDate && styles.error}`}
+            className={`${styles.input} ${!customer.startDate && !disabled && styles.error}`}
             disabled={disabled}
           />
         </div>
         <div className={styles.field}>
-          <label className={styles.label}>Estimated Finish Date</label>
+          <label className={styles.label}>
+            <FontAwesomeIcon icon={faCalendarAlt} className={styles.icon} /> Finish Date
+          </label>
           <input
             type="date"
             value={normalizeDate(customer.finishDate)}
@@ -223,13 +243,16 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
           />
         </div>
         <div className={styles.field}>
-          <label className={styles.label}>Notes</label>
+          <label className={styles.label}>
+            <FontAwesomeIcon icon={faStickyNote} className={styles.icon} /> Notes
+          </label>
           <textarea
             value={customer.notes || ''}
             onChange={(e) => setCustomer({ ...customer, notes: e.target.value })}
             className={styles.input}
             rows="3"
             disabled={disabled}
+            placeholder="Add any notes"
           />
         </div>
       </div>

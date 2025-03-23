@@ -1,22 +1,27 @@
 .customerInfo {
-  padding: 20px;
-  background-color: #fff; /* Matches HomePage sections */
-  border-radius: 5px;
-  max-height: 700px; /* Slightly taller but capped */
-  overflow-y: auto; /* Scroll if needed */
+  padding: 1.5rem;
+  background-color: #ffffff; /* White background */
+  border: 1px solid #e2e8f0; /* Light gray border */
+  border-radius: 8px;
+  max-height: 700px; /* Capped height with scroll */
+  overflow-y: auto;
+  box-shadow: 0 6px 24px rgba(44, 62, 80, 0.15); /* Consistent shadow */
 }
 
 .title {
-  font-size: 20px;
-  font-weight: bold;
-  margin-bottom: 15px;
-  color: #333;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #000000; /* Black text */
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 15px; /* More space between fields */
+  gap: 1rem; /* Consistent spacing */
 }
 
 .field {
@@ -25,32 +30,76 @@
 }
 
 .label {
-  font-size: 16px;
+  font-size: 0.9rem;
   font-weight: 600;
-  margin-bottom: 5px;
-  color: #333;
+  margin-bottom: 0.5rem;
+  color: #000000; /* Black text */
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.icon {
+  color: #6b7280; /* Gray for icons */
+  font-size: 1.1rem;
 }
 
 .required {
-  color: #ff4d4d; /* Red for emphasis */
+  color: #dc3545; /* Red for required fields */
 }
 
 .input,
 .phoneInput {
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 0.75rem 0.75rem 0.75rem 2.5rem; /* Space for icon */
+  font-size: 1rem;
+  border: 1px solid #d1d5db; /* Light gray border */
+  border-radius: 6px;
   width: 100%;
   box-sizing: border-box;
-  background-color: #fafafa; /* Subtle background */
+  background-color: #ffffff; /* White background */
+  color: #000000; /* Black text */
+  transition: all 0.3s ease;
+}
+
+.input:focus,
+.phoneInput:focus {
+  outline: none;
+  border-color: #2c3e50; /* Matches button gradient */
+  box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.2);
 }
 
 .input.error,
 .phoneInput.error {
-  border-color: #ff4d4d;
+  border-color: #dc3545; /* Red for errors */
 }
 
 .phoneContainer {
   width: 100%;
+}
+
+.input:disabled,
+.phoneInput:disabled {
+  background-color: #e9ecef; /* Light gray for disabled */
+  cursor: not-allowed;
+}
+
+textarea.input {
+  resize: vertical; /* Allow vertical resize only */
+  min-height: 80px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .customerInfo {
+    padding: 1rem;
+  }
+
+  .title {
+    font-size: 1.3rem;
+  }
+
+  .input,
+  .phoneInput {
+    font-size: 0.9rem;
+  }
 }
