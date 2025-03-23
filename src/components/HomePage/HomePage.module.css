@@ -1,33 +1,42 @@
+.mainContent {
+  background-color: #ffffff; /* White background */
+  min-height: calc(100vh - 60px); /* Adjust for Navbar height (60px) */
+  padding-top: 1rem; /* Minimal gap below Navbar */
+  margin: 0; /* No extra margins */
+}
+
 .container {
-  max-width: 1400px; /* Wider to accommodate all components */
+  max-width: 1440px; /* Wide, modern layout */
   margin: 0 auto;
-  padding: 20px;
-  background-color: #080710; /* Light background */
-  min-height: 100vh; /* Full height */
-  color: #333; /* Dark text */
+  padding: 1.5rem; /* Internal padding */
+  background-color: #ffffff; /* Reinforce white background */
+  color: #000000; /* Black text */
 }
 
 .title {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 20px;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
   text-align: center;
+  color: #000000;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr; /* Three equal columns */
-  gap: 20px; /* Space between components */
+  gap: 1.5rem; /* Consistent spacing */
 }
 
 .customerSection,
 .calculatorSection,
 .summarySection {
-  background-color: #fff; /* White background for contrast */
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  padding: 15px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+  background-color: #ffffff; /* White background */
+  border: 1px solid #e2e8f0; /* Light gray border */
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 6px 24px rgba(44, 62, 80, 0.15); /* Consistent shadow */
 }
 
 .customerSection {
@@ -45,51 +54,71 @@
 .buttonGroup {
   display: flex;
   justify-content: center;
-  gap: 15px;
-  margin-top: 20px;
+  gap: 1rem;
+  margin-top: 1.5rem;
 }
 
 .saveButton,
-.loadButton,
-.resetButton {
-  padding: 10px 20px;
+.resetButton,
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 5px;
-  color: #fff;
+  border-radius: 6px;
+  color: #ffffff; /* White text for contrast */
   cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.2s;
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
 }
 
 .saveButton {
-  background-color: #4caf50; /* Green */
+  background: linear-gradient(135deg, #2c3e50 0%, #1a2634 100%); /* Consistent gradient */
 }
 
 .saveButton:hover {
-  background-color: #45a049;
-}
-
-.loadButton {
-  background-color: #2196f3; /* Blue */
-}
-
-.loadButton:hover {
-  background-color: #1976d2;
+  background: linear-gradient(135deg, #1a2634 0%, #2c3e50 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(44, 62, 80, 0.3);
 }
 
 .resetButton {
-  background-color: #ff4d4d; /* Red */
+  background: #dc3545; /* Red for reset */
 }
 
 .resetButton:hover {
-  background-color: #e04343;
+  background: #c82333;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
 }
 
 .backButton {
-  background-color: #6c757d;
-  color: white;
+  background: #6c757d; /* Gray for back */
 }
 
 .backButton:hover {
-  background-color: #5a6268;
+  background: #5a6268;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+}
+
+.buttonIcon {
+  font-size: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: 1fr; /* Stack on smaller screens */
+    gap: 1rem;
+  }
+  
+  .customerSection,
+  .calculatorSection,
+  .summarySection {
+    grid-column: 1 / 2;
+  }
 }

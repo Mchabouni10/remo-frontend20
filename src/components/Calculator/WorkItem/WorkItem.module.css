@@ -1,10 +1,10 @@
 /* src/components/Calculator/WorkItem.module.css */
 .workCard {
   padding: 20px;
-  border: 2px solid #1845ad; /* Light gray border */
+  border: 2px solid #1845ad;
   border-radius: 8px;
   background-color: #fff;
-  margin-bottom: 20px; /* Added margin for spacing between work items */
+  margin-bottom: 20px;
 }
 
 .container {
@@ -18,13 +18,12 @@
   font-weight: 600;
   color: #2c3e50;
   margin-bottom: 10px;
-
 }
 
 .select,
 .input {
   width: 100%;
-  padding: 10px 12px; /* Consistent padding */
+  padding: 10px 12px;
   font-size: 0.95rem;
   border: 1px solid #d1d5db;
   border-radius: 6px;
@@ -54,17 +53,38 @@
   color: #4b5563;
 }
 
+/* Specific styling for price input/select */
+.priceInputContainer {
+  flex: 1; /* Still allows it to grow within reason */
+  min-width: 100px; /* Reduced from 200px to 100px */
+}
+
+/* Override default select/input for price specifically */
+.priceInputContainer .select,
+.priceInputContainer .input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 1rem;
+}
+
+/* Disabled state styling */
+.priceInputContainer .select:disabled,
+.priceInputContainer .input:disabled {
+  background-color: #f1f5f9;
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 .surfaces {
   margin-top: 15px;
   padding-left: 15px;
   display: flex;
   flex-direction: column;
   gap: 12px;
-    border: 2px solid red; 
 }
 
 .addSurfaceButton {
-  padding: 8px 16px; /* Consistent with other buttons */
+  padding: 8px 16px;
   background-color: #007bff;
   color: white;
   border: none;
@@ -72,7 +92,7 @@
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 500;
-  align-self: flex-start; /* Left-aligned, not oversized */
+  align-self: flex-start;
   transition: background-color 0.2s ease;
 }
 
@@ -94,12 +114,12 @@
 .workControls {
   display: flex;
   gap: 10px;
-  justify-content: flex-end; /* Right-aligned */
+  justify-content: flex-end;
   margin-top: 15px;
 }
 
 .removeButton {
-  padding: 8px 16px; /* Same size as Add Work */
+  padding: 8px 16px;
   background-color: #dc3545;
   color: white;
   border: none;
@@ -108,11 +128,11 @@
   font-size: 0.9rem;
   font-weight: 500;
   transition: background-color 0.2s ease;
-  align-self: flex-end; /* Right-aligned, not oversized */  
+  align-self: flex-end;
 }
 
 .removeButton:hover {
-  background-color: #c82333; /* Darker red */
+  background-color: #c82333;
 }
 
 .workItemRow {
@@ -148,7 +168,6 @@
   box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
 }
 
-/* Additional styles for better spacing and alignment */
 .workItemRow + .workItemRow {
   margin-top: 10px;
 }
@@ -161,7 +180,6 @@
   width: 100%;
 }
 
-/* Hover effects for buttons */
 button {
   transition: background-color 0.2s ease, transform 0.2s ease;
 }
@@ -172,4 +190,19 @@ button:hover {
 
 button:active {
   transform: scale(0.98);
+}
+
+.notesSection {
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+  align-items: center;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.9rem;
+  color: #4b5563;
 }

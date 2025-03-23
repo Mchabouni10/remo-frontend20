@@ -19,8 +19,8 @@ export default function AuthPage({ setUser }) {
     <main className={styles.AuthPage}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <h1 className={styles.title}>Welcome to NeoAuth</h1>
-          <p className={styles.subtitle}>Secure access to the future</p>
+          <h1 className={styles.title}>Rawdah Remodeling</h1>
+          <p className={styles.subtitle}>Professional Project Management</p>
         </div>
 
         <div className={styles.toggleContainer}>

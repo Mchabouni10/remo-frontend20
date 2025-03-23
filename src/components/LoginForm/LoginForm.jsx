@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { login } from '../../utilities/users-service';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 import styles from './LoginForm.module.css';
 
 export default function LoginForm({ setUser }) {
@@ -37,7 +39,7 @@ export default function LoginForm({ setUser }) {
         <h2 className={styles.title}>Access Portal</h2>
         
         <div className={styles.inputGroup}>
-          <label htmlFor="email">Email Interface</label>
+          <FontAwesomeIcon icon={faEnvelope} className={styles.inputIcon} />
           <input
             type="email"
             id="email"
@@ -51,7 +53,7 @@ export default function LoginForm({ setUser }) {
         </div>
 
         <div className={styles.inputGroup}>
-          <label htmlFor="password">Security Key</label>
+          <FontAwesomeIcon icon={faLock} className={styles.inputIcon} />
           <input
             type="password"
             id="password"
@@ -81,4 +83,3 @@ export default function LoginForm({ setUser }) {
     </div>
   );
 }
-

@@ -1,6 +1,7 @@
-// src/components/HomePage/HomePage.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSave, faUndo, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import CustomerInfo from '../CustomerInfo/CustomerInfo';
 import Calculator from '../Calculator/Calculator';
 import EstimateSummary from '../EstimateSummary/EstimateSummary';
@@ -33,23 +34,20 @@ export default function HomePage() {
     miscFees: [],
   });
   const [projectId, setProjectId] = useState(null);
-  const { id } = useParams(); // Get ID from URL
+  const { id } = useParams();
   const navigate = useNavigate();
-  const location = useLocation(); // Determine current route
+  const location = useLocation();
 
-  // Determine mode: 'new', 'edit', or 'details'
   const isDetailsMode = location.pathname.startsWith('/home/customer/') && id;
   const isEditMode = location.pathname.startsWith('/home/edit/') && id;
   const isNewMode = location.pathname === '/home/customer' && !id;
 
-  // Load project data for edit or details mode
   useEffect(() => {
     const loadProject = async () => {
       if (id && (isEditMode || isDetailsMode)) {
         try {
           const project = await getProject(id);
           setProjectId(project._id);
-          // Normalize dates to yyyy-MM-dd format
           const normalizedCustomer = {
             ...project.customerInfo,
             startDate: project.customerInfo.startDate
@@ -144,52 +142,57 @@ export default function HomePage() {
   };
 
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>
-        {isDetailsMode ? 'Project Details' : isEditMode ? 'Edit Project' : 'New Project'}
-      </h1>
-      <div className={styles.grid}>
-        <div className={styles.customerSection}>
-          <CustomerInfo 
-            customer={customer} 
-            setCustomer={setCustomer} 
-            disabled={isDetailsMode} // Disable inputs in details mode
-          />
+    <main className={styles.mainContent}>
+      <div className={styles.container}>
+        <h1 className={styles.title}>
+          {isDetailsMode ? 'Project Details' : isEditMode ? 'Edit Project' : 'New Project'}
+        </h1>
+        <div className={styles.grid}>
+          <div className={styles.customerSection}>
+            <CustomerInfo 
+              customer={customer} 
+              setCustomer={setCustomer} 
+              disabled={isDetailsMode}
+            />
+          </div>
+          <div className={styles.calculatorSection}>
+            <Calculator
+              categories={categories}
+              setCategories={setCategories}
+              settings={settings}
+              setSettings={setSettings}
+              disabled={isDetailsMode}
+            />
+          </div>
+          <div className={styles.summarySection}>
+            <EstimateSummary
+              customer={customer}
+              categories={categories}
+              settings={settings}
+            />
+          </div>
         </div>
-        <div className={styles.calculatorSection}>
-          <Calculator
-            categories={categories}
-            setCategories={setCategories}
-            settings={settings}
-            setSettings={setSettings}
-            disabled={isDetailsMode} // Disable calculator in details mode
-          />
-        </div>
-        <div className={styles.summarySection}>
-          <EstimateSummary
-            customer={customer}
-            categories={categories}
-            settings={settings}
-          />
-        </div>
+        {!isDetailsMode && (
+          <div className={styles.buttonGroup}>
+            <button onClick={saveOrUpdateProject} className={styles.saveButton}>
+              <FontAwesomeIcon icon={faSave} className={styles.buttonIcon} />
+              {isEditMode && projectId ? 'Update Project' : 'Save Project'}
+            </button>
+            <button onClick={resetAll} className={styles.resetButton}>
+              <FontAwesomeIcon icon={faUndo} className={styles.buttonIcon} />
+              Reset All
+            </button>
+          </div>
+        )}
+        {isDetailsMode && (
+          <div className={styles.buttonGroup}>
+            <button onClick={() => navigate('/home/customers')} className={styles.backButton}>
+              <FontAwesomeIcon icon={faArrowLeft} className={styles.buttonIcon} />
+              Back to Customers
+            </button>
+          </div>
+        )}
       </div>
-      {!isDetailsMode && (
-        <div className={styles.buttonGroup}>
-          <button onClick={saveOrUpdateProject} className={styles.saveButton}>
-            {isEditMode && projectId ? 'Update Project' : 'Save Project'}
-          </button>
-          <button onClick={resetAll} className={styles.resetButton}>
-            Reset All
-          </button>
-        </div>
-      )}
-      {isDetailsMode && (
-        <div className={styles.buttonGroup}>
-          <button onClick={() => navigate('/home/customers')} className={styles.backButton}>
-            Back to Customers
-          </button>
-        </div>
-      )}
-    </div>
+    </main>
   );
 }

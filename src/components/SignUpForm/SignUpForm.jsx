@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { signUp } from '../../utilities/users-service';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser, faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 import styles from './SignUpForm.module.css';
 
 export default function SignUpForm({ setUser }) {
@@ -41,7 +43,7 @@ export default function SignUpForm({ setUser }) {
         <h2 className={styles.title}>Create Profile</h2>
 
         <div className={styles.inputGroup}>
-          <label htmlFor="name">Identity Tag</label>
+          <FontAwesomeIcon icon={faUser} className={styles.inputIcon} />
           <input
             type="text"
             id="name"
@@ -50,11 +52,12 @@ export default function SignUpForm({ setUser }) {
             onChange={handleChange}
             placeholder="Enter your identifier"
             required
+            className={styles.input}
           />
         </div>
 
         <div className={styles.inputGroup}>
-          <label htmlFor="email">Email Interface</label>
+          <FontAwesomeIcon icon={faEnvelope} className={styles.inputIcon} />
           <input
             type="email"
             id="email"
@@ -63,11 +66,12 @@ export default function SignUpForm({ setUser }) {
             onChange={handleChange}
             placeholder="Enter your email"
             required
+            className={styles.input}
           />
         </div>
 
         <div className={styles.inputGroup}>
-          <label htmlFor="password">Security Key</label>
+          <FontAwesomeIcon icon={faLock} className={styles.inputIcon} />
           <input
             type="password"
             id="password"
@@ -76,11 +80,12 @@ export default function SignUpForm({ setUser }) {
             onChange={handleChange}
             placeholder="Create security key"
             required
+            className={styles.input}
           />
         </div>
 
         <div className={styles.inputGroup}>
-          <label htmlFor="confirm">Verify Key</label>
+          <FontAwesomeIcon icon={faLock} className={styles.inputIcon} />
           <input
             type="password"
             id="confirm"
@@ -89,6 +94,7 @@ export default function SignUpForm({ setUser }) {
             onChange={handleChange}
             placeholder="Confirm security key"
             required
+            className={styles.input}
           />
         </div>
 

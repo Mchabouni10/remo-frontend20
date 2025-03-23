@@ -14,8 +14,9 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--background-dark);
-  color: var(--text-light);
+  background-color: #ffffff; /* Explicitly white */
+  color: #000000; /* Black text for contrast */
+  margin: 0; /* Ensure no default margins */
 }
 
 /* CSS Variables */
@@ -24,11 +25,11 @@ body {
   --secondary: #23a2f6;
   --tertiary: #ff512f;
   --quaternary: #f09819;
-  --background-dark: #080710;
+  --background-dark: #080710; /* Kept for reference, not used */
   --background-light: rgba(255, 255, 255, 0.13);
   --border-color: rgba(255, 255, 255, 0.1);
   --shadow-color: rgba(8, 7, 16, 0.6);
-  --text-light: #ffffff;
+  --text-light: #ffffff; /* Used for Navbar text */
   --text-dark: #e5e5e5;
   --placeholder-color: #e5e5e5;
 }
