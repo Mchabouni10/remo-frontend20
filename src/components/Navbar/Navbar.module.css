@@ -87,20 +87,20 @@
   .navbar {
     padding: 0.75rem 1rem;
   }
-  
+
   .navLinks {
     gap: 1rem;
   }
-  
+
   .navLink {
     padding: 0.5rem 0.75rem;
     font-size: 0.9rem;
   }
-  
+
   .logo {
     font-size: 1.4rem;
   }
-  
+
   .logoSubtitle {
     font-size: 0.75rem;
   }

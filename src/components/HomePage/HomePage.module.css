@@ -1,124 +1,239 @@
+/* src/components/HomePage/HomePage.module.css */
 .mainContent {
-  background-color: #ffffff; /* White background */
-  min-height: calc(100vh - 60px); /* Adjust for Navbar height (60px) */
-  padding-top: 1rem; /* Minimal gap below Navbar */
-  margin: 0; /* No extra margins */
+  background-color: #f7f9fc;
+  min-height: calc(100vh - 60px);
+  padding: 2.5rem 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 .container {
-  max-width: 1440px; /* Wide, modern layout */
+  max-width: 1500px;
+  width: 100%;
   margin: 0 auto;
-  padding: 1.5rem; /* Internal padding */
-  background-color: #ffffff; /* Reinforce white background */
-  color: #000000; /* Black text */
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .title {
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  text-align: center;
-  color: #000000;
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: #2c3e50;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr; /* Three equal columns */
-  gap: 1.5rem; /* Consistent spacing */
-}
-
-.customerSection,
-.calculatorSection,
-.summarySection {
-  background-color: #ffffff; /* White background */
-  border: 1px solid #e2e8f0; /* Light gray border */
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 6px 24px rgba(44, 62, 80, 0.15); /* Consistent shadow */
+.content {
+  display: flex;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+  align-items: stretch;
 }
 
 .customerSection {
-  grid-column: 1 / 2; /* Left column */
+  flex: 1;
+  min-width: 400px; /* Wider minimum width */
+  max-width: 500px; /* Increased max-width for more space */
+  background-color: #fafafa;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 14px rgba(44, 62, 80, 0.08);
 }
 
 .calculatorSection {
-  grid-column: 2 / 3; /* Middle column */
-}
-
-.summarySection {
-  grid-column: 3 / 4; /* Right column */
+  flex: 2;
+  min-width: 300px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 14px rgba(44, 62, 80, 0.08);
+  max-height: 75vh;
+  overflow-y: auto;
 }
 
 .buttonGroup {
   display: flex;
   justify-content: center;
-  gap: 1rem;
-  margin-top: 1.5rem;
+  gap: 1.75rem;
+  margin-top: 2.5rem;
+  flex-wrap: wrap;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
 }
 
 .saveButton,
 .resetButton,
-.backButton {
+.backButton,
+.editButton {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
+  gap: 0.75rem;
+  padding: 0.9rem 2rem;
   border: none;
-  border-radius: 6px;
-  color: #ffffff; /* White text for contrast */
+  border-radius: 10px;
+  color: #ffffff;
   cursor: pointer;
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.1rem;
+  font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
   transition: all 0.3s ease;
 }
 
 .saveButton {
-  background: linear-gradient(135deg, #2c3e50 0%, #1a2634 100%); /* Consistent gradient */
+  background: linear-gradient(135deg, #2c3e50 0%, #1a2634 100%);
 }
 
-.saveButton:hover {
+.saveButton:hover:not(:disabled) {
   background: linear-gradient(135deg, #1a2634 0%, #2c3e50 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(44, 62, 80, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(44, 62, 80, 0.35);
+}
+
+.saveButton:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .resetButton {
-  background: #dc3545; /* Red for reset */
+  background: #e74c3c;
 }
 
-.resetButton:hover {
-  background: #c82333;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+.resetButton:hover:not(:disabled) {
+  background: #c0392b;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(231, 76, 60, 0.35);
+}
+
+.resetButton:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .backButton {
-  background: #6c757d; /* Gray for back */
+  background: #7f8c8d;
 }
 
-.backButton:hover {
-  background: #5a6268;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+.backButton:hover:not(:disabled) {
+  background: #6c757d;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(127, 140, 141, 0.35);
+}
+
+.backButton:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.editButton {
+  background: #00b894;
+}
+
+.editButton:hover {
+  background: #009975;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 184, 148, 0.35);
 }
 
 .buttonIcon {
-  font-size: 1rem;
+  font-size: 1.2rem;
 }
 
-/* Responsive adjustments */
-@media (max-width: 1024px) {
-  .grid {
-    grid-template-columns: 1fr; /* Stack on smaller screens */
-    gap: 1rem;
+.loadingText {
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: #7f8c8d;
+  text-align: center;
+  margin-top: 3rem;
+  animation: fade 1.5s infinite;
+}
+
+@keyframes fade {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+@media (max-width: 1200px) {
+  .content {
+    flex-direction: column;
+    gap: 2rem;
   }
-  
+
+  .customerSection {
+    max-width: 100%;
+  }
+
+  .calculatorSection {
+    max-height: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .mainContent {
+    padding: 1.5rem 1rem;
+  }
+
+  .container {
+    padding: 1.5rem;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+
   .customerSection,
-  .calculatorSection,
-  .summarySection {
-    grid-column: 1 / 2;
+  .calculatorSection {
+    padding: 1.25rem;
+  }
+
+  .buttonGroup {
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .saveButton,
+  .resetButton,
+  .backButton,
+  .editButton {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .customerSection,
+  .calculatorSection {
+    min-width: 100%;
+  }
+
+  .buttonIcon {
+    font-size: 1rem;
   }
 }

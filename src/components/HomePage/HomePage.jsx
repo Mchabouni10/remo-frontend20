@@ -1,10 +1,10 @@
+// src/components/HomePage/HomePage.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSave, faUndo, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faSave, faUndo, faArrowLeft, faEdit } from '@fortawesome/free-solid-svg-icons';
 import CustomerInfo from '../CustomerInfo/CustomerInfo';
 import Calculator from '../Calculator/Calculator';
-import EstimateSummary from '../EstimateSummary/EstimateSummary';
 import styles from './HomePage.module.css';
 import { saveProject, updateProject, getProject } from '../../services/projectService';
 
@@ -32,8 +32,11 @@ export default function HomePage() {
     transportationFee: 0,
     wasteFactor: 0,
     miscFees: [],
+    deposit: 0,
+    amountPaid: 0,
   });
   const [projectId, setProjectId] = useState(null);
+  const [loading, setLoading] = useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -45,17 +48,29 @@ export default function HomePage() {
   useEffect(() => {
     const loadProject = async () => {
       if (id && (isEditMode || isDetailsMode)) {
+        setLoading(true);
         try {
           const project = await getProject(id);
           setProjectId(project._id);
           const normalizedCustomer = {
-            ...project.customerInfo,
+            firstName: project.customerInfo.firstName || '',
+            lastName: project.customerInfo.lastName || '',
+            street: project.customerInfo.street || '',
+            unit: project.customerInfo.unit || '',
+            state: project.customerInfo.state || 'IL',
+            zipCode: project.customerInfo.zipCode || '',
+            phone: project.customerInfo.phone || '',
+            email: project.customerInfo.email || '',
+            projectName: project.customerInfo.projectName || '',
+            type: project.customerInfo.type || 'Residential',
+            paymentType: project.customerInfo.paymentType || 'Cash',
             startDate: project.customerInfo.startDate
               ? new Date(project.customerInfo.startDate).toISOString().split('T')[0]
               : '',
             finishDate: project.customerInfo.finishDate
               ? new Date(project.customerInfo.finishDate).toISOString().split('T')[0]
               : '',
+            notes: project.customerInfo.notes || '',
           };
           setCustomer(normalizedCustomer);
           setCategories(project.categories || []);
@@ -64,11 +79,15 @@ export default function HomePage() {
             transportationFee: 0,
             wasteFactor: 0,
             miscFees: [],
+            deposit: 0,
+            amountPaid: 0,
           });
         } catch (err) {
           console.error('Error loading project:', err);
           alert('Failed to load project.');
           navigate('/home/customers');
+        } finally {
+          setLoading(false);
         }
       }
     };
@@ -77,7 +96,7 @@ export default function HomePage() {
 
   const saveOrUpdateProject = async () => {
     const requiredFields = ['firstName', 'lastName', 'street', 'phone', 'startDate', 'zipCode'];
-    const missing = requiredFields.filter((field) => !customer[field]);
+    const missing = requiredFields.filter((field) => !customer[field]?.trim());
     if (missing.length > 0) {
       alert(`Please fill in all required fields: ${missing.join(', ')}`);
       return;
@@ -92,6 +111,7 @@ export default function HomePage() {
     }
 
     const projectData = { customerInfo: customer, categories, settings };
+    setLoading(true);
     try {
       if (isEditMode && projectId) {
         const updatedProject = await updateProject(projectId, projectData);
@@ -108,6 +128,8 @@ export default function HomePage() {
     } catch (err) {
       console.error('Error saving/updating project:', err);
       alert('Failed to save/update project.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -135,27 +157,53 @@ export default function HomePage() {
         transportationFee: 0,
         wasteFactor: 0,
         miscFees: [],
+        deposit: 0,
+        amountPaid: 0,
       });
       setProjectId(null);
       alert('All data reset.');
     }
   };
 
+  const handleEditClick = () => {
+    if (id) {
+      navigate(`/home/edit/${id}`);
+    }
+  };
+
+  if (loading) {
+    return (
+      <main className={styles.mainContent}>
+        <div className={styles.container}>
+          <p className={styles.loadingText}>Loading project data...</p>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className={styles.mainContent}>
       <div className={styles.container}>
-        <h1 className={styles.title}>
-          {isDetailsMode ? 'Project Details' : isEditMode ? 'Edit Project' : 'New Project'}
-        </h1>
-        <div className={styles.grid}>
-          <div className={styles.customerSection}>
-            <CustomerInfo 
-              customer={customer} 
-              setCustomer={setCustomer} 
+        <div className={styles.header}>
+          <h1 className={styles.title}>
+            {isDetailsMode ? 'Project Details' : isEditMode ? 'Edit Project' : 'New Project'}
+          </h1>
+          {isDetailsMode && (
+            <button onClick={handleEditClick} className={styles.editButton}>
+              <FontAwesomeIcon icon={faEdit} className={styles.buttonIcon} />
+              Edit Project
+            </button>
+          )}
+        </div>
+        <div className={styles.content}>
+          <section className={styles.customerSection}>
+            <CustomerInfo
+              customer={customer}
+              setCustomer={setCustomer}
               disabled={isDetailsMode}
             />
-          </div>
-          <div className={styles.calculatorSection}>
+          </section>
+          <section className={styles.calculatorSection}>
             <Calculator
               categories={categories}
               setCategories={setCategories}
@@ -163,35 +211,39 @@ export default function HomePage() {
               setSettings={setSettings}
               disabled={isDetailsMode}
             />
-          </div>
-          <div className={styles.summarySection}>
-            <EstimateSummary
-              customer={customer}
-              categories={categories}
-              settings={settings}
-            />
-          </div>
+          </section>
         </div>
-        {!isDetailsMode && (
-          <div className={styles.buttonGroup}>
-            <button onClick={saveOrUpdateProject} className={styles.saveButton}>
-              <FontAwesomeIcon icon={faSave} className={styles.buttonIcon} />
-              {isEditMode && projectId ? 'Update Project' : 'Save Project'}
-            </button>
-            <button onClick={resetAll} className={styles.resetButton}>
-              <FontAwesomeIcon icon={faUndo} className={styles.buttonIcon} />
-              Reset All
-            </button>
-          </div>
-        )}
-        {isDetailsMode && (
-          <div className={styles.buttonGroup}>
+        <div className={styles.buttonGroup}>
+          {isDetailsMode ? (
             <button onClick={() => navigate('/home/customers')} className={styles.backButton}>
               <FontAwesomeIcon icon={faArrowLeft} className={styles.buttonIcon} />
               Back to Customers
             </button>
-          </div>
-        )}
+          ) : (
+            <>
+              <button
+                onClick={saveOrUpdateProject}
+                className={styles.saveButton}
+                disabled={loading}
+              >
+                <FontAwesomeIcon icon={faSave} className={styles.buttonIcon} />
+                {loading ? 'Saving...' : isEditMode && projectId ? 'Update Project' : 'Save Project'}
+              </button>
+              <button onClick={resetAll} className={styles.resetButton} disabled={loading}>
+                <FontAwesomeIcon icon={faUndo} className={styles.buttonIcon} />
+                Reset All
+              </button>
+              <button
+                onClick={() => navigate('/home/customers')}
+                className={styles.backButton}
+                disabled={loading}
+              >
+                <FontAwesomeIcon icon={faArrowLeft} className={styles.buttonIcon} />
+                Back to Customers
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </main>
   );

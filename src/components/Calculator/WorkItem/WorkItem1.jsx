@@ -1,9 +1,7 @@
-// src/components/Calculator/WorkItem1.jsx
-// Handles the work item name, type, and subtype selection.
-// src/components/Calculator/WorkItem1.jsx
-// <span style={{ color: 'green' }}>Handles the work item name, type, and subtype selection.</span>
+// src/components/Calculator/WorkItem/WorkItem1.jsx
 import React from 'react';
 import styles from './WorkItem.module.css';
+import { SUBTYPE_OPTIONS } from '../calculatorFunctions';
 
 export default function WorkItem1({ workItem, updateWorkItem, disabled }) {
   return (
@@ -64,178 +62,11 @@ export default function WorkItem1({ workItem, updateWorkItem, disabled }) {
         disabled={!workItem.type || disabled}
       >
         <option value="">Select Subtype</option>
-        {workItem.type === 'kitchen-flooring' && (
-          <>
-            <option value="hardwood">Hardwood</option>
-            <option value="laminate">Laminate</option>
-            <option value="vinyl">Vinyl</option>
-            <option value="tile">Tile</option>
-          </>
-        )}
-        {workItem.type === 'kitchen-tiles' && (
-          <>
-            <option value="ceramic">Ceramic</option>
-            <option value="porcelain">Porcelain</option>
-            <option value="mosaic">Mosaic</option>
-          </>
-        )}
-        {workItem.type === 'kitchen-backsplash' && (
-          <>
-            <option value="subway">Subway</option>
-            <option value="glass">Glass</option>
-            <option value="stone">Stone</option>
-          </>
-        )}
-        {workItem.type === 'kitchen-cabinets' && (
-          <>
-            <option value="standard">Standard</option>
-            <option value="custom">Custom</option>
-          </>
-        )}
-        {workItem.type === 'kitchen-sink' && (
-          <>
-            <option value="stainless">Stainless Steel</option>
-            <option value="composite">Composite</option>
-          </>
-        )}
-        {workItem.type === 'kitchen-faucet' && (
-          <>
-            <option value="single-handle">Single Handle</option>
-            <option value="double-handle">Double Handle</option>
-          </>
-        )}
-        {workItem.type === 'kitchen-lighting' && (
-          <>
-            <option value="pendant">Pendant</option>
-            <option value="recessed">Recessed</option>
-          </>
-        )}
-        {workItem.type === 'bathroom-flooring' && (
-          <>
-            <option value="tile">Tile</option>
-            <option value="vinyl">Vinyl</option>
-          </>
-        )}
-        {workItem.type === 'bathroom-tiles' && (
-          <>
-            <option value="ceramic">Ceramic</option>
-            <option value="porcelain">Porcelain</option>
-          </>
-        )}
-        {workItem.type === 'bathroom-shower-tiles' && (
-          <>
-            <option value="porcelain">Porcelain</option>
-            <option value="glass">Glass</option>
-          </>
-        )}
-        {workItem.type === 'bathroom-vanity' && (
-          <>
-            <option value="single-sink">Single Sink</option>
-            <option value="double-sink">Double Sink</option>
-          </>
-        )}
-        {workItem.type === 'bathroom-faucet' && (
-          <>
-            <option value="single-handle">Single Handle</option>
-            <option value="widespread">Widespread</option>
-          </>
-        )}
-        {workItem.type === 'bathroom-shower-faucet' && (
-          <>
-            <option value="rain">Rain</option>
-            <option value="handheld">Handheld</option>
-          </>
-        )}
-        {workItem.type === 'bathroom-fan' && (
-          <>
-            <option value="standard">Standard</option>
-            <option value="quiet">Quiet</option>
-          </>
-        )}
-        {workItem.type === 'bathroom-towel-warmer' && (
-          <>
-            <option value="wall-mounted">Wall Mounted</option>
-            <option value="freestanding">Freestanding</option>
-          </>
-        )}
-        {workItem.type === 'living-room-flooring' && (
-          <>
-            <option value="hardwood">Hardwood</option>
-            <option value="carpet">Carpet</option>
-          </>
-        )}
-        {workItem.type === 'living-room-lighting' && (
-          <>
-            <option value="chandelier">Chandelier</option>
-            <option value="recessed">Recessed</option>
-          </>
-        )}
-        {workItem.type === 'bedroom-flooring' && (
-          <>
-            <option value="carpet">Carpet</option>
-            <option value="hardwood">Hardwood</option>
-          </>
-        )}
-        {workItem.type === 'bedroom-lighting' && (
-          <>
-            <option value="recessed">Recessed</option>
-            <option value="ceiling-fan">Ceiling Fan</option>
-          </>
-        )}
-        {workItem.type === 'exterior-deck' && (
-          <>
-            <option value="wood">Wood</option>
-            <option value="composite">Composite</option>
-          </>
-        )}
-        {workItem.type === 'general-drywall' && (
-          <>
-            <option value="standard">Standard</option>
-            <option value="moisture-resistant">Moisture Resistant</option>
-          </>
-        )}
-        {workItem.type === 'general-painting' && (
-          <>
-            <option value="interior">Interior</option>
-            <option value="exterior">Exterior</option>
-          </>
-        )}
-        {workItem.type === 'general-lighting' && (
-          <>
-            <option value="recessed">Recessed</option>
-            <option value="track">Track</option>
-          </>
-        )}
-        {workItem.type === 'general-doors' && (
-          <>
-            <option value="interior">Interior</option>
-            <option value="exterior">Exterior</option>
-          </>
-        )}
-        {workItem.type === 'general-windows' && (
-          <>
-            <option value="double-hung">Double Hung</option>
-            <option value="casement">Casement</option>
-          </>
-        )}
-        {workItem.type === 'general-trim' && (
-          <>
-            <option value="standard">Standard</option>
-            <option value="decorative">Decorative</option>
-          </>
-        )}
-        {workItem.type === 'general-crown-molding' && (
-          <>
-            <option value="simple">Simple</option>
-            <option value="ornate">Ornate</option>
-          </>
-        )}
-        {workItem.type === 'general-baseboards' && (
-          <>
-            <option value="standard">Standard</option>
-            <option value="tall">Tall</option>
-          </>
-        )}
+        {(SUBTYPE_OPTIONS[workItem.type] || []).map((option) => (
+          <option key={option} value={option}>
+            {option.charAt(0).toUpperCase() + option.slice(1)}
+          </option>
+        ))}
       </select>
     </div>
   );

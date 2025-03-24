@@ -1,15 +1,13 @@
-// src/components/Calculator/WorkItem3.jsx
-// Handles surface, linear feet, or unit inputs based on type.
-// src/components/Calculator/WorkItem3.jsx
-// <span style={{ color: 'green' }}>Handles surface, linear feet, or unit inputs based on type.</span>
+// src/components/Calculator/WorkItem/WorkItem3.jsx
 import React from 'react';
 import SurfaceInput from '../SurfaceInput';
 import styles from './WorkItem.module.css';
+import { WORK_TYPES } from '../calculatorFunctions';
 
-export default function WorkItem3({ workItem, updateWorkItem, addSurface, catIndex, workIndex, setCategories, isSurfaceBased, isLinearFtBased, isUnitBased, disabled }) {
+export default function WorkItem3({ workItem, updateWorkItem, addSurface, catIndex, workIndex, setCategories, disabled }) {
   return (
     <>
-      {isSurfaceBased && (
+      {WORK_TYPES.surfaceBased.includes(workItem.type) && (
         <div className={styles.surfaces}>
           {workItem.surfaces.map((surf, surfIndex) => (
             <SurfaceInput
@@ -30,7 +28,7 @@ export default function WorkItem3({ workItem, updateWorkItem, addSurface, catInd
           )}
         </div>
       )}
-      {isLinearFtBased && (
+      {WORK_TYPES.linearFtBased.includes(workItem.type) && (
         <input
           type="number"
           placeholder="Linear Feet"
@@ -41,7 +39,7 @@ export default function WorkItem3({ workItem, updateWorkItem, addSurface, catInd
           disabled={disabled}
         />
       )}
-      {isUnitBased && (
+      {WORK_TYPES.unitBased.includes(workItem.type) && (
         <input
           type="number"
           placeholder="Number of Units"

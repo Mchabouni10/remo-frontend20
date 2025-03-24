@@ -1,29 +1,30 @@
 /* src/components/Calculator/WorkItem.module.css */
 .workCard {
-  padding: 20px;
+  padding: 30px;
   border: 2px solid #1845ad;
   border-radius: 8px;
   background-color: #fff;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .container {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 25px;
 }
 
 .workName {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: 600;
   color: #2c3e50;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
 
 .select,
 .input {
   width: 100%;
-  padding: 10px 12px;
+  padding: 12px 16px;
   font-size: 0.95rem;
   border: 1px solid #d1d5db;
   border-radius: 6px;
@@ -35,39 +36,77 @@
 .select:focus,
 .input:focus {
   outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+  border-color: #2c3e50;
+  box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.2);
+}
+
+.surfaces {
+  margin-top: 25px;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.addSurfaceButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #2c3e50 0%, #1a2634 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  align-self: flex-start;
+  transition: all 0.3s ease;
+}
+
+.addSurfaceButton:hover {
+  background: linear-gradient(135deg, #1a2634 0%, #2c3e50 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(44, 62, 80, 0.3);
+}
+
+.pricingSection {
+  margin-top: 25px;
+  padding: 20px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .pricingField {
   display: flex;
   align-items: center;
-  gap: 15px;
-  margin-bottom: 5px;
+  gap: 25px;
+  margin-bottom: 15px;
 }
 
 .pricingField label {
-  min-width: 130px;
-  font-size: 0.8rem;
+  min-width: 150px;
+  font-size: 0.9rem;
   font-weight: 500;
   color: #4b5563;
 }
 
-/* Specific styling for price input/select */
 .priceInputContainer {
-  flex: 1; /* Still allows it to grow within reason */
-  min-width: 100px; /* Reduced from 200px to 100px */
+  flex: 1;
+  min-width: 180px;
 }
 
-/* Override default select/input for price specifically */
 .priceInputContainer .select,
 .priceInputContainer .input {
   width: 100%;
-  padding: 10px 12px;
+  padding: 12px 16px;
   font-size: 1rem;
 }
 
-/* Disabled state styling */
 .priceInputContainer .select:disabled,
 .priceInputContainer .input:disabled {
   background-color: #f1f5f9;
@@ -75,134 +114,42 @@
   cursor: not-allowed;
 }
 
-.surfaces {
-  margin-top: 15px;
-  padding-left: 15px;
+.notesSection {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  gap: 25px;
+  margin-top: 20px;
+  align-items: center;
 }
 
-.addSurfaceButton {
-  padding: 8px 16px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 500;
-  align-self: flex-start;
-  transition: background-color 0.2s ease;
-}
-
-.addSurfaceButton:hover {
-  background-color: #23a2f6;
-}
-
-.pricingSection {
-  margin-top: 15px;
-  padding: 15px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  background-color: #fff;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.workControls {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-  margin-top: 15px;
+.notesSection .input {
+  flex: 1;
+  min-width: 320px;
 }
 
 .removeButton {
-  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
   background-color: #dc3545;
   color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.9rem;
-  font-weight: 500;
-  transition: background-color 0.2s ease;
-  align-self: flex-end;
+  font-weight: 600;
+  transition: all 0.3s ease;
 }
 
 .removeButton:hover {
   background-color: #c82333;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
 }
 
-.workItemRow {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-
-.workItemRow label {
-  flex: 0 0 110px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #555;
-}
-
-.workItemRow input,
-.workItemRow select {
-  flex: 1;
-  padding: 8px 12px;
-  font-size: 0.95rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background-color: #fff;
-  color: #333;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.workItemRow input:focus,
-.workItemRow select:focus {
-  outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
-}
-
-.workItemRow + .workItemRow {
-  margin-top: 10px;
-}
-
-.workItemRow input[type="number"] {
-  width: 100%;
-}
-
-.workItemRow select {
-  width: 100%;
-}
-
-button {
-  transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-button:hover {
-  transform: scale(1.02);
-}
-
-button:active {
-  transform: scale(0.98);
-}
-
-.notesSection {
-  display: flex;
-  gap: 15px;
-  margin-top: 15px;
-  align-items: center;
-}
-
-.checkboxLabel {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.9rem;
-  color: #4b5563;
-}
+/* Background variations */
+.workBackground0 { background-color: #f9fafb; }
+.workBackground1 { background-color: #f1f5f9; }
+.workBackground2 { background-color: #e2e8f0; }
+.workBackground3 { background-color: #e5e7eb; }
+.workBackground4 { background-color: #d1d5db; }

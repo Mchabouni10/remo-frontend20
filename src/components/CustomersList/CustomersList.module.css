@@ -1,74 +1,35 @@
-/* Existing styles with modifications */
-
-/* Table styling for horizontal and vertical borders */
-.table {
-  width: 100%;
-  border-collapse: collapse; /* Keeps borders clean */
-  background-color: #ffffff;
-  border: 1px solid #e2e8f0; /* Light gray border around table */
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-/* Add borders to both th and td for vertical and horizontal lines */
-.table th,
-.table td {
-  padding: 1rem;
-  text-align: left;
-  color: #000000;
-  border: 1px solid #e2e8f0; /* Vertical and horizontal borders */
-}
-
-/* Header styling */
-.table th {
-  background-color: #f9fafb;
-  font-weight: 600;
-  text-transform: uppercase;
-  font-size: 0.9rem;
-  color: #374151;
-}
-
-/* Highlight Grand Total */
-.grandTotal {
-  font-weight: 700; /* Bold text */
-  color: #2c3e50; /* Darker color for emphasis (matches button gradient) */
-  background-color: #f0f4f8; /* Light background for highlighting */
-  text-align: right; /* Align numbers to the right for better readability */
-}
-
-/* Hover effect for rows */
-.table tr:hover {
-  background-color: #f3f4f6;
-}
-
-/* Rest of the existing styles remain unchanged */
+/* src/components/CustomersList/CustomersList.module.css */
 .mainContent {
-  background-color: #ffffff;
+  background-color: #f7f9fc;
   min-height: calc(100vh - 60px);
-  padding-top: 1rem;
-  margin: 0;
+  padding: 2.5rem 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 .container {
-  max-width: 1440px;
+  max-width: 1500px;
+  width: 100%;
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: 2rem;
   background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 6px 24px rgba(44, 62, 80, 0.15);
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
 }
 
 .title {
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: #2c3e50;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
   text-align: center;
-  color: #000000;
-  letter-spacing: 1px;
+  margin-bottom: 2rem;
 }
 
 .searchSection {
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
   display: flex;
   justify-content: center;
 }
@@ -76,54 +37,113 @@
 .searchWrapper {
   position: relative;
   width: 100%;
-  max-width: 400px;
+  max-width: 450px;
 }
 
 .searchIcon {
   position: absolute;
   top: 50%;
-  left: 1rem;
+  left: 1.25rem;
   transform: translateY(-50%);
-  color: #6b7280;
-  font-size: 1.1rem;
+  color: #7f8c8d;
+  font-size: 1.2rem;
 }
 
 .searchInput {
-  padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+  padding: 0.9rem 1rem 0.9rem 3rem;
   width: 100%;
   border: 1px solid #d1d5db;
-  border-radius: 6px;
+  border-radius: 10px;
   font-size: 1rem;
-  background-color: #ffffff;
-  color: #000000;
+  background-color: #fafafa;
+  color: #2c3e50;
   transition: all 0.3s ease;
 }
 
 .searchInput:focus {
   outline: none;
   border-color: #2c3e50;
-  box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.2);
+  box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.15);
 }
 
 .searchInput::placeholder {
-  color: #9ca3af;
+  color: #95a5a6;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #ffffff;
+}
+
+.table th,
+.table td {
+  padding: 1.25rem 1.5rem;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.95rem;
+  color: #2c3e50;
+}
+
+.table th {
+  background-color: #f0f4f8;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #374151;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.table tr:hover {
+  background-color: #f9fafb;
+}
+
+.currency {
+  text-align: right;
+}
+
+.grandTotal {
+  font-weight: 700;
+  color: #2c3e50;
+  text-align: right;
+}
+
+.remaining {
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+.overpaid {
+  color: #00b894;
+  font-style: italic;
+  margin-left: 0.5rem;
+  font-size: 0.85rem;
 }
 
 .actions {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  justify-content: flex-end;
 }
 
 .actionButton {
-  padding: 0.5rem;
+  padding: 0.6rem;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   background: linear-gradient(135deg, #2c3e50 0%, #1a2634 100%);
   color: #ffffff;
-  font-size: 1rem;
-  width: 36px;
-  height: 36px;
+  font-size: 1.1rem;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -133,37 +153,64 @@
 .actionButton:hover {
   background: linear-gradient(135deg, #1a2634 0%, #2c3e50 100%);
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(44, 62, 80, 0.3);
+  box-shadow: 0 6px 16px rgba(44, 62, 80, 0.3);
 }
 
 .deleteButton {
-  background: #dc3545;
+  background: #e74c3c;
 }
 
 .deleteButton:hover {
-  background: #c82333;
-  box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+  background: #c0392b;
+  box-shadow: 0 6px 16px rgba(231, 76, 60, 0.3);
 }
 
 .noResults {
   text-align: center;
-  color: #6b7280;
-  font-size: 1.1rem;
-  padding: 2rem;
+  color: #7f8c8d;
+  font-size: 1.2rem;
+  font-weight: 500;
+  padding: 3rem;
+  background-color: #fafafa;
+  border-radius: 12px;
+  margin-top: 1rem;
 }
 
-/* Responsive adjustments */
 @media (max-width: 1024px) {
-  .table {
-    display: block;
-    overflow-x: auto;
+  .tableWrapper {
+    margin: 0 -1rem;
   }
 
-  .container {
+  .table th,
+  .table td {
     padding: 1rem;
   }
 
+  .actions {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 768px) {
+  .mainContent {
+    padding: 1.5rem 1rem;
+  }
+
+  .container {
+    padding: 1.5rem;
+  }
+
   .title {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
+  }
+
+  .searchWrapper {
+    max-width: 100%;
+  }
+
+  .actionButton {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
   }
 }

@@ -1,160 +1,390 @@
-// src/components/EstimateSummary/EstimateSummary.jsx
-import React, { useRef, useState } from 'react';
+// src/components/Calculator/EstimateSummary/EstimateSummary.jsx
+import React, { useRef, useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPrint, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { useParams, useNavigate } from 'react-router-dom';
 import html2canvas from 'html2canvas';
 import printJS from 'print-js';
-import { calculateTotal, calculateWorkCost } from '../Calculator/calculatorFunctions';
+import { calculateTotal, calculateWorkCost, WORK_TYPES } from '../Calculator/calculatorFunctions';
+import { getProject } from '../../services/projectService';
 import styles from './EstimateSummary.module.css';
 
-export default function EstimateSummary({ customer, categories, settings }) {
+export default function EstimateSummary() {
   const componentRef = useRef(null);
   const [isPrinting, setIsPrinting] = useState(false);
+  const [customer, setCustomer] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [settings, setSettings] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const loadProject = async () => {
+      if (!id) {
+        navigate('/home/customers');
+        return;
+      }
+
+      try {
+        const project = await getProject(id);
+        console.log('Fetched project:', project); // Debugging
+        if (!project || !project.customerInfo) {
+          throw new Error('Project data is incomplete');
+        }
+
+        const normalizedCustomer = {
+          firstName: project.customerInfo.firstName || '',
+          lastName: project.customerInfo.lastName || '',
+          street: project.customerInfo.street || '',
+          unit: project.customerInfo.unit || '',
+          state: project.customerInfo.state || 'IL',
+          zipCode: project.customerInfo.zipCode || '',
+          phone: project.customerInfo.phone || '',
+          email: project.customerInfo.email || '',
+          projectName: project.customerInfo.projectName || '',
+          type: project.customerInfo.type || 'Residential',
+          paymentType: project.customerInfo.paymentType || 'Cash',
+          startDate: project.customerInfo.startDate
+            ? new Date(project.customerInfo.startDate).toISOString().split('T')[0]
+            : '',
+          finishDate: project.customerInfo.finishDate
+            ? new Date(project.customerInfo.finishDate).toISOString().split('T')[0]
+            : '',
+          notes: project.customerInfo.notes || '',
+        };
+        setCustomer(normalizedCustomer);
+        setCategories(project.categories || []);
+        setSettings(project.settings || {
+          taxRate: 0,
+          transportationFee: 0,
+          wasteFactor: 0,
+          miscFees: [],
+          deposit: 0,
+          amountPaid: 0,
+        });
+      } catch (err) {
+        console.error('Error loading project:', err);
+        alert('Failed to load project.');
+        navigate('/home/customers');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProject();
+  }, [id, navigate]);
 
   const handlePrintClick = async () => {
-    console.log('Print button clicked');
-    console.log('Current customer:', customer);
-    console.log('Current categories:', categories);
-    console.log('Current settings:', settings);
-
-    const hasCustomerInfo = customer.firstName || customer.lastName || customer.street;
+    const hasCustomerInfo = customer?.firstName || customer?.lastName || customer?.street;
     const hasCategories = categories.length > 0;
 
     if (!hasCustomerInfo && !hasCategories) {
       alert('Nothing to print. Please add customer info or work items first.');
-      console.warn('Print aborted: No customer info or categories');
       return;
     }
 
     if (!componentRef.current) {
-      console.error('handlePrintClick - Cannot print: componentRef is null');
       alert('Error: Unable to print at this time.');
       return;
     }
 
-    console.log('Proceeding with print...');
     setIsPrinting(true);
-
     try {
-      // Capture the content as an image with custom dimensions for one page (e.g., US Letter size: 8.5in x 11in)
       const canvas = await html2canvas(componentRef.current, {
-        scale: 1, // Adjust scale for clarity (1 is usually sufficient for print)
-        width: 816, // 8.5in * 96dpi (standard screen DPI)
-        height: 1056, // 11in * 96dpi
+        scale: 2,
+        width: 816,
+        height: 1056,
         scrollX: 0,
         scrollY: 0,
         useCORS: true,
       });
 
-      // Convert to data URL
       const image = canvas.toDataURL('image/png');
-
-      // Print using print-js with styling options
       printJS({
         printable: image,
         type: 'image',
-        documentTitle: `${customer.projectName || 'Estimate'} - ${new Date().toLocaleDateString()}`,
+        documentTitle: `${customer?.projectName || 'Estimate'} - ${new Date().toLocaleDateString()}`,
         style: `
           @media print {
-            img {
-              width: 100%;
-              height: auto;
-              page-break-inside: avoid;
-            }
-            @page {
-              size: letter;
-              margin: 0.5in;
-            }
+            img { width: 100%; height: auto; page-break-inside: avoid; }
+            @page { size: letter; margin: 0.5in; }
+            body { font-family: Arial, sans-serif; }
           }
         `,
-        onPrintDialogClose: () => {
-          console.log('Print dialog closed');
-          setIsPrinting(false);
-        },
+        onPrintDialogClose: () => setIsPrinting(false),
       });
     } catch (error) {
-      console.error('Print error:', error);
+      console.error('Error during printing:', error);
       alert('Error: Unable to print at this time.');
       setIsPrinting(false);
     }
   };
 
-  const {
-    materialCost,
-    laborCost,
-    wasteCost,
-    transportationFee: transportationFeeTotal,
-    tax,
-    total,
-  } = calculateTotal(categories, settings.taxRate, settings.transportationFee, settings.wasteFactor, settings.miscFees);
+  const totals = calculateTotal(
+    categories || [],
+    settings?.taxRate || 0,
+    settings?.transportationFee || 0,
+    settings?.wasteFactor || 0,
+    settings?.miscFees || [],
+    settings?.markup || 0
+  );
+
+  const { materialCost, laborCost, wasteCost, transportationFee, tax, markupCost, total } = totals;
+  const adjustedGrandTotal = Math.max(0, total - (settings?.deposit || 0));
+  const amountRemaining = Math.max(0, adjustedGrandTotal - (settings?.amountPaid || 0));
+
+  const getUnitLabel = (item) => {
+    if (WORK_TYPES.surfaceBased.includes(item.type)) return 'sqft';
+    if (WORK_TYPES.linearFtBased.includes(item.type)) return 'linear ft';
+    if (WORK_TYPES.unitBased.includes(item.type)) return 'units';
+    return '';
+  };
+
+  const getUnits = (item) => {
+    if (WORK_TYPES.surfaceBased.includes(item.type)) {
+      return (item.surfaces || []).reduce((sum, surf) => sum + (parseFloat(surf.sqft) || 0), 0);
+    }
+    if (WORK_TYPES.linearFtBased.includes(item.type)) return parseFloat(item.linearFt) || 0;
+    if (WORK_TYPES.unitBased.includes(item.type)) return parseFloat(item.units) || 0;
+    return 0;
+  };
+
+  if (loading) {
+    return (
+      <main className={styles.mainContent}>
+        <div className={styles.container}>
+          <h1 className={styles.title}>Estimate Summary</h1>
+          <p>Loading project data...</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (!customer || !settings) {
+    return (
+      <main className={styles.mainContent}>
+        <div className={styles.container}>
+          <h1 className={styles.title}>Estimate Summary</h1>
+          <p>No project data available.</p>
+          <div className={styles.buttonGroup}>
+            <button onClick={() => navigate('/home/customers')} className={styles.backButton}>
+              <FontAwesomeIcon icon={faArrowLeft} className={styles.buttonIcon} />
+              Back to Customers
+            </button>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
-    <div>
-      <div className={styles.summary} ref={componentRef}>
-        <div className={styles.header}>
-          <h3 className={styles.totalTitle}>Estimate Breakdown</h3>
-          <div className={styles.customerInfo}>
-            <p><strong>{customer.firstName} {customer.lastName}</strong></p>
-            <p>{customer.street}{customer.unit ? `, Unit ${customer.unit}` : ''}</p>
-            <p>{customer.state} {customer.zipCode}</p>
-            <p>Phone: +{customer.phone}</p>
-            {customer.email && <p>Email: {customer.email}</p>}
-            {customer.projectName && <p>Project: {customer.projectName}</p>}
-            <p>Type: {customer.type}</p>
-            <p>Payment: {customer.paymentType}</p>
-            <p>Start: {customer.startDate}</p>
-            <p>Finish: {customer.finishDate}</p>
-            {customer.notes && <p>Notes: {customer.notes}</p>}
+    <main className={styles.mainContent}>
+      <div className={styles.container}>
+        <h1 className={styles.title}>Estimate Summary</h1>
+        <div className={styles.summary} ref={componentRef}>
+          {/* Header */}
+          <div className={styles.header}>
+            <div className={styles.companyInfo}>
+              <h2 className={styles.companyName}>Your Company Name</h2>
+              <p>123 Business St, City, ST 12345 | (555) 123-4567 | info@yourcompany.com</p>
+            </div>
+            <h3 className={styles.totalTitle}>Estimate Breakdown</h3>
+            <div className={styles.customerInfo}>
+              <h4>Customer Information</h4>
+              <p>
+                <strong>
+                  {customer.firstName} {customer.lastName}
+                </strong>
+              </p>
+              <p>
+                {customer.street}
+                {customer.unit ? `, Unit ${customer.unit}` : ''}
+              </p>
+              <p>
+                {customer.state} {customer.zipCode}
+              </p>
+              <p>Phone: {customer.phone ? `+${customer.phone}` : 'N/A'}</p>
+              {customer.email && <p>Email: {customer.email}</p>}
+              {customer.projectName && <p>Project: {customer.projectName}</p>}
+              <p>Type: {customer.type || 'N/A'}</p>
+              <p>Payment: {customer.paymentType || 'N/A'}</p>
+              <p>Start Date: {customer.startDate || 'N/A'}</p>
+              <p>Finish Date: {customer.finishDate || 'N/A'}</p>
+              {customer.notes && <p>Notes: {customer.notes}</p>}
+            </div>
+          </div>
+
+          {/* Work Breakdown */}
+          {categories.length > 0 ? (
+            <div className={styles.breakdown}>
+              {categories.map((cat, catIndex) => (
+                <div key={catIndex} className={styles.categoryBreakdown}>
+                  <h4 className={styles.categoryName}>{cat.name || `Category ${catIndex + 1}`}</h4>
+                  <table className={styles.workTable}>
+                    <thead>
+                      <tr>
+                        <th>Work Item</th>
+                        <th>Units</th>
+                        <th>Material Cost</th>
+                        <th>Labor Cost</th>
+                        <th>Subtotal</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {cat.workItems.map((item, itemIndex) => {
+                        const units = getUnits(item);
+                        const unitLabel = getUnitLabel(item);
+                        const materialCost = (parseFloat(item.materialCost) || 0) * units;
+                        const laborCost = (parseFloat(item.laborCost) || 0) * units;
+                        const subtotal = calculateWorkCost(item);
+                        return (
+                          <tr key={itemIndex}>
+                            <td>
+                              {item.name || 'Unnamed Work'} {item.type && `(${item.type})`}
+                              {item.subtype && ` - ${item.subtype}`}
+                              {item.notes && <span className={styles.notes}> ({item.notes})</span>}
+                            </td>
+                            <td>
+                              {units.toFixed(2)} {unitLabel}
+                            </td>
+                            <td>
+                              {units} × ${(parseFloat(item.materialCost) || 0).toFixed(2)} = $
+                              {materialCost.toFixed(2)}
+                            </td>
+                            <td>
+                              {units} × ${(parseFloat(item.laborCost) || 0).toFixed(2)} = $
+                              {laborCost.toFixed(2)}
+                            </td>
+                            <td>${subtotal.toFixed(2)}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                  <p className={styles.categoryTotal}>
+                    Category Subtotal: $
+                    {(cat.workItems.reduce((sum, item) => sum + (calculateWorkCost(item) || 0), 0) || 0).toFixed(2)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className={styles.noItems}>No work items added yet.</p>
+          )}
+
+          {/* Grand Total */}
+          <div className={styles.grandTotal}>
+            <h4>Total Cost Breakdown</h4>
+            <table className={styles.totalTable}>
+              <tbody>
+                <tr>
+                  <td>Material Cost:</td>
+                  <td>${(materialCost || 0).toFixed(2)}</td>
+                </tr>
+                <tr>
+                  <td>Labor Cost:</td>
+                  <td>${(laborCost || 0).toFixed(2)}</td>
+                </tr>
+                <tr>
+                  <td>Waste Cost ({(settings.wasteFactor * 100 || 0).toFixed(2)}%):</td>
+                  <td>${(wasteCost || 0).toFixed(2)}</td>
+                </tr>
+                <tr>
+                  <td>Transportation Fee:</td>
+                  <td>${(transportationFee || 0).toFixed(2)}</td>
+                </tr>
+                <tr>
+                  <td>Tax ({(settings.taxRate * 100 || 0).toFixed(2)}%):</td>
+                  <td>${(tax || 0).toFixed(2)}</td>
+                </tr>
+                <tr>
+                  <td>Markup ({(settings.markup * 100 || 0).toFixed(2)}%):</td>
+                  <td>${(markupCost || 0).toFixed(2)}</td>
+                </tr>
+                {settings.miscFees?.length > 0 && (
+                  <tr>
+                    <td>Miscellaneous Fees:</td>
+                    <td>
+                      {settings.miscFees.map((fee, i) => (
+                        <div key={i} className={styles.miscFee}>
+                          {fee.name}: ${(parseFloat(fee.amount) || 0).toFixed(2)}
+                        </div>
+                      ))}
+                      <strong>
+                        Total: $
+                        {(settings.miscFees.reduce((sum, fee) => sum + (parseFloat(fee.amount) || 0), 0) || 0).toFixed(
+                          2
+                        )}
+                      </strong>
+                    </td>
+                  </tr>
+                )}
+                <tr className={styles.grandTotalRow}>
+                  <td>
+                    <strong>Grand Total (Before Deposit):</strong>
+                  </td>
+                  <td>
+                    <strong>${(total || 0).toFixed(2)}</strong>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            {/* Payment Tracking */}
+            <div className={styles.paymentTracking}>
+              <h4>Payment Details</h4>
+              <table className={styles.totalTable}>
+                <tbody>
+                  <tr>
+                    <td>Deposit/Down Payment:</td>
+                    <td>${(settings.deposit || 0).toFixed(2)}</td>
+                  </tr>
+                  <tr>
+                    <td>Adjusted Grand Total (After Deposit):</td>
+                    <td>${adjustedGrandTotal.toFixed(2)}</td>
+                  </tr>
+                  <tr>
+                    <td>Amount Paid:</td>
+                    <td>${(settings.amountPaid || 0).toFixed(2)}</td>
+                  </tr>
+                  <tr className={styles.remainingRow}>
+                    <td>
+                      <strong>Amount Remaining:</strong>
+                    </td>
+                    <td>
+                      <strong>${amountRemaining.toFixed(2)}</strong>
+                      {settings.amountPaid > adjustedGrandTotal && (
+                        <span className={styles.overpaid}>
+                          {' '}
+                          (Overpaid by ${(settings.amountPaid - adjustedGrandTotal).toFixed(2)})
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className={styles.footer}>
+            <p>Generated on: {new Date().toLocaleDateString()}</p>
+            <p>Thank you for choosing Your Company Name!</p>
           </div>
         </div>
-        {categories.length > 0 ? (
-          <div className={styles.breakdown}>
-            {categories.map((cat, index) => (
-              <div key={index} className={styles.categoryBreakdown}>
-                <h4 className={styles.categoryName}>{cat.name}</h4>
-                <table className={styles.workTable}>
-                  <thead>
-                    <tr>
-                      <th>Work Item</th>
-                      <th>Cost</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {cat.workItems.map((item, i) => (
-                      <tr key={i}>
-                        <td>{item.name || 'Unnamed Work'} {item.notes && `(${item.notes})`}</td>
-                        <td>${calculateWorkCost(item).toFixed(2)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <p className={styles.categoryTotal}>
-                  Subtotal: $
-                  {cat.workItems
-                    .reduce((sum, item) => sum + parseFloat(calculateWorkCost(item) || 0), 0)
-                    .toFixed(2)}
-                </p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className={styles.noItems}>No work items added yet.</p>
-        )}
-        <div className={styles.grandTotal}>
-          <table className={styles.totalTable}>
-            <tbody>
-              <tr><td>Material Cost:</td><td>${materialCost.toFixed(2)}</td></tr>
-              <tr><td>Labor Cost:</td><td>${laborCost.toFixed(2)}</td></tr>
-              <tr><td>Waste Cost:</td><td>${wasteCost.toFixed(2)}</td></tr>
-              <tr><td>Transportation Fee:</td><td>${transportationFeeTotal.toFixed(2)}</td></tr>
-              <tr><td>Tax:</td><td>${tax.toFixed(2)}</td></tr>
-              <tr><td>Miscellaneous Fees:</td><td>${settings.miscFees.reduce((sum, fee) => sum + (parseFloat(fee.amount) || 0), 0).toFixed(2)}</td></tr>
-              <tr><td><strong>Grand Total:</strong></td><td><strong>${total.toFixed(2)}</strong></td></tr>
-            </tbody>
-          </table>
+
+        {/* Buttons */}
+        <div className={styles.buttonGroup}>
+          <button onClick={handlePrintClick} className={styles.printButton} disabled={isPrinting}>
+            <FontAwesomeIcon icon={faPrint} className={styles.buttonIcon} />
+            {isPrinting ? 'Printing...' : 'Print Estimate'}
+          </button>
+          <button onClick={() => navigate('/home/customers')} className={styles.backButton}>
+            <FontAwesomeIcon icon={faArrowLeft} className={styles.buttonIcon} />
+            Back to Customers
+          </button>
         </div>
       </div>
-      <button onClick={handlePrintClick} className={styles.printButton} disabled={isPrinting}>
-        {isPrinting ? 'Printing...' : 'Print Estimate'}
-      </button>
-    </div>
+    </main>
   );
 }
