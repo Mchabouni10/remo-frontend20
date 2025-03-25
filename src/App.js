@@ -2,6 +2,7 @@
 import './App.css';
 import { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 import { getUser } from './utilities/users-service';
 import Navbar from './components/Navbar/Navbar';
 import AuthPage from './components/AuthPage/AuthPage';

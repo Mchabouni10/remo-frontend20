@@ -79,7 +79,6 @@ export function calculateTotal(categories = [], taxRate = 0, transportationFee =
 
   (categories || []).forEach((cat) => {
     (cat.workItems || []).forEach((item) => {
-      const workCost = calculateWorkCost(item);
       const units = WORK_TYPES.surfaceBased.includes(item.type)
         ? (item.surfaces || []).reduce((sum, surf) => sum + (parseFloat(surf.sqft) || 0), 0)
         : WORK_TYPES.linearFtBased.includes(item.type)
@@ -107,3 +106,5 @@ export function calculateTotal(categories = [], taxRate = 0, transportationFee =
     total: subtotal + wasteCost + transportationFeeTotal + tax + miscTotal + markupCost
   };
 }
+
+

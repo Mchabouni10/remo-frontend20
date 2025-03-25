@@ -1,66 +1,71 @@
-// src/components/Calculator/WorkItem/WorkItem.jsx
-import React, { useCallback } from 'react';
-import WorkItem1 from './WorkItem1';
-import WorkItem3 from './WorkItem3';
-import WorkItem4 from './WorkItem4';
+import React, { useCallback, useState } from 'react';
+import SurfaceInput from '../SurfaceInput/SurfaceInput';
+import { WORK_TYPES, SUBTYPE_OPTIONS, DEFAULT_SUBTYPES } from '../calculatorFunctions';
 import styles from './WorkItem.module.css';
-import { WORK_TYPES, DEFAULT_SUBTYPES } from '../calculatorFunctions';
 
-export default function WorkItem({ 
-  catIndex, 
-  workIndex, 
-  workItem, 
-  setCategories, 
-  disabled = false 
+export default function WorkItem({
+  catIndex,
+  workIndex,
+  workItem,
+  setCategories,
+  disabled = false,
 }) {
-  const updateWorkItem = useCallback((field, value) => {
-    if (disabled) return;
-    setCategories(prev => {
-      const newCategories = [...prev];
-      const category = { ...newCategories[catIndex] };
-      const workItems = [...category.workItems];
-      const item = { ...workItems[workIndex] };
+  const [materialManual, setMaterialManual] = useState(false);
+  const [laborManual, setLaborManual] = useState(false);
 
-      if (['materialCost', 'laborCost', 'linearFt', 'units'].includes(field)) {
-        item[field] = value === '' ? '' : Math.max(0, parseFloat(value) || 0);
-      } else if (field === 'type') {
-        item[field] = value;
-        item.subtype = DEFAULT_SUBTYPES[value] || ''; // Use centralized default subtype
-        item.surfaces = WORK_TYPES.surfaceBased.includes(value) 
-          ? (item.surfaces?.length > 0 ? item.surfaces : [{ width: '10', height: '10', sqft: 100, manualSqft: false }]) 
-          : [];
-        item.linearFt = WORK_TYPES.linearFtBased.includes(value) ? (item.linearFt || '10') : '';
-        item.units = WORK_TYPES.unitBased.includes(value) ? (item.units || '1') : '';
-        item.materialCost = item.materialCost ?? '0.00';
-        item.laborCost = item.laborCost ?? '0.00';
-      } else {
-        item[field] = value;
-      }
+  const updateWorkItem = useCallback(
+    (field, value) => {
+      if (disabled) return;
+      setCategories((prev) => {
+        const newCategories = [...prev];
+        const category = { ...newCategories[catIndex] };
+        const workItems = [...category.workItems];
+        const item = { ...workItems[workIndex] };
 
-      workItems[workIndex] = item;
-      category.workItems = workItems;
-      newCategories[catIndex] = category;
-      return newCategories;
-    });
-  }, [disabled, catIndex, workIndex, setCategories]);
+        if (['materialCost', 'laborCost', 'linearFt', 'units'].includes(field)) {
+          item[field] = value === '' ? '' : Math.max(0, parseFloat(value) || 0);
+        } else if (field === 'type') {
+          item[field] = value;
+          item.subtype = DEFAULT_SUBTYPES[value] || '';
+          item.surfaces = WORK_TYPES.surfaceBased.includes(value)
+            ? item.surfaces?.length > 0
+              ? item.surfaces
+              : [{ width: '10', height: '10', sqft: 100, manualSqft: false }]
+            : [];
+          item.linearFt = WORK_TYPES.linearFtBased.includes(value) ? item.linearFt || '10' : '';
+          item.units = WORK_TYPES.unitBased.includes(value) ? item.units || '1' : '';
+          item.materialCost = item.materialCost ?? '0.00';
+          item.laborCost = item.laborCost ?? '0.00';
+        } else {
+          item[field] = value;
+        }
+
+        workItems[workIndex] = item;
+        category.workItems = workItems;
+        newCategories[catIndex] = category;
+        return newCategories;
+      });
+    },
+    [disabled, catIndex, workIndex, setCategories]
+  );
 
   const removeWorkItem = useCallback(() => {
     if (disabled) return;
-    setCategories(prev => prev.map((cat, i) => 
-      i === catIndex 
-        ? { ...cat, workItems: cat.workItems.filter((_, j) => j !== workIndex) }
-        : cat
-    ));
+    setCategories((prev) =>
+      prev.map((cat, i) =>
+        i === catIndex ? { ...cat, workItems: cat.workItems.filter((_, j) => j !== workIndex) } : cat
+      )
+    );
   }, [disabled, catIndex, workIndex, setCategories]);
 
   const addSurface = useCallback(() => {
     if (disabled) return;
-    setCategories(prev => {
+    setCategories((prev) => {
       const newCategories = [...prev];
       const category = { ...newCategories[catIndex] };
       const workItems = [...category.workItems];
       const item = { ...workItems[workIndex] };
-      
+
       item.surfaces = [...(item.surfaces || []), { width: '10', height: '10', sqft: 100, manualSqft: false }];
       workItems[workIndex] = item;
       category.workItems = workItems;
@@ -69,26 +74,246 @@ export default function WorkItem({
     });
   }, [disabled, catIndex, workIndex, setCategories]);
 
-  const workItemClass = `${styles.workCard} ${styles[`workBackground${workIndex % 5}`]}`;
+  const isSurfaceBased = WORK_TYPES.surfaceBased.includes(workItem.type);
+  const isLinearFtBased = WORK_TYPES.linearFtBased.includes(workItem.type);
+  const isUnitBased = WORK_TYPES.unitBased.includes(workItem.type);
+  const materialCost = parseFloat(workItem.materialCost) || 0;
+  const laborCost = parseFloat(workItem.laborCost) || 0;
+  const costOptions = Array.from({ length: 20 }, (_, i) => (i + 1).toString()).concat('Manual');
+
+  const materialLabel = isSurfaceBased
+    ? 'Material Cost per Sqft ($)'
+    : isLinearFtBased
+    ? 'Material Cost per Linear Ft ($)'
+    : 'Material Cost per Unit ($)';
+  const laborLabel = isSurfaceBased
+    ? 'Labor Cost per Sqft ($)'
+    : isLinearFtBased
+    ? 'Labor Cost per Linear Ft ($)'
+    : 'Labor Cost per Unit ($)';
+
+  const handleMaterialChange = (value) => {
+    if (value === 'Manual') {
+      setMaterialManual(true);
+      updateWorkItem('materialCost', '0');
+    } else {
+      setMaterialManual(false);
+      updateWorkItem('materialCost', value);
+    }
+  };
+
+  const handleLaborChange = (value) => {
+    if (value === 'Manual') {
+      setLaborManual(true);
+      updateWorkItem('laborCost', '0');
+    } else {
+      setLaborManual(false);
+      updateWorkItem('laborCost', value);
+    }
+  };
 
   return (
-    <div className={workItemClass}>
-      <WorkItem1 workItem={workItem} updateWorkItem={updateWorkItem} disabled={disabled} />
-      <WorkItem3
-        workItem={workItem}
-        updateWorkItem={updateWorkItem}
-        addSurface={addSurface}
-        catIndex={catIndex}
-        workIndex={workIndex}
-        setCategories={setCategories}
-        disabled={disabled}
-      />
-      <WorkItem4
-        workItem={workItem}
-        updateWorkItem={updateWorkItem}
-        removeWorkItem={removeWorkItem}
-        disabled={disabled}
-      />
+    <div className={styles.workCard}>
+      <div className={styles.workItemRow}>
+        <div className={styles.inputWrapper}>
+          <i className={`fas fa-tools ${styles.inputIcon}`}></i>
+          <input
+            type="text"
+            value={workItem.name || ''}
+            onChange={(e) => updateWorkItem('name', e.target.value)}
+            placeholder="Work Item Name"
+            className={styles.input}
+            disabled={disabled}
+          />
+        </div>
+        <div className={styles.inputWrapper}>
+          <i className={`fas fa-list-alt ${styles.inputIcon}`}></i>
+          <select
+            value={workItem.type || ''}
+            onChange={(e) => updateWorkItem('type', e.target.value)}
+            className={styles.select}
+            disabled={disabled}
+          >
+            <option value="">Select Type</option>
+            {Object.entries(WORK_TYPES).flatMap(([category, types]) =>
+              types.map((type) => (
+                <option key={type} value={type}>
+                  {type.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+                </option>
+              ))
+            )}
+          </select>
+        </div>
+      </div>
+
+      {isSurfaceBased && (
+        <div className={styles.workItemRow}>
+          <label>
+            <i className="fas fa-layer-group"></i> Subtype:
+          </label>
+          <select
+            value={workItem.subtype || ''}
+            onChange={(e) => updateWorkItem('subtype', e.target.value)}
+            className={styles.select}
+            disabled={disabled}
+          >
+            <option value="">Select Subtype</option>
+            {(SUBTYPE_OPTIONS[workItem.type] || []).map((option) => (
+              <option key={option} value={option}>
+                {option.charAt(0).toUpperCase() + option.slice(1)}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {isSurfaceBased && (
+        <div className={styles.surfaces}>
+          {workItem.surfaces.map((surf, surfIndex) => (
+            <SurfaceInput
+              key={surfIndex}
+              catIndex={catIndex}
+              workIndex={workIndex}
+              surfIndex={surfIndex}
+              surface={surf}
+              setCategories={setCategories}
+              showRemove={workItem.surfaces.length > 1 && !disabled}
+              disabled={disabled}
+            />
+          ))}
+          {!disabled && (
+            <button
+              onClick={addSurface}
+              className={styles.addSurfaceButton}
+              title="Add Surface"
+            >
+              <i className="fas fa-plus"></i> Add Surface
+            </button>
+          )}
+        </div>
+      )}
+      {isLinearFtBased && (
+        <div className={styles.workItemRow}>
+          <label>
+            <i className="fas fa-ruler-horizontal"></i> Linear Feet:
+          </label>
+          <input
+            type="number"
+            value={workItem.linearFt || ''}
+            onChange={(e) => updateWorkItem('linearFt', e.target.value)}
+            className={styles.input}
+            min="0"
+            disabled={disabled}
+          />
+        </div>
+      )}
+      {isUnitBased && (
+        <div className={styles.workItemRow}>
+          <label>
+            <i className="fas fa-boxes"></i> Units:
+          </label>
+          <input
+            type="number"
+            value={workItem.units || ''}
+            onChange={(e) => updateWorkItem('units', e.target.value)}
+            className={styles.input}
+            min="0"
+            disabled={disabled}
+          />
+        </div>
+      )}
+
+      <div className={styles.pricingSection}>
+        <div className={styles.pricingField}>
+          <label>
+            <i className="fas fa-dollar-sign"></i> {materialLabel}:
+          </label>
+          {!materialManual ? (
+            <select
+              value={
+                isNaN(materialCost) || materialCost > 20 || materialCost < 1
+                  ? 'Manual'
+                  : materialCost.toString()
+              }
+              onChange={(e) => handleMaterialChange(e.target.value)}
+              className={styles.select}
+              disabled={disabled}
+            >
+              {costOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option === 'Manual' ? 'Manual' : `$${option}`}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              type="number"
+              value={materialCost}
+              onChange={(e) => updateWorkItem('materialCost', e.target.value)}
+              className={styles.input}
+              min="0"
+              step="0.01"
+              disabled={disabled}
+            />
+          )}
+        </div>
+        <div className={styles.pricingField}>
+          <label>
+            <i className="fas fa-user-clock"></i> {laborLabel}:
+          </label>
+          {!laborManual ? (
+            <select
+              value={
+                isNaN(laborCost) || laborCost > 20 || laborCost < 1
+                  ? 'Manual'
+                  : laborCost.toString()
+              }
+              onChange={(e) => handleLaborChange(e.target.value)}
+              className={styles.select}
+              disabled={disabled}
+            >
+              {costOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option === 'Manual' ? 'Manual' : `$${option}`}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              type="number"
+              value={laborCost}
+              onChange={(e) => updateWorkItem('laborCost', e.target.value)}
+              className={styles.input}
+              min="0"
+              step="0.01"
+              disabled={disabled}
+            />
+          )}
+        </div>
+      </div>
+
+      <div className={styles.notesSection}>
+        <div className={styles.inputWrapper}>
+          <i className={`fas fa-sticky-note ${styles.inputIcon}`}></i>
+          <input
+            type="text"
+            placeholder="Work Notes"
+            value={workItem.notes || ''}
+            onChange={(e) => updateWorkItem('notes', e.target.value)}
+            className={styles.input}
+            disabled={disabled}
+          />
+        </div>
+        {!disabled && (
+          <button
+            onClick={removeWorkItem}
+            className={styles.removeButton}
+            title="Remove Work Item"
+          >
+            <i className="fas fa-trash-alt"></i> Remove
+          </button>
+        )}
+      </div>
     </div>
   );
 }

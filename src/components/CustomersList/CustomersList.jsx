@@ -1,4 +1,3 @@
-// src/components/CustomersList/CustomersList.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -117,7 +116,7 @@ export default function CustomersList() {
 
                   return (
                     <tr key={project._id}>
-                      <td>{project.customerInfo.firstName || 'N/A'}</td>
+                      <td className={styles.firstName}>{project.customerInfo.firstName || 'N/A'}</td>
                       <td>{project.customerInfo.lastName || 'N/A'}</td>
                       <td>{project.customerInfo.projectName || 'Unnamed Project'}</td>
                       <td>{project.customerInfo.phone || 'N/A'}</td>
@@ -152,7 +151,7 @@ export default function CustomersList() {
                         </button>
                         <button
                           onClick={() => handleEdit(project._id)}
-                          className={styles.actionButton}
+                          className={`${styles.actionButton} ${styles.editButton}`}
                           title="Edit"
                         >
                           <FontAwesomeIcon icon={faEdit} />

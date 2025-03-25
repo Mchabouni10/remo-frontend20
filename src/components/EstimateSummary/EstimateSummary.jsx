@@ -28,7 +28,7 @@ export default function EstimateSummary() {
 
       try {
         const project = await getProject(id);
-        console.log('Fetched project:', project); // Debugging
+        console.log('Fetched project:', project);
         if (!project || !project.customerInfo) {
           throw new Error('Project data is incomplete');
         }
@@ -62,6 +62,7 @@ export default function EstimateSummary() {
           miscFees: [],
           deposit: 0,
           amountPaid: 0,
+          markup: 0,  // Added
         });
       } catch (err) {
         console.error('Error loading project:', err);
@@ -182,11 +183,10 @@ export default function EstimateSummary() {
       <div className={styles.container}>
         <h1 className={styles.title}>Estimate Summary</h1>
         <div className={styles.summary} ref={componentRef}>
-          {/* Header */}
           <div className={styles.header}>
             <div className={styles.companyInfo}>
-              <h2 className={styles.companyName}>Your Company Name</h2>
-              <p>123 Business St, City, ST 12345 | (555) 123-4567 | info@yourcompany.com</p>
+              <h2 className={styles.companyName}>RAWDAH REMODELING COMPANY</h2>
+              <p>Lake in the hills, IL | (224) 817-3264 | rawdahremodeling@gmail.com</p>
             </div>
             <h3 className={styles.totalTitle}>Estimate Breakdown</h3>
             <div className={styles.customerInfo}>
@@ -214,7 +214,6 @@ export default function EstimateSummary() {
             </div>
           </div>
 
-          {/* Work Breakdown */}
           {categories.length > 0 ? (
             <div className={styles.breakdown}>
               {categories.map((cat, catIndex) => (
@@ -272,7 +271,6 @@ export default function EstimateSummary() {
             <p className={styles.noItems}>No work items added yet.</p>
           )}
 
-          {/* Grand Total */}
           <div className={styles.grandTotal}>
             <h4>Total Cost Breakdown</h4>
             <table className={styles.totalTable}>
@@ -312,9 +310,7 @@ export default function EstimateSummary() {
                       ))}
                       <strong>
                         Total: $
-                        {(settings.miscFees.reduce((sum, fee) => sum + (parseFloat(fee.amount) || 0), 0) || 0).toFixed(
-                          2
-                        )}
+                        {(settings.miscFees.reduce((sum, fee) => sum + (parseFloat(fee.amount) || 0), 0) || 0).toFixed(2)}
                       </strong>
                     </td>
                   </tr>
@@ -330,7 +326,6 @@ export default function EstimateSummary() {
               </tbody>
             </table>
 
-            {/* Payment Tracking */}
             <div className={styles.paymentTracking}>
               <h4>Payment Details</h4>
               <table className={styles.totalTable}>
@@ -366,14 +361,12 @@ export default function EstimateSummary() {
             </div>
           </div>
 
-          {/* Footer */}
           <div className={styles.footer}>
             <p>Generated on: {new Date().toLocaleDateString()}</p>
-            <p>Thank you for choosing Your Company Name!</p>
+            <p>Thank you for choosing Your Rawdah Remodeling</p>
           </div>
         </div>
 
-        {/* Buttons */}
         <div className={styles.buttonGroup}>
           <button onClick={handlePrintClick} className={styles.printButton} disabled={isPrinting}>
             <FontAwesomeIcon icon={faPrint} className={styles.buttonIcon} />

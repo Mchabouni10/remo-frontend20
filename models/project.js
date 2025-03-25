@@ -16,7 +16,7 @@ const workItemSchema = new Schema({
   surfaces: [surfaceSchema],
   linearFt: { type: String, default: '' },
   units: { type: String, default: '' },
-  basePrice: { type: String, default: '0.00' }, // Stored as string to match UI
+  basePrice: { type: String, default: '0.00' },
   materialCost: { type: Number },
   laborCost: { type: Number },
   notes: { type: String, default: '' },
@@ -58,6 +58,9 @@ const settingsSchema = new Schema({
   transportationFee: { type: Number, default: 0 },
   wasteFactor: { type: Number, default: 0 },
   miscFees: [miscFeeSchema],
+  deposit: { type: Number, default: 0 },      // Added
+  amountPaid: { type: Number, default: 0 },  // Added
+  markup: { type: Number, default: 0 },      // Added
 });
 
 const projectSchema = new Schema({

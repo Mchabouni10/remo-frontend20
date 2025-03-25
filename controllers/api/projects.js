@@ -9,18 +9,20 @@ module.exports = {
   delete: deleteProject,
 };
 
-// Create a new project
 async function create(req, res) {
   try {
     const projectData = {
       userId: req.user._id,
       customerInfo: req.body.customerInfo,
       categories: req.body.categories || [],
-      settings: req.body.settings || {
-        taxRate: 0,
-        transportationFee: 0,
-        wasteFactor: 0,
-        miscFees: [],
+      settings: {
+        taxRate: req.body.settings?.taxRate || 0,
+        transportationFee: req.body.settings?.transportationFee || 0,
+        wasteFactor: req.body.settings?.wasteFactor || 0,
+        miscFees: req.body.settings?.miscFees || [],
+        deposit: req.body.settings?.deposit || 0,
+        amountPaid: req.body.settings?.amountPaid || 0,
+        markup: req.body.settings?.markup || 0,  // Added
       },
     };
     const project = new Project(projectData);
@@ -31,7 +33,6 @@ async function create(req, res) {
   }
 }
 
-// List all projects for the authenticated user
 async function index(req, res) {
   try {
     const projects = await Project.find({ userId: req.user._id }).sort('-createdAt');
@@ -41,7 +42,6 @@ async function index(req, res) {
   }
 }
 
-// Get project details
 async function show(req, res) {
   try {
     const project = await Project.findOne({ _id: req.params.id, userId: req.user._id });
@@ -52,7 +52,6 @@ async function show(req, res) {
   }
 }
 
-// Update a project
 async function update(req, res) {
   try {
     const updatedData = {
@@ -73,7 +72,6 @@ async function update(req, res) {
   }
 }
 
-// Delete a project
 async function deleteProject(req, res) {
   try {
     const project = await Project.findOneAndDelete({ _id: req.params.id, userId: req.user._id });

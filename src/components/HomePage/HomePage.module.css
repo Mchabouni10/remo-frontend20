@@ -1,18 +1,18 @@
-/* src/components/HomePage/HomePage.module.css */
 .mainContent {
   background-color: #f7f9fc;
   min-height: calc(100vh - 60px);
-  padding: 2.5rem 1.5rem;
+  padding: 0.5rem 1rem;
   display: flex;
   justify-content: center;
   align-items: flex-start;
+  overflow-y: auto;
 }
 
 .container {
   max-width: 1500px;
   width: 100%;
   margin: 0 auto;
-  padding: 2rem;
+  padding: .5rem;
   background-color: #ffffff;
   border-radius: 16px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
@@ -31,38 +31,51 @@
   font-size: 2.25rem;
   font-weight: 800;
   color: #2c3e50;
-  text-transform: uppercase;
   letter-spacing: 1.5px;
 }
 
 .content {
   display: flex;
-  gap: 2.5rem;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.topRow {
+  display: flex;
+  justify-content: space-between;
+  gap: .5rem;
   flex-wrap: wrap;
-  align-items: stretch;
 }
 
 .customerSection {
   flex: 1;
-  min-width: 400px; /* Wider minimum width */
-  max-width: 500px; /* Increased max-width for more space */
+  min-width: 300px;
+  max-width: 600px;
   background-color: #fafafa;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  padding: 2rem;
+  padding: 1.5rem;
   box-shadow: 0 4px 14px rgba(44, 62, 80, 0.08);
 }
 
 .calculatorSection {
-  flex: 2;
-  min-width: 300px;
+  flex: 1;
+  min-width: 800px;
+  max-width: 900px;
   background-color: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  padding: 2rem;
+  padding: 1.5rem;
   box-shadow: 0 4px 14px rgba(44, 62, 80, 0.08);
-  max-height: 75vh;
-  overflow-y: auto;
+}
+
+.costBreakdownSection {
+  width: 100%;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 14px rgba(44, 62, 80, 0.08);
 }
 
 .buttonGroup {
@@ -75,6 +88,7 @@
   border-top: 1px solid #e2e8f0;
 }
 
+/* Button styles remain the same */
 .saveButton,
 .resetButton,
 .backButton,
@@ -171,23 +185,19 @@
 }
 
 @media (max-width: 1200px) {
-  .content {
+  .topRow {
     flex-direction: column;
-    gap: 2rem;
   }
 
-  .customerSection {
-    max-width: 100%;
-  }
-
+  .customerSection,
   .calculatorSection {
-    max-height: none;
+    max-width: 100%;
   }
 }
 
 @media (max-width: 768px) {
   .mainContent {
-    padding: 1.5rem 1rem;
+    padding: 1rem;
   }
 
   .container {
@@ -205,7 +215,8 @@
   }
 
   .customerSection,
-  .calculatorSection {
+  .calculatorSection,
+  .costBreakdownSection {
     padding: 1.25rem;
   }
 
@@ -229,7 +240,8 @@
   }
 
   .customerSection,
-  .calculatorSection {
+  .calculatorSection,
+  .costBreakdownSection {
     min-width: 100%;
   }
 

@@ -1,10 +1,10 @@
-// src/components/HomePage/HomePage.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faUndo, faArrowLeft, faEdit } from '@fortawesome/free-solid-svg-icons';
 import CustomerInfo from '../CustomerInfo/CustomerInfo';
 import Calculator from '../Calculator/Calculator';
+import CostBreakdown from '../Calculator/CostBreakdown/CostBreakdown'; // Import the new component
 import styles from './HomePage.module.css';
 import { saveProject, updateProject, getProject } from '../../services/projectService';
 
@@ -196,21 +196,26 @@ export default function HomePage() {
           )}
         </div>
         <div className={styles.content}>
-          <section className={styles.customerSection}>
-            <CustomerInfo
-              customer={customer}
-              setCustomer={setCustomer}
-              disabled={isDetailsMode}
-            />
-          </section>
-          <section className={styles.calculatorSection}>
-            <Calculator
-              categories={categories}
-              setCategories={setCategories}
-              settings={settings}
-              setSettings={setSettings}
-              disabled={isDetailsMode}
-            />
+          <div className={styles.topRow}>
+            <section className={styles.customerSection}>
+              <CustomerInfo
+                customer={customer}
+                setCustomer={setCustomer}
+                disabled={isDetailsMode}
+              />
+            </section>
+            <section className={styles.calculatorSection}>
+              <Calculator
+                categories={categories}
+                setCategories={setCategories}
+                settings={settings}
+                setSettings={setSettings}
+                disabled={isDetailsMode}
+              />
+            </section>
+          </div>
+          <section className={styles.costBreakdownSection}>
+            <CostBreakdown categories={categories} settings={settings} />
           </section>
         </div>
         <div className={styles.buttonGroup}>
