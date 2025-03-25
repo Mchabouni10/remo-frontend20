@@ -5,7 +5,7 @@ import { faPrint, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import html2canvas from 'html2canvas';
 import printJS from 'print-js';
-import { calculateTotal, calculateWorkCost, WORK_TYPES } from '../Calculator/calculatorFunctions';
+import { calculateTotal, calculateWorkCost, getUnits, getUnitLabel } from '../Calculator/calculatorFunctions';
 import { getProject } from '../../services/projectService';
 import styles from './EstimateSummary.module.css';
 
@@ -62,7 +62,7 @@ export default function EstimateSummary() {
           miscFees: [],
           deposit: 0,
           amountPaid: 0,
-          markup: 0,  // Added
+          markup: 0,
         });
       } catch (err) {
         console.error('Error loading project:', err);
@@ -133,22 +133,6 @@ export default function EstimateSummary() {
   const { materialCost, laborCost, wasteCost, transportationFee, tax, markupCost, total } = totals;
   const adjustedGrandTotal = Math.max(0, total - (settings?.deposit || 0));
   const amountRemaining = Math.max(0, adjustedGrandTotal - (settings?.amountPaid || 0));
-
-  const getUnitLabel = (item) => {
-    if (WORK_TYPES.surfaceBased.includes(item.type)) return 'sqft';
-    if (WORK_TYPES.linearFtBased.includes(item.type)) return 'linear ft';
-    if (WORK_TYPES.unitBased.includes(item.type)) return 'units';
-    return '';
-  };
-
-  const getUnits = (item) => {
-    if (WORK_TYPES.surfaceBased.includes(item.type)) {
-      return (item.surfaces || []).reduce((sum, surf) => sum + (parseFloat(surf.sqft) || 0), 0);
-    }
-    if (WORK_TYPES.linearFtBased.includes(item.type)) return parseFloat(item.linearFt) || 0;
-    if (WORK_TYPES.unitBased.includes(item.type)) return parseFloat(item.units) || 0;
-    return 0;
-  };
 
   if (loading) {
     return (
@@ -247,11 +231,11 @@ export default function EstimateSummary() {
                               {units.toFixed(2)} {unitLabel}
                             </td>
                             <td>
-                              {units} × ${(parseFloat(item.materialCost) || 0).toFixed(2)} = $
+                              {units.toFixed(2)} × ${(parseFloat(item.materialCost) || 0).toFixed(2)} = $
                               {materialCost.toFixed(2)}
                             </td>
                             <td>
-                              {units} × ${(parseFloat(item.laborCost) || 0).toFixed(2)} = $
+                              {units.toFixed(2)} × ${(parseFloat(item.laborCost) || 0).toFixed(2)} = $
                               {laborCost.toFixed(2)}
                             </td>
                             <td>${subtotal.toFixed(2)}</td>
@@ -363,7 +347,7 @@ export default function EstimateSummary() {
 
           <div className={styles.footer}>
             <p>Generated on: {new Date().toLocaleDateString()}</p>
-            <p>Thank you for choosing Your Rawdah Remodeling</p>
+            <p>Thank you for choosing Rawdah Remodeling</p>
           </div>
         </div>
 

@@ -38,7 +38,13 @@
 }
 
 .required {
-  color: #dc3545;
+  background: linear-gradient(135deg, #2c3e50 0%, #1a2634 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 900; /* Extra bold */
+  font-size: 1.4rem; /* Larger size for emphasis */
+  line-height: 1; /* Aligns with label text */
+  text-shadow: 0 0 4px rgba(44, 62, 80, 0.5); /* Subtle glow effect with gradient color */
 }
 
 .input {
@@ -60,7 +66,8 @@
 }
 
 .input.error {
-  border-color: #dc3545;
+  border-color: #2c3e50; /* Solid color from your gradient */
+  box-shadow: 0 0 4px rgba(44, 62, 80, 0.5); /* Subtle glow to highlight error */
 }
 
 .input:disabled {
@@ -97,7 +104,115 @@ textarea.input {
 }
 
 .phoneInput.error {
-  border-color: #dc3545 !important;
+  border-color: #2c3e50 !important; /* Solid color from your gradient */
+.customerInfo {
+  /* No container-level styles here; handled by .customerSection in HomePage.module.css */
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #2c3e50; /* Matches HomePage title color */
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #2c3e50; /* Matches HomePage text color */
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.icon {
+  color: #6b7280;
+  font-size: 1.1rem;
+}
+
+.required {
+  background: linear-gradient(135deg, #2c3e50 0%, #1a2634 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 900; /* Extra bold */
+  font-size: 1.4rem; /* Larger size for emphasis */
+  line-height: 1; /* Aligns with label text */
+  text-shadow: 0 0 4px rgba(44, 62, 80, 0.5); /* Subtle glow effect with gradient color */
+}
+
+.input {
+  padding: 0.75rem 0.75rem 0.75rem 2.5rem; /* Space for icon */
+  font-size: 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  color: #2c3e50;
+  transition: all 0.3s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #2c3e50;
+  box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.2);
+}
+
+.input.error {
+  border-color: #2c3e50; /* Solid color from your gradient */
+  box-shadow: 0 0 4px rgba(44, 62, 80, 0.5); /* Subtle glow to highlight error */
+}
+
+.input:disabled {
+  background-color: #e9ecef;
+  cursor: not-allowed;
+}
+
+textarea.input {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Style the PhoneInput specifically */
+.phoneContainer {
+  width: 100%;
+}
+
+.phoneInput {
+  padding: 0.75rem 0.75rem 0.75rem 2.5rem !important; /* Override library styles */
+  font-size: 1rem !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 6px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  background-color: #ffffff !important;
+  color: #2c3e50 !important;
+  transition: all 0.3s ease !important;
+}
+
+.phoneInput:focus {
+  outline: none !important;
+  border-color: #2c3e50 !important;
+  box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.2) !important;
+}
+
+.phoneInput.error {
+  border-color: #2c3e50 !important; /* Solid color from your gradient */
+  box-shadow: 0 0 4px rgba(44, 62, 80, 0.5) !important; /* Subtle glow to highlight error */
 }
 
 .phoneInput:disabled {
@@ -113,5 +228,30 @@ textarea.input {
   .input,
   .phoneInput {
     font-size: 0.9rem !important; /* Ensure PhoneInput scales */
+  }
+
+  .required {
+    font-size: 1.2rem; /* Slightly smaller on mobile but still prominent */
+  }
+}
+}
+
+.phoneInput:disabled {
+  background-color: #e9ecef !important;
+  cursor: not-allowed !important;
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 1.3rem;
+  }
+
+  .input,
+  .phoneInput {
+    font-size: 0.9rem !important; /* Ensure PhoneInput scales */
+  }
+
+  .required {
+    font-size: 1.2rem; /* Slightly smaller on mobile but still prominent */
   }
 }

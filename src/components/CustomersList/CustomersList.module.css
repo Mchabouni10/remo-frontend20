@@ -1,4 +1,3 @@
-/* src/components/CustomersList/CustomersList.module.css */
 .mainContent {
   background-color: #eef2f6;
   min-height: calc(100vh - 60px);
@@ -16,7 +15,7 @@
   background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  position: relative; /* Added to contain absolutely positioned totalsSection */
+  position: relative;
 }
 
 .title {
@@ -56,7 +55,7 @@
 }
 
 .searchInput {
-  padding: 0.6rem 2rem 0.6rem 2.5rem; /* Adjusted for clear button */
+  padding: 0.6rem 2rem 0.6rem 2.5rem;
   width: 100%;
   border: 1px solid #d1d5db;
   border-radius: 6px;
@@ -119,32 +118,32 @@
 
 /* Header icons */
 .table th:nth-child(1)::before {
-  content: '\f007'; /* fa-user */
+  content: '\f007'; /* fa-user for First Name */
   font-family: 'Font Awesome 6 Free';
   font-weight: 900;
   margin-right: 0.4rem;
 }
 .table th:nth-child(2)::before {
-  content: '\f2bb'; /* fa-address-card */
+  content: '\f2bb'; /* fa-address-card for Last Name */
   font-family: 'Font Awesome 6 Free';
   font-weight: 900;
   margin-right: 0.4rem;
 }
 .table th:nth-child(3)::before {
-  content: '\f0e8'; /* fa-sitemap */
+  content: '\f095'; /* fa-phone for Phone */
   font-family: 'Font Awesome 6 Free';
   font-weight: 900;
   margin-right: 0.4rem;
 }
 .table th:nth-child(4)::before {
-  content: '\f095'; /* fa-phone */
+  content: '\f542'; /* fa-tasks for Project Count */
   font-family: 'Font Awesome 6 Free';
   font-weight: 900;
   margin-right: 0.4rem;
 }
 .table th:nth-child(5)::before,
 .table th:nth-child(6)::before {
-  content: '\f073'; /* fa-calendar-alt */
+  content: '\f073'; /* fa-calendar-alt for Earliest Start Date and Latest Finish Date */
   font-family: 'Font Awesome 6 Free';
   font-weight: 900;
   margin-right: 0.4rem;
@@ -153,10 +152,33 @@
 .table th:nth-child(8)::before,
 .table th:nth-child(9)::before,
 .table th:nth-child(10)::before {
-  content: '\f155'; /* fa-dollar-sign */
+  content: '\f155'; /* fa-dollar-sign for Total Deposit, Amount Paid, Amount Remaining, Grand Total */
   font-family: 'Font Awesome 6 Free';
   font-weight: 900;
   margin-right: 0.4rem;
+}
+
+/* Center and style Project Count */
+.table th:nth-child(4),
+.table td:nth-child(4) {
+  text-align: center; /* Center the header and data */
+}
+
+.table td:nth-child(4) {
+  padding: 0.6rem 0.75rem;
+}
+
+.table td:nth-child(4) span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem; /* Circle size */
+  height: 1.5rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2c3e50 0%, #1a2634 100%); /* Gradient background */
+  color: #ffffff; /* White text */
+  font-weight: 700; /* Strong/bold font */
+  font-size: 0.9rem; /* Adjust font size as needed */
 }
 
 .table tr:hover {
@@ -252,6 +274,15 @@
   box-shadow: 0 3px 8px rgba(255, 107, 107, 0.3);
 }
 
+.newProjectButton {
+  background: #3498db;
+}
+
+.newProjectButton:hover {
+  background: #2980b9;
+  box-shadow: 0 3px 8px rgba(52, 152, 219, 0.3);
+}
+
 .noResults {
   text-align: center;
   color: #7f8c8d;
@@ -279,7 +310,7 @@
   left: 1rem;
   font-size: 0.9rem;
   color: #2c3e50;
-  z-index: 20; /* Ensure it’s above other elements */
+  z-index: 20;
 }
 
 .totalsSection p {
@@ -343,6 +374,11 @@
   .actions {
     gap: 0.2rem;
   }
+
+  .table td:nth-child(4) span {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
 }
 
 @media (max-width: 768px) {
@@ -393,15 +429,9 @@
     top: 0.75rem;
     left: 0.75rem;
   }
-}
 
-/* Add this to your existing CustomersList.module.css */
-.newProjectButton {
-  background: #3498db; /* Blue to distinguish from edit/delete */
+  .table td:nth-child(4) span {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
 }
-
-.newProjectButton:hover {
-  background: #2980b9;
-  box-shadow: 0 3px 8px rgba(52, 152, 219, 0.3);
-}
-

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faEye, faEdit, faTrashAlt, faSort, faSortUp, faSortDown, faTimes, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
@@ -13,22 +13,7 @@ export default function CustomersList() {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const fetchedProjects = await getProjects();
-        console.log('Fetched Projects:', fetchedProjects);
-        setProjects(fetchedProjects);
-        groupAndSetCustomers(fetchedProjects);
-      } catch (err) {
-        console.error('Error fetching projects:', err);
-        alert('Failed to load customers.');
-      }
-    };
-    fetchProjects();
-  }, []);
-
-  const groupAndSetCustomers = (projectsList) => {
+  const groupAndSetCustomers = useCallback((projectsList) => {
     const customerMap = projectsList.reduce((acc, project) => {
       const key = `${project.customerInfo?.lastName || ''}|${project.customerInfo?.phone || ''}`;
       if (!acc[key]) {
@@ -116,11 +101,26 @@ export default function CustomersList() {
     }
 
     setFilteredCustomers(customers);
-  };
+  }, [searchQuery, sortConfig]);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const fetchedProjects = await getProjects();
+        console.log('Fetched Projects:', fetchedProjects);
+        setProjects(fetchedProjects);
+        groupAndSetCustomers(fetchedProjects);
+      } catch (err) {
+        console.error('Error fetching projects:', err);
+        alert('Failed to load customers.');
+      }
+    };
+    fetchProjects();
+  }, [groupAndSetCustomers]);
 
   useEffect(() => {
     groupAndSetCustomers(projects);
-  }, [searchQuery, projects, sortConfig]);
+  }, [projects, groupAndSetCustomers]);
 
   const formatDate = (date) => {
     if (!date) return 'N/A';
@@ -272,7 +272,7 @@ export default function CustomersList() {
                     <td>{customer.customerInfo.firstName || 'N/A'}</td>
                     <td className={styles.firstName}>{customer.customerInfo.lastName || 'N/A'}</td>
                     <td>{customer.customerInfo.phone || 'N/A'}</td>
-                    <td>{customer.projects.length}</td>
+                    <td><span>{customer.projects.length}</span></td>
                     <td>{formatDate(customer.earliestStartDate)}</td>
                     <td>{formatDate(customer.latestFinishDate)}</td>
                     <td className={styles.currency}>
@@ -294,7 +294,7 @@ export default function CustomersList() {
                         <FontAwesomeIcon icon={faEye} />
                       </button>
                       <button
-                        onClick={() => handleEdit(customer.projects[0]._id)} // Edit the first project as default
+                        onClick={() => handleEdit(customer.projects[0]._id)}
                         className={`${styles.actionButton} ${styles.editButton}`}
                         title="Edit"
                       >
@@ -308,7 +308,7 @@ export default function CustomersList() {
                         <FontAwesomeIcon icon={faPlusCircle} />
                       </button>
                       <button
-                        onClick={() => handleDelete(customer.projects[0]._id)} // Delete the first project as default
+                        onClick={() => handleDelete(customer.projects[0]._id)}
                         className={`${styles.actionButton} ${styles.deleteButton}`}
                         title="Delete"
                       >

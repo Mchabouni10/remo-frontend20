@@ -161,26 +161,26 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
         </div>
         <div className={styles.field}>
           <label className={styles.label}>
-            <FontAwesomeIcon icon={faEnvelope} className={styles.icon} /> Email
+            <FontAwesomeIcon icon={faEnvelope} className={styles.icon} /> Email <span className={styles.required}>*</span>
           </label>
           <input
             type="email"
             value={customer.email || ''}
             onChange={(e) => setCustomer({ ...customer, email: e.target.value })}
-            className={`${styles.input} ${customer.email && !validateEmail(customer.email) && !disabled && styles.error}`}
+            className={`${styles.input} ${(customer.email && !validateEmail(customer.email)) || (!customer.email && !disabled) ? styles.error : ''}`}
             disabled={disabled}
             placeholder="Enter email address"
           />
         </div>
         <div className={styles.field}>
           <label className={styles.label}>
-            <FontAwesomeIcon icon={faHome} className={styles.icon} /> Project Name
+            <FontAwesomeIcon icon={faHome} className={styles.icon} /> Project Name <span className={styles.required}>*</span>
           </label>
           <input
             type="text"
             value={customer.projectName || ''}
             onChange={(e) => setCustomer({ ...customer, projectName: e.target.value })}
-            className={styles.input}
+            className={`${styles.input} ${!customer.projectName && !disabled && styles.error}`}
             disabled={disabled}
             placeholder="Enter project name"
           />

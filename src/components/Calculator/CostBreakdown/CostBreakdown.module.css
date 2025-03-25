@@ -1,115 +1,206 @@
 .costBreakdown {
-  margin-top: 2.5rem;
-  padding: 2rem;
-  background: #ffffff;
-  border: 1px solid #dbe2ea;
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-top: 0.5rem; /* Reduced from 1rem */
+  padding: 0.5rem; /* Reduced from 1rem */
+  background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+  border-radius: 10px; /* Reduced from 12px */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); /* Slightly reduced shadow */
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .sectionTitle {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1a365d;
-  margin-bottom: 1.5rem;
+  font-size: 1rem; /* Reduced from 1.25rem */
+  font-weight: 800;
+  color: #2c3e50;
   text-align: center;
-  border-bottom: 2px solid #e2e8f0;
-  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem; /* Reduced from 1rem */
+  background: linear-gradient(135deg, #2c3e50 0%, #1a2634 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  padding-bottom: 0.15rem; /* Reduced from 0.25rem */
+  border-bottom: 1px solid #2c3e50; /* Reduced from 2px */
 }
 
 .subSectionTitle {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #2d3748;
-  margin-bottom: 1rem;
+  font-size: 0.85rem; /* Reduced from 1rem */
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 0.4rem; /* Reduced from 0.75rem */
+  padding-left: 0.3rem; /* Reduced from 0.5rem */
+  border-left: 2px solid #2c3e50; /* Reduced from 3px */
 }
 
 .categorySection,
 .totalSection,
 .paymentSection {
-  margin-bottom: 2rem;
-  background: #f9fafb;
-  padding: 1rem;
-  border-radius: 6px;
+  margin-bottom: 0.5rem; /* Reduced from 1rem */
+  padding: 0.4rem; /* Reduced from 0.75rem */
+  background: #ffffff;
+  border-radius: 6px; /* Reduced from 8px */
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04); /* Reduced shadow */
+  transition: transform 0.1s ease; /* Reduced transition time */
+}
+
+.categorySection:hover,
+.totalSection:hover,
+.paymentSection:hover {
+  transform: translateY(-0.5px); /* Reduced from -1px */
 }
 
 .breakdownTable {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  font-size: 0.95rem;
+  font-size: 0.75rem; /* Reduced from 0.85rem */
   color: #4a5568;
 }
 
 .breakdownTable th,
 .breakdownTable td {
-  padding: 1rem;
-  border-bottom: 1px solid #e2e8f0;
+  padding: 0.25rem 0.4rem; /* Reduced from 0.4rem 0.6rem */
+  border-bottom: 0.5px solid #e2e8f0; /* Thinner border */
 }
 
 .breakdownTable th {
-  background: #edf2f7;
+  background: linear-gradient(135deg, #2c3e50 0%, #1a2634 100%);
+  color: #ffffff;
   font-weight: 600;
   text-align: left;
-  color: #2d3748;
+  text-transform: uppercase;
+  letter-spacing: 0.2px; /* Reduced from 0.3px */
 }
 
-.breakdownTable td:first-child {
-  font-weight: 500;
-  width: 40%;
+.breakdownTable td {
+  background: #fafafa;
 }
 
-.breakdownTable td:last-child {
-  text-align: right;
+.categoryRow:hover td {
+  background: #f1f5f9;
 }
 
-.categoryTotal {
+.totalRow td {
+  font-weight: 700;
   background: #edf2f7;
+  color: #2c3e50;
+}
+
+.subtotal {
   font-weight: 600;
+  color: #2d3748;
 }
 
 .subtotalRow td {
-  font-weight: 600;
+  font-weight: 700;
   color: #2d3748;
-  border-top: 2px solid #cbd5e0;
-  background: #f7fafc;
+  background: #e6f0fa;
+  border-top: 0.5px solid #2c3e50; /* Reduced from 1px */
 }
 
 .grandTotalRow td {
-  font-weight: 700;
-  font-size: 1.1rem;
+  font-weight: 800;
+  font-size: 0.9rem; /* Reduced from 1rem */
   color: #1a365d;
-  border-top: 3px solid #a0aec0;
-  background: #edf2f7;
+  background: linear-gradient(135deg, #edf2f7 0%, #dbe2ea 100%);
+  border-top: 1px solid #2c3e50; /* Reduced from 2px */
+}
+
+.remaining {
+  color: #e53e3e;
+}
+
+.paid {
+  color: #38a169;
 }
 
 .overpaymentRow td {
-  color: #c53030;
   font-weight: 600;
+  color: #d69e2e;
+  background: #fefcbf;
 }
 
-.miscFee {
-  margin: 0.75rem 0;
-  font-size: 0.9rem;
+/* Detailed Breakdown Styles */
+.detailRow td {
+  vertical-align: top;
+  padding: 0.3rem; /* Reduced from 0.5rem */
+}
+
+.totalValue {
+  font-weight: 700;
+  color: #2c3e50;
+  display: block;
+  margin-bottom: 0.25rem; /* Reduced from 0.5rem */
+}
+
+.detailBreakdown {
+  background: #f9fafb;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px; /* Reduced from 6px */
+  padding: 0.25rem; /* Reduced from 0.4rem */
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.02); /* Minimized shadow */
+}
+
+.innerTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.7rem; /* Reduced from 0.8rem */
+}
+
+.innerTable th,
+.innerTable td {
+  padding: 0.2rem 0.3rem; /* Reduced from 0.3rem 0.5rem */
+  border-bottom: 0.5px solid #edf2f7; /* Thinner border */
+}
+
+.innerTable th {
+  background: #e2e8f0;
   color: #4a5568;
+  font-weight: 600;
+  text-align: left;
+}
+
+.innerTable td {
+  color: #718096;
+}
+
+.innerTable tr:hover td {
+  background: #f1f5f9;
+}
+
+.innerTable tr:last-child td {
+  border-bottom: none;
 }
 
 @media (max-width: 768px) {
   .costBreakdown {
-    padding: 1.5rem;
+    padding: 0.4rem; /* Reduced from 0.75rem */
+  }
+
+  .sectionTitle {
+    font-size: 0.9rem; /* Reduced from 1.1rem */
+  }
+
+  .subSectionTitle {
+    font-size: 0.8rem; /* Reduced from 0.95rem */
   }
 
   .breakdownTable th,
   .breakdownTable td {
-    padding: 0.75rem;
-    font-size: 0.9rem;
+    padding: 0.2rem 0.3rem; /* Reduced from 0.3rem 0.5rem */
+    font-size: 0.7rem; /* Reduced from 0.8rem */
   }
 
-  .sectionTitle {
-    font-size: 1.25rem;
+  .detailBreakdown {
+    padding: 0.2rem; /* Reduced from 0.3rem */
   }
 
-  .subSectionTitle {
-    font-size: 1.1rem;
+  .innerTable th,
+  .innerTable td {
+    padding: 0.15rem 0.25rem; /* Reduced from 0.25rem 0.4rem */
+    font-size: 0.65rem; /* Reduced from 0.75rem */
+  }
+
+  .grandTotalRow td {
+    font-size: 0.85rem; /* Reduced from 0.9rem */
   }
 }

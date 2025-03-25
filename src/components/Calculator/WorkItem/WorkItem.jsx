@@ -1,3 +1,4 @@
+// src/components/WorkItem/WorkItem.js
 import React, { useCallback, useState } from 'react';
 import SurfaceInput from '../SurfaceInput/SurfaceInput';
 import { WORK_TYPES, SUBTYPE_OPTIONS, DEFAULT_SUBTYPES } from '../calculatorFunctions';
@@ -31,13 +32,13 @@ export default function WorkItem({
         } else if (field === 'type') {
           item[field] = value;
           item.subtype = DEFAULT_SUBTYPES[value] || '';
-          item.surfaces = WORK_TYPES.surfaceBased.includes(value)
+          item.surfaces = Object.values(WORK_TYPES).some(cat => cat.surfaceBased.includes(value))
             ? item.surfaces?.length > 0
               ? item.surfaces
               : [{ width: '10', height: '10', sqft: 100, manualSqft: false }]
             : [];
-          item.linearFt = WORK_TYPES.linearFtBased.includes(value) ? item.linearFt || '10' : '';
-          item.units = WORK_TYPES.unitBased.includes(value) ? item.units || '1' : '';
+          item.linearFt = Object.values(WORK_TYPES).some(cat => cat.linearFtBased.includes(value)) ? item.linearFt || '10' : '';
+          item.units = Object.values(WORK_TYPES).some(cat => cat.unitBased.includes(value)) ? item.units || '1' : '';
           item.materialCost = item.materialCost ?? '0.00';
           item.laborCost = item.laborCost ?? '0.00';
         } else {
@@ -78,12 +79,12 @@ export default function WorkItem({
     });
   }, [disabled, catIndex, workIndex, setCategories]);
 
-  const isSurfaceBased = WORK_TYPES.surfaceBased.includes(workItem.type);
-  const isLinearFtBased = WORK_TYPES.linearFtBased.includes(workItem.type);
-  const isUnitBased = WORK_TYPES.unitBased.includes(workItem.type);
+  const isSurfaceBased = Object.values(WORK_TYPES).some(cat => cat.surfaceBased.includes(workItem.type));
+  const isLinearFtBased = Object.values(WORK_TYPES).some(cat => cat.linearFtBased.includes(workItem.type));
+  const isUnitBased = Object.values(WORK_TYPES).some(cat => cat.unitBased.includes(workItem.type));
   const materialCost = parseFloat(workItem.materialCost) || 0;
   const laborCost = parseFloat(workItem.laborCost) || 0;
-  const costOptions = Array.from({ length: 21 }, (_, i) => i.toString()).concat('Custom'); // 0 to 20 + Custom
+  const costOptions = Array.from({ length: 21 }, (_, i) => i.toString()).concat('Custom');
 
   const materialLabel = isSurfaceBased
     ? 'Material Cost per Sqft ($)'
@@ -137,24 +138,36 @@ export default function WorkItem({
             disabled={disabled}
           >
             <option value="">Select Type</option>
-            {Object.entries(WORK_TYPES).flatMap(([category, types]) =>
-              types.map((type) => (
-                <option key={type} value={type}>
-                  {type.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
-                </option>
-              ))
-            )}
+            {Object.entries(WORK_TYPES).map(([category, types]) => (
+              <optgroup
+                key={category}
+                label={category.charAt(0).toUpperCase() + category.slice(1)}
+              >
+                {[
+                  ...types.surfaceBased,
+                  ...types.linearFtBased,
+                  ...types.unitBased,
+                ].map((type) => (
+                  <option key={type} value={type}>
+                    {type
+                      .replace(/-/g, ' ')
+                      .replace(category, category.toUpperCase())
+                      .replace(/\b\w/g, (c) => c.toUpperCase())}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
           </select>
         </div>
       </div>
 
-      {isSurfaceBased && (
+      {workItem.type && SUBTYPE_OPTIONS[workItem.type] && (
         <div className={styles.workItemRow}>
           <label>
             <i className="fas fa-layer-group"></i> Subtype:
           </label>
           <select
-            value={workItem.subtype || ''}
+            value={workItem.subtype || DEFAULT_SUBTYPES[workItem.type] || ''}
             onChange={(e) => updateWorkItem('subtype', e.target.value)}
             className={styles.select}
             disabled={disabled}
