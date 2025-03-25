@@ -1,97 +1,115 @@
 .costBreakdown {
-    margin-top: 2rem;
+  margin-top: 2.5rem;
+  padding: 2rem;
+  background: #ffffff;
+  border: 1px solid #dbe2ea;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a365d;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0.5rem;
+}
+
+.subSectionTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 1rem;
+}
+
+.categorySection,
+.totalSection,
+.paymentSection {
+  margin-bottom: 2rem;
+  background: #f9fafb;
+  padding: 1rem;
+  border-radius: 6px;
+}
+
+.breakdownTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.95rem;
+  color: #4a5568;
+}
+
+.breakdownTable th,
+.breakdownTable td {
+  padding: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.breakdownTable th {
+  background: #edf2f7;
+  font-weight: 600;
+  text-align: left;
+  color: #2d3748;
+}
+
+.breakdownTable td:first-child {
+  font-weight: 500;
+  width: 40%;
+}
+
+.breakdownTable td:last-child {
+  text-align: right;
+}
+
+.categoryTotal {
+  background: #edf2f7;
+  font-weight: 600;
+}
+
+.subtotalRow td {
+  font-weight: 600;
+  color: #2d3748;
+  border-top: 2px solid #cbd5e0;
+  background: #f7fafc;
+}
+
+.grandTotalRow td {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #1a365d;
+  border-top: 3px solid #a0aec0;
+  background: #edf2f7;
+}
+
+.overpaymentRow td {
+  color: #c53030;
+  font-weight: 600;
+}
+
+.miscFee {
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+  color: #4a5568;
+}
+
+@media (max-width: 768px) {
+  .costBreakdown {
     padding: 1.5rem;
-    background: #f9fafb;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
   }
-  
-  .sectionTitle {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #2c3e50;
-    margin-bottom: 1rem;
-    text-align: center;
-  }
-  
-  .subSectionTitle {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #2c3e50;
-    margin-bottom: 0.75rem;
-  }
-  
-  .categoryBreakdown,
-  .totalBreakdown,
-  .paymentDetails {
-    margin-bottom: 1.5rem;
-  }
-  
-  .breakdownTable {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9rem;
-    color: #4b5563;
-  }
-  
+
   .breakdownTable th,
   .breakdownTable td {
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid #e2e8f0;
+    padding: 0.75rem;
+    font-size: 0.9rem;
   }
-  
-  .breakdownTable th {
-    background: #f1f5f9;
-    font-weight: 600;
-    text-align: left;
+
+  .sectionTitle {
+    font-size: 1.25rem;
   }
-  
-  .breakdownTable td:first-child {
-    font-weight: 500;
-    width: 60%;
+
+  .subSectionTitle {
+    font-size: 1.1rem;
   }
-  
-  .breakdownTable td:last-child {
-    text-align: right;
-  }
-  
-  .subtotalRow td {
-    font-weight: 600;
-    color: #2c3e50;
-    border-top: 2px solid #e2e8f0;
-  }
-  
-  .grandTotalRow td {
-    font-weight: 700;
-    font-size: 1rem;
-    color: #2c3e50;
-    border-top: 2px solid #e2e8f0;
-  }
-  
-  .miscFee {
-    margin: 0.5rem 0;
-    font-size: 0.85rem;
-  }
-  
-  .overpaid {
-    color: #dc3545;
-    font-size: 0.85rem;
-    margin-left: 0.5rem;
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .costBreakdown {
-      padding: 1rem;
-    }
-  
-    .breakdownTable th,
-    .breakdownTable td {
-      padding: 0.5rem;
-      font-size: 0.85rem;
-    }
-  
-    .breakdownTable td:first-child {
-      width: 50%;
-    }
-  }
+}

@@ -1,4 +1,3 @@
-// src/services/projectService.js
 import sendRequest from '../utilities/send-request';
 
 const BASE_URL = '/api/projects/';

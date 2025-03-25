@@ -10,8 +10,12 @@ export default function WorkItem({
   setCategories,
   disabled = false,
 }) {
-  const [materialManual, setMaterialManual] = useState(false);
-  const [laborManual, setLaborManual] = useState(false);
+  const [isMaterialCustomMode, setIsMaterialCustomMode] = useState(
+    !Array.from({ length: 21 }, (_, i) => i.toString()).includes((parseFloat(workItem.materialCost) || 0).toString())
+  );
+  const [isLaborCustomMode, setIsLaborCustomMode] = useState(
+    !Array.from({ length: 21 }, (_, i) => i.toString()).includes((parseFloat(workItem.laborCost) || 0).toString())
+  );
 
   const updateWorkItem = useCallback(
     (field, value) => {
@@ -79,7 +83,7 @@ export default function WorkItem({
   const isUnitBased = WORK_TYPES.unitBased.includes(workItem.type);
   const materialCost = parseFloat(workItem.materialCost) || 0;
   const laborCost = parseFloat(workItem.laborCost) || 0;
-  const costOptions = Array.from({ length: 20 }, (_, i) => (i + 1).toString()).concat('Manual');
+  const costOptions = Array.from({ length: 21 }, (_, i) => i.toString()).concat('Custom'); // 0 to 20 + Custom
 
   const materialLabel = isSurfaceBased
     ? 'Material Cost per Sqft ($)'
@@ -92,22 +96,20 @@ export default function WorkItem({
     ? 'Labor Cost per Linear Ft ($)'
     : 'Labor Cost per Unit ($)';
 
-  const handleMaterialChange = (value) => {
-    if (value === 'Manual') {
-      setMaterialManual(true);
-      updateWorkItem('materialCost', '0');
+  const handleMaterialSelectChange = (value) => {
+    if (value === 'Custom') {
+      setIsMaterialCustomMode(true);
     } else {
-      setMaterialManual(false);
+      setIsMaterialCustomMode(false);
       updateWorkItem('materialCost', value);
     }
   };
 
-  const handleLaborChange = (value) => {
-    if (value === 'Manual') {
-      setLaborManual(true);
-      updateWorkItem('laborCost', '0');
+  const handleLaborSelectChange = (value) => {
+    if (value === 'Custom') {
+      setIsLaborCustomMode(true);
     } else {
-      setLaborManual(false);
+      setIsLaborCustomMode(false);
       updateWorkItem('laborCost', value);
     }
   };
@@ -225,70 +227,68 @@ export default function WorkItem({
 
       <div className={styles.pricingSection}>
         <div className={styles.pricingField}>
-          <label>
+          <label title={materialLabel}>
             <i className="fas fa-dollar-sign"></i> {materialLabel}:
           </label>
-          {!materialManual ? (
+          <div className={styles.costWrapper}>
             <select
-              value={
-                isNaN(materialCost) || materialCost > 20 || materialCost < 1
-                  ? 'Manual'
-                  : materialCost.toString()
-              }
-              onChange={(e) => handleMaterialChange(e.target.value)}
+              value={isMaterialCustomMode ? 'Custom' : materialCost.toString()}
+              onChange={(e) => handleMaterialSelectChange(e.target.value)}
               className={styles.select}
               disabled={disabled}
             >
               {costOptions.map((option) => (
                 <option key={option} value={option}>
-                  {option === 'Manual' ? 'Manual' : `$${option}`}
+                  {option === 'Custom' ? 'Custom' : `$${option}`}
                 </option>
               ))}
             </select>
-          ) : (
-            <input
-              type="number"
-              value={materialCost}
-              onChange={(e) => updateWorkItem('materialCost', e.target.value)}
-              className={styles.input}
-              min="0"
-              step="0.01"
-              disabled={disabled}
-            />
-          )}
+            <div className={styles.inputWrapper}>
+              <i className={`fas fa-dollar-sign ${styles.inputIcon}`}></i>
+              <input
+                type="number"
+                value={materialCost}
+                onChange={(e) => updateWorkItem('materialCost', e.target.value)}
+                className={styles.input}
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+                disabled={disabled || !isMaterialCustomMode}
+              />
+            </div>
+          </div>
         </div>
         <div className={styles.pricingField}>
-          <label>
+          <label title={laborLabel}>
             <i className="fas fa-user-clock"></i> {laborLabel}:
           </label>
-          {!laborManual ? (
+          <div className={styles.costWrapper}>
             <select
-              value={
-                isNaN(laborCost) || laborCost > 20 || laborCost < 1
-                  ? 'Manual'
-                  : laborCost.toString()
-              }
-              onChange={(e) => handleLaborChange(e.target.value)}
+              value={isLaborCustomMode ? 'Custom' : laborCost.toString()}
+              onChange={(e) => handleLaborSelectChange(e.target.value)}
               className={styles.select}
               disabled={disabled}
             >
               {costOptions.map((option) => (
                 <option key={option} value={option}>
-                  {option === 'Manual' ? 'Manual' : `$${option}`}
+                  {option === 'Custom' ? 'Custom' : `$${option}`}
                 </option>
               ))}
             </select>
-          ) : (
-            <input
-              type="number"
-              value={laborCost}
-              onChange={(e) => updateWorkItem('laborCost', e.target.value)}
-              className={styles.input}
-              min="0"
-              step="0.01"
-              disabled={disabled}
-            />
-          )}
+            <div className={styles.inputWrapper}>
+              <i className={`fas fa-dollar-sign ${styles.inputIcon}`}></i>
+              <input
+                type="number"
+                value={laborCost}
+                onChange={(e) => updateWorkItem('laborCost', e.target.value)}
+                className={styles.input}
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+                disabled={disabled || !isLaborCustomMode}
+              />
+            </div>
+          </div>
         </div>
       </div>
 

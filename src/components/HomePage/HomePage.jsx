@@ -4,29 +4,34 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faUndo, faArrowLeft, faEdit } from '@fortawesome/free-solid-svg-icons';
 import CustomerInfo from '../CustomerInfo/CustomerInfo';
 import Calculator from '../Calculator/Calculator';
-import CostBreakdown from '../Calculator/CostBreakdown/CostBreakdown'; // Import the new component
+import CostBreakdown from '../Calculator/CostBreakdown/CostBreakdown';
 import styles from './HomePage.module.css';
 import { saveProject, updateProject, getProject } from '../../services/projectService';
 
 export default function HomePage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const initialCustomerInfo = location.state?.customerInfo || {};
+
   const [customer, setCustomer] = useState({
-    firstName: '',
-    lastName: '',
-    street: '',
-    unit: '',
-    state: 'IL',
-    zipCode: '',
-    phone: '',
-    email: '',
+    firstName: initialCustomerInfo.firstName || '',
+    lastName: initialCustomerInfo.lastName || '',
+    street: initialCustomerInfo.street || '',
+    unit: initialCustomerInfo.unit || '',
+    state: initialCustomerInfo.state || 'IL',
+    zipCode: initialCustomerInfo.zipCode || '',
+    phone: initialCustomerInfo.phone || '',
+    email: initialCustomerInfo.email || '',
     projectName: '',
-    type: 'Residential',
-    paymentType: 'Cash',
+    type: initialCustomerInfo.type || 'Residential',
+    paymentType: initialCustomerInfo.paymentType || 'Cash',
     startDate: '',
     finishDate: '',
     notes: '',
   });
 
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState([]); // Always empty for new projects
   const [settings, setSettings] = useState({
     taxRate: 0,
     transportationFee: 0,
@@ -34,12 +39,10 @@ export default function HomePage() {
     miscFees: [],
     deposit: 0,
     amountPaid: 0,
-  });
+    markup: 0,
+  }); // Always empty for new projects
   const [projectId, setProjectId] = useState(null);
   const [loading, setLoading] = useState(false);
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const location = useLocation();
 
   const isDetailsMode = location.pathname.startsWith('/home/customer/') && id;
   const isEditMode = location.pathname.startsWith('/home/edit/') && id;
@@ -81,6 +84,7 @@ export default function HomePage() {
             miscFees: [],
             deposit: 0,
             amountPaid: 0,
+            markup: 0,
           });
         } catch (err) {
           console.error('Error loading project:', err);
@@ -159,6 +163,7 @@ export default function HomePage() {
         miscFees: [],
         deposit: 0,
         amountPaid: 0,
+        markup: 0,
       });
       setProjectId(null);
       alert('All data reset.');

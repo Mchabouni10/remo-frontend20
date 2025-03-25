@@ -1,326 +1,323 @@
 .container {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    padding: 1rem;
-    max-width: 1200px;
-    margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #f9f9f9;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.toggleButton {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  color: #495057;
+  cursor: pointer;
+  padding: 0.25rem;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.toggleButton:hover {
+  color: #007bff;
+}
+
+.toggleButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  margin: 0;
+  color: #343a40;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.categories,
+.settingsContent {
+  padding: 1.5rem;
+}
+
+.categories {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.category {
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s ease;
+}
+
+.category:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.categoryHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.categoryInput {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  font-size: 1.1rem;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.categoryInput:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
+}
+
+.categoryInput:disabled {
+  background: #e9ecef;
+  border-color: #dee2e6;
+}
+
+.workItems {
+  margin-top: 1rem;
+}
+
+.workControls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.inputWrapper {
+  position: relative;
+  flex: 1;
+}
+
+.workInput {
+  width: 100%;
+  padding: 0.5rem 0.75rem 0.5rem 2rem;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.workInput:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
+}
+
+.inputIcon {
+  position: absolute;
+  left: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.addButton {
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.addButton:hover {
+  background: linear-gradient(135deg, #0056b3, #007bff);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+}
+
+.addButton:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.removeButton {
+  background: #dc3545;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.removeButton:hover {
+  background: #c82333;
+  transform: scale(1.1);
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.field label {
+  flex: 0 0 160px;
+  font-weight: 500;
+  color: #495057;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.field input,
+.field select {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  max-width: 200px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.field input:focus,
+.field select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
+}
+
+.field input:disabled,
+.field select:disabled {
+  background: #e9ecef;
+  border-color: #dee2e6;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 0.75rem;
+  font-size: 0.9rem;
+  color: #495057;
+}
+
+.miscFees {
+  margin-bottom: 1rem;
+}
+
+.miscFeeRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.miscFeeRow input {
+  flex: 1;
+  padding: 0.5rem 0.75rem 0.5rem 2rem;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.miscFeeRow input:first-child {
+  flex: 2;
+}
+
+.totals {
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.overpaymentNotice {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #dc3545;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.overpaymentNotice i {
+  font-size: 1.2rem;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0.5rem;
   }
-  
-  .categories {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-  
-  .category {
-    background: #f9f9f9;
-    border-radius: 8px;
-    padding: 1rem;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    transition: box-shadow 0.2s ease;
-  }
-  
-  .category:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-  
-  .categoryHeader {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-  }
-  
-  .toggleButton {
-    background: none;
-    border: none;
-    font-size: 1rem;
-    color: #495057;
-    cursor: pointer;
-    padding: 0.25rem;
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: color 0.2s ease;
-  }
-  
-  .toggleButton:hover {
-    color: #007bff;
-  }
-  
-  .toggleButton:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-  }
-  
-  .categoryInput {
-    flex: 1;
-    padding: 0.5rem 0.75rem;
-    font-size: 1.1rem;
-    border: 1px solid #ced4da;
-    border-radius: 6px;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  }
-  
-  .categoryInput:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
-  }
-  
-  .categoryInput:disabled {
-    background: #e9ecef;
-    border-color: #dee2e6;
-  }
-  
-  .workItems {
-    margin-top: 1rem;
-  }
-  
-  .workControls {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-top: 1rem;
-  }
-  
-  .inputWrapper {
-    position: relative;
-    flex: 1;
-  }
-  
-  .workInput {
-    width: 100%;
-    padding: 0.5rem 0.75rem 0.5rem 2rem;
-    border: 1px solid #ced4da;
-    border-radius: 6px;
-    font-size: 0.95rem;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  }
-  
-  .workInput:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
-  }
-  
-  .inputIcon {
-    position: absolute;
-    left: 0.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 0.9rem;
-    color: #6c757d;
-  }
-  
-  .addButton {
-    padding: 0.5rem 1rem;
-    background: linear-gradient(135deg, #007bff, #0056b3);
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  
-  .addButton:hover {
-    background: linear-gradient(135deg, #0056b3, #007bff);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
-  }
-  
-  .addButton:disabled {
-    background: #6c757d;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
-  
-  .removeButton {
-    background: #dc3545;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: background 0.2s ease, transform 0.2s ease;
-  }
-  
-  .removeButton:hover {
-    background: #c82333;
-    transform: scale(1.1);
-  }
-  
-  .settings {
-    background: #fff;
-    padding: 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  }
-  
-  .sectionTitle {
-    font-size: 1.25rem;
-    margin-bottom: 1rem;
-    color: #343a40;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  
-  .field {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-  }
-  
-  .field label {
-    flex: 0 0 160px;
-    font-weight: 500;
-    color: #495057;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  
-  .field input,
-  .field select {
-    flex: 1;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid #ced4da;
-    border-radius: 6px;
-    font-size: 0.95rem;
-    max-width: 200px;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  }
-  
-  .field input:focus,
-  .field select:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
-  }
-  
-  .field input:disabled,
-  .field select:disabled {
-    background: #e9ecef;
-    border-color: #dee2e6;
-  }
-  
-  .checkbox {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-left: 0.75rem;
-    font-size: 0.9rem;
-    color: #495057;
-  }
-  
-  .miscFees {
-    margin-bottom: 1rem;
-  }
-  
+
+  .sectionHeader,
+  .categoryHeader,
+  .workControls,
+  .field,
   .miscFeeRow {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 0.75rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
   }
-  
+
+  .field label,
   .miscFeeRow input {
-    flex: 1;
-    padding: 0.5rem 0.75rem 0.5rem 2rem;
-    border: 1px solid #ced4da;
-    border-radius: 6px;
-    font-size: 0.95rem;
-  }
-  
-  .miscFeeRow input:first-child {
-    flex: 2;
-  }
-  
-  .totals {
-    margin-top: 1.5rem;
-  }
-  
-  .totals h4 {
-    font-size: 1.1rem;
-    margin-bottom: 0.75rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #343a40;
-  }
-  
-  .totals table {
+    flex: none;
     width: 100%;
-    border-collapse: collapse;
   }
-  
-  .totals td {
-    padding: 0.75rem;
-    border-bottom: 1px solid #e9ecef;
+
+  .field input,
+  .field select,
+  .workInput,
+  .miscFeeRow input {
+    max-width: none;
+    width: 100%;
   }
-  
-  .totals td:first-child {
-    font-weight: 500;
-    width: 70%;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+
+  .addButton,
+  .removeButton {
+    width: 100%;
+    justify-content: center;
   }
-  
-  .overpaid {
-    color: #dc3545;
-    font-size: 0.9rem;
-    margin-left: 0.5rem;
-    font-style: italic;
-  }
-  
-  @media (max-width: 768px) {
-    .container {
-      padding: 0.5rem;
-    }
-  
-    .categoryHeader,
-    .workControls,
-    .field,
-    .miscFeeRow {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.5rem;
-    }
-  
-    .field label,
-    .miscFeeRow input {
-      flex: none;
-      width: 100%;
-    }
-  
-    .field input,
-    .field select,
-    .workInput,
-    .miscFeeRow input {
-      max-width: none;
-      width: 100%;
-    }
-  
-    .addButton,
-    .removeButton {
-      width: 100%;
-      justify-content: center;
-    }
-  }
+}
