@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faEye, faEdit, faTrashAlt, faSort, faSortUp, faSortDown, faTimes, faPlusCircle, faExclamationTriangle, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import { getProjects, deleteProject } from '../../services/projectService';
-import { calculateTotal } from '../Calculator/calculatorFunctions';
+import { calculateTotal } from '../Calculator/calculations/costCalculations';
 import styles from './CustomersList.module.css';
 
 const DUE_SOON_DAYS = 7;

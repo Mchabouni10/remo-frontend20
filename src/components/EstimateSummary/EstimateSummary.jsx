@@ -1,13 +1,16 @@
-// src/components/Calculator/EstimateSummary/EstimateSummary.jsx
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPrint, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import html2canvas from 'html2canvas';
-import printJS from 'print-js';
-import { calculateTotal, getUnits, getUnitLabel } from '../Calculator/calculatorFunctions';
+import { jsPDF } from 'jspdf';
+import { getUnits, getUnitLabel } from '../Calculator/utils/calculatorUtils';
+import { calculateTotal } from '../Calculator/calculations/costCalculations';
 import { getProject } from '../../services/projectService';
 import styles from './EstimateSummary.module.css';
+import logoImage from '../../assets/CompanyLogo.png'; 
+
+
 
 export default function EstimateSummary() {
   const componentRef = useRef(null);
@@ -76,42 +79,108 @@ export default function EstimateSummary() {
       alert('Nothing to print. Please add customer info or work items.');
       return;
     }
-    if (!componentRef.current) return;
+    if (!componentRef.current) {
+      alert('Component not ready for printing.');
+      return;
+    }
 
     setIsPrinting(true);
     try {
-      const canvas = await html2canvas(componentRef.current, {
+      const element = componentRef.current;
+
+      // Ensure the element is visible and fully rendered
+      element.style.display = 'block';
+      element.style.visibility = 'visible';
+
+      // Wait for rendering (optional, adjust delay if needed)
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const canvas = await html2canvas(element, {
         scale: 2,
-        width: 595, // A4 width in pixels at 72 DPI
-        height: 842, // A4 height in pixels at 72 DPI
-        scrollX: 0,
-        scrollY: 0,
         useCORS: true,
+        width: element.scrollWidth,
+        height: element.scrollHeight,
+        backgroundColor: '#ffffff', // Ensure white background
+        logging: true, // Enable logging for debugging
       });
-      const image = canvas.toDataURL('image/png');
-      printJS({
-        printable: image,
-        type: 'image',
-        documentTitle: `${customer?.projectName || 'Estimate'} - ${new Date().toLocaleDateString()}`,
-        style: '@page { size: A4; margin: 10mm; }',
-        onPrintDialogClose: () => setIsPrinting(false),
+
+      // Debugging: Log canvas to check if it’s capturing content
+      console.log('Canvas width:', canvas.width, 'Canvas height:', canvas.height);
+      // Optionally, preview the canvas in a new window
+      // const imgDataDebug = canvas.toDataURL('image/png');
+      // window.open(imgDataDebug);
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
       });
+
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      // Add first page
+      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight, undefined, 'FAST');
+      heightLeft -= pdfHeight;
+
+      // Add additional pages if content exceeds one page
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight, undefined, 'FAST');
+        heightLeft -= pdfHeight;
+      }
+
+      pdf.autoPrint();
+      pdf.output('dataurlnewwindow');
+      setIsPrinting(false);
     } catch (error) {
       console.error('Error during printing:', error);
-      alert('Error: Unable to print.');
+      alert('Error: Unable to print. Check console for details.');
       setIsPrinting(false);
+    } finally {
+      // Reset styles using componentRef.current instead of element
+      componentRef.current.style.display = '';
+      componentRef.current.style.visibility = '';
     }
   };
 
-  const totals = calculateTotal(categories, settings?.taxRate, settings?.transportationFee, settings?.wasteFactor, settings?.miscFees, settings?.markup);
+  // Memoized totals
+  const totals = useMemo(() => calculateTotal(
+    categories,
+    settings?.taxRate || 0,
+    settings?.transportationFee || 0,
+    settings?.wasteFactor || 0,
+    settings?.miscFees || [],
+    settings?.markup || 0
+  ), [categories, settings]);
+
+  const miscFeesTotal = useMemo(() => 
+    (settings?.miscFees || []).reduce((sum, fee) => sum + (parseFloat(fee.amount) || 0), 0),
+    [settings?.miscFees]
+  );
+
   const baseSubtotal = totals.materialCost + totals.laborCost;
-  const miscFeesTotal = settings?.miscFees?.reduce((sum, fee) => sum + (parseFloat(fee.amount) || 0), 0) || 0;
   const grandTotal = baseSubtotal + totals.wasteCost + totals.tax + totals.markupCost + totals.transportationFee + miscFeesTotal;
   const adjustedGrandTotal = Math.max(0, grandTotal - (settings?.deposit || 0));
   const remainingBalance = Math.max(0, adjustedGrandTotal - (settings?.amountPaid || 0));
-  const overpayment = settings?.amountPaid > adjustedGrandTotal ? settings.amountPaid - adjustedGrandTotal : 0;
+  const overpayment = (settings?.amountPaid || 0) > adjustedGrandTotal ? settings.amountPaid - adjustedGrandTotal : 0;
 
-  if (loading) return <div className={styles.mainContent}>Loading project data...</div>;
+  // Currency formatter
+  const formatCurrency = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+
+  if (loading) {
+    return (
+      <main className={styles.mainContent}>
+        <div className={styles.loading}>Loading project data...</div>
+      </main>
+    );
+  }
 
   return (
     <main className={styles.mainContent}>
@@ -119,6 +188,7 @@ export default function EstimateSummary() {
         <h1 className={styles.title}>Estimate Summary</h1>
         <div className={styles.summary} ref={componentRef}>
           <div className={styles.header}>
+            <img src={logoImage} alt="Rawdah Remodeling Logo" className={styles.logo} />
             <div className={styles.companyInfo}>
               <h2 className={styles.companyName}>RAWDAH REMODELING COMPANY</h2>
               <p>Lake in the Hills, IL | (224) 817-3264 | rawdahremodeling@gmail.com</p>
@@ -136,7 +206,6 @@ export default function EstimateSummary() {
               <p>Payment: {customer.paymentType}</p>
               <p>Start: {customer.startDate || 'N/A'}</p>
               <p>Finish: {customer.finishDate || 'N/A'}</p>
-              {customer.notes && <p>Notes: {customer.notes}</p>}
             </div>
           </div>
 
@@ -149,14 +218,14 @@ export default function EstimateSummary() {
                 return (
                   <div key={index} className={styles.categoryBreakdown}>
                     <h5>{cat.name}</h5>
-                    <table className={styles.workTable}>
+                    <table className={styles.workTable} aria-label={`Breakdown for ${cat.name}`}>
                       <thead>
                         <tr>
-                          <th>Item</th>
-                          <th>Qty</th>
-                          <th>Mat. Cost</th>
-                          <th>Labor Cost</th>
-                          <th>Total</th>
+                          <th scope="col">Item</th>
+                          <th scope="col">Qty</th>
+                          <th scope="col">Mat. Cost</th>
+                          <th scope="col">Labor Cost</th>
+                          <th scope="col">Total</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -169,31 +238,31 @@ export default function EstimateSummary() {
                             <tr key={i}>
                               <td>{item.name} ({item.type}) {item.subtype && `- ${item.subtype}`}</td>
                               <td>{units.toFixed(1)} {unitLabel}</td>
-                              <td>${matCost.toFixed(2)}</td>
-                              <td>${labCost.toFixed(2)}</td>
-                              <td>${(matCost + labCost).toFixed(2)}</td>
+                              <td>{formatCurrency(matCost)}</td>
+                              <td>{formatCurrency(labCost)}</td>
+                              <td>{formatCurrency(matCost + labCost)}</td>
                             </tr>
                           );
                         })}
                         <tr className={styles.categoryTotalRow}>
                           <td colSpan={2}>Subtotal</td>
-                          <td>${materialCost.toFixed(2)}</td>
-                          <td>${laborCost.toFixed(2)}</td>
-                          <td>${(materialCost + laborCost).toFixed(2)}</td>
+                          <td>{formatCurrency(materialCost)}</td>
+                          <td>{formatCurrency(laborCost)}</td>
+                          <td>{formatCurrency(materialCost + laborCost)}</td>
                         </tr>
                       </tbody>
                     </table>
                   </div>
                 );
               })}
-              <table className={styles.totalTable}>
+              <table className={styles.totalTable} aria-label="Category Totals">
                 <tbody>
                   <tr className={styles.totalRow}>
                     <td>Total</td>
                     <td>{categories.reduce((sum, cat) => sum + cat.workItems.length, 0)}</td>
-                    <td>${totals.materialCost.toFixed(2)}</td>
-                    <td>${totals.laborCost.toFixed(2)}</td>
-                    <td>${baseSubtotal.toFixed(2)}</td>
+                    <td>{formatCurrency(totals.materialCost)}</td>
+                    <td>{formatCurrency(totals.laborCost)}</td>
+                    <td>{formatCurrency(baseSubtotal)}</td>
                   </tr>
                 </tbody>
               </table>
@@ -202,45 +271,52 @@ export default function EstimateSummary() {
 
           <section className={styles.totalSection}>
             <h4>Cost Calculation</h4>
-            <table className={styles.totalTable}>
+            <table className={styles.totalTable} aria-label="Cost Calculation">
               <tbody>
-                <tr><td>Base Subtotal</td><td>${baseSubtotal.toFixed(2)}</td></tr>
-                <tr><td>Waste ({(settings?.wasteFactor * 100 || 0).toFixed(1)}%)</td><td>${totals.wasteCost.toFixed(2)}</td></tr>
-                <tr><td>Tax ({(settings?.taxRate * 100 || 0).toFixed(1)}%)</td><td>${totals.tax.toFixed(2)}</td></tr>
-                <tr><td>Markup ({(settings?.markup * 100 || 0).toFixed(1)}%)</td><td>${totals.markupCost.toFixed(2)}</td></tr>
-                <tr><td>Transportation</td><td>${totals.transportationFee.toFixed(2)}</td></tr>
+                <tr><td>Base Subtotal</td><td>{formatCurrency(baseSubtotal)}</td></tr>
+                <tr><td>Waste ({(settings?.wasteFactor * 100 || 0).toFixed(1)}%)</td><td>{formatCurrency(totals.wasteCost)}</td></tr>
+                <tr><td>Tax ({(settings?.taxRate * 100 || 0).toFixed(1)}%)</td><td>{formatCurrency(totals.tax)}</td></tr>
+                <tr><td>Markup ({(settings?.markup * 100 || 0).toFixed(1)}%)</td><td>{formatCurrency(totals.markupCost)}</td></tr>
+                <tr><td>Transportation</td><td>{formatCurrency(totals.transportationFee)}</td></tr>
                 {miscFeesTotal > 0 && (
                   <tr>
                     <td>Misc Fees</td>
                     <td>
                       {settings.miscFees.map((fee, i) => (
-                        <div key={i}>{fee.name}: ${parseFloat(fee.amount).toFixed(2)}</div>
+                        <div key={i}>{fee.name}: {formatCurrency(parseFloat(fee.amount))}</div>
                       ))}
-                      <strong>Total: ${miscFeesTotal.toFixed(2)}</strong>
+                      <strong>Total: {formatCurrency(miscFeesTotal)}</strong>
                     </td>
                   </tr>
                 )}
-                <tr className={styles.grandTotalRow}><td><strong>Grand Total</strong></td><td><strong>${grandTotal.toFixed(2)}</strong></td></tr>
+                <tr className={styles.grandTotalRow}><td><strong>Grand Total</strong></td><td><strong>{formatCurrency(grandTotal)}</strong></td></tr>
               </tbody>
             </table>
 
             <h4>Payment Summary</h4>
-            <table className={styles.totalTable}>
+            <table className={styles.totalTable} aria-label="Payment Summary">
               <tbody>
-                <tr><td>Grand Total</td><td>${grandTotal.toFixed(2)}</td></tr>
-                <tr><td>Deposit</td><td>-${(settings?.deposit || 0).toFixed(2)}</td></tr>
-                <tr><td>Adjusted Total</td><td>${adjustedGrandTotal.toFixed(2)}</td></tr>
-                <tr><td>Amount Paid</td><td>-${(settings?.amountPaid || 0).toFixed(2)}</td></tr>
+                <tr><td>Grand Total</td><td>{formatCurrency(grandTotal)}</td></tr>
+                <tr><td>Deposit</td><td>-{formatCurrency(settings?.deposit || 0)}</td></tr>
+                <tr><td>Adjusted Total</td><td>{formatCurrency(adjustedGrandTotal)}</td></tr>
+                <tr><td>Amount Paid</td><td>-{formatCurrency(settings?.amountPaid || 0)}</td></tr>
                 <tr className={styles.remainingRow}>
                   <td><strong>Remaining Balance</strong></td>
-                  <td><strong>${remainingBalance.toFixed(2)}</strong></td>
+                  <td><strong>{formatCurrency(remainingBalance)}</strong></td>
                 </tr>
                 {overpayment > 0 && (
-                  <tr><td>Overpayment</td><td>${overpayment.toFixed(2)}</td></tr>
+                  <tr><td>Overpayment</td><td>{formatCurrency(overpayment)}</td></tr>
                 )}
               </tbody>
             </table>
           </section>
+
+          {customer.notes && (
+            <section className={styles.notesSection}>
+              <h4>Project Notes</h4>
+              <p>{customer.notes}</p>
+            </section>
+          )}
 
           <section className={styles.signatureSection}>
             <h4>Customer Approval</h4>

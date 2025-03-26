@@ -1,7 +1,7 @@
 // src/components/WorkItem/WorkItem.js
 import React, { useCallback, useState } from 'react';
 import SurfaceInput from '../SurfaceInput/SurfaceInput';
-import { WORK_TYPES, SUBTYPE_OPTIONS, DEFAULT_SUBTYPES } from '../calculatorFunctions';
+import { WORK_TYPES, SUBTYPE_OPTIONS, DEFAULT_SUBTYPES } from '../data/workTypes';
 import styles from './WorkItem.module.css';
 
 export default function WorkItem({

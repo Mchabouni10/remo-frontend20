@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import styles from './CategoryList.module.css';
 import WorkItem from '../WorkItem/WorkItem';
-import { calculateTotal } from '../calculatorFunctions';
+import { calculateTotal } from '../calculations/costCalculations';
 
 export default function CategoryList({
   categories = [],

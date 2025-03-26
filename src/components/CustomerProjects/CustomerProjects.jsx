@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faEye, faEdit, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { deleteProject } from '../../services/projectService';
-import { calculateTotal } from '../Calculator/calculatorFunctions';
+import { calculateTotal } from '../Calculator/calculations/costCalculations';
 import styles from '../CustomersList/CustomersList.module.css'; // Reuse styles
 
 export default function CustomerProjects() {

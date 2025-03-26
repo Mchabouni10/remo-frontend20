@@ -1,65 +1,66 @@
 .costBreakdown {
-  margin-top: 0.5rem; /* Reduced from 1rem */
-  padding: 0.5rem; /* Reduced from 1rem */
+  margin-top: 0.5rem;
+  padding: 0.5rem;
   background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
-  border-radius: 10px; /* Reduced from 12px */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); /* Slightly reduced shadow */
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   max-width: 1000px;
   margin-left: auto;
   margin-right: auto;
 }
 
 .sectionTitle {
-  font-size: 1rem; /* Reduced from 1.25rem */
+  font-size: 1rem;
   font-weight: 800;
   color: #2c3e50;
   text-align: center;
-  margin-bottom: 0.5rem; /* Reduced from 1rem */
+  margin-bottom: 0.5rem;
   background: linear-gradient(135deg, #2c3e50 0%, #1a2634 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
-  padding-bottom: 0.15rem; /* Reduced from 0.25rem */
-  border-bottom: 1px solid #2c3e50; /* Reduced from 2px */
+  padding-bottom: 0.15rem;
+  border-bottom: 1px solid #2c3e50;
 }
 
 .subSectionTitle {
-  font-size: 0.85rem; /* Reduced from 1rem */
+  font-size: 0.85rem;
   font-weight: 700;
   color: #2c3e50;
-  margin-bottom: 0.4rem; /* Reduced from 0.75rem */
-  padding-left: 0.3rem; /* Reduced from 0.5rem */
-  border-left: 2px solid #2c3e50; /* Reduced from 3px */
+  margin-bottom: 0.4rem;
+  padding-left: 0.3rem;
+  border-left: 2px solid #2c3e50;
 }
 
 .categorySection,
 .totalSection,
 .paymentSection {
-  margin-bottom: 0.5rem; /* Reduced from 1rem */
-  padding: 0.4rem; /* Reduced from 0.75rem */
+  margin-bottom: 0.5rem;
+  padding: 0.4rem;
   background: #ffffff;
-  border-radius: 6px; /* Reduced from 8px */
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04); /* Reduced shadow */
-  transition: transform 0.1s ease; /* Reduced transition time */
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  transition: transform 0.1s ease;
 }
 
 .categorySection:hover,
 .totalSection:hover,
 .paymentSection:hover {
-  transform: translateY(-0.5px); /* Reduced from -1px */
+  transform: translateY(-0.5px);
 }
 
 .breakdownTable {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  font-size: 0.75rem; /* Reduced from 0.85rem */
+  font-size: 0.75rem;
   color: #4a5568;
 }
 
 .breakdownTable th,
 .breakdownTable td {
-  padding: 0.25rem 0.4rem; /* Reduced from 0.4rem 0.6rem */
-  border-bottom: 0.5px solid #e2e8f0; /* Thinner border */
+  padding: 0.25rem 0.4rem;
+  border-bottom: 0.5px solid #e2e8f0;
 }
 
 .breakdownTable th {
@@ -68,7 +69,7 @@
   font-weight: 600;
   text-align: left;
   text-transform: uppercase;
-  letter-spacing: 0.2px; /* Reduced from 0.3px */
+  letter-spacing: 0.2px;
 }
 
 .breakdownTable td {
@@ -94,15 +95,15 @@
   font-weight: 700;
   color: #2d3748;
   background: #e6f0fa;
-  border-top: 0.5px solid #2c3e50; /* Reduced from 1px */
+  border-top: 0.5px solid #2c3e50;
 }
 
 .grandTotalRow td {
   font-weight: 800;
-  font-size: 0.9rem; /* Reduced from 1rem */
+  font-size: 0.9rem;
   color: #1a365d;
   background: linear-gradient(135deg, #edf2f7 0%, #dbe2ea 100%);
-  border-top: 1px solid #2c3e50; /* Reduced from 2px */
+  border-top: 1px solid #2c3e50;
 }
 
 .remaining {
@@ -122,34 +123,34 @@
 /* Detailed Breakdown Styles */
 .detailRow td {
   vertical-align: top;
-  padding: 0.3rem; /* Reduced from 0.5rem */
+  padding: 0.3rem;
 }
 
 .totalValue {
   font-weight: 700;
   color: #2c3e50;
   display: block;
-  margin-bottom: 0.25rem; /* Reduced from 0.5rem */
+  margin-bottom: 0.25rem;
 }
 
 .detailBreakdown {
   background: #f9fafb;
   border: 1px solid #e2e8f0;
-  border-radius: 4px; /* Reduced from 6px */
-  padding: 0.25rem; /* Reduced from 0.4rem */
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.02); /* Minimized shadow */
+  border-radius: 4px;
+  padding: 0.25rem;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.02);
 }
 
 .innerTable {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.7rem; /* Reduced from 0.8rem */
+  font-size: 0.7rem;
 }
 
 .innerTable th,
 .innerTable td {
-  padding: 0.2rem 0.3rem; /* Reduced from 0.3rem 0.5rem */
-  border-bottom: 0.5px solid #edf2f7; /* Thinner border */
+  padding: 0.2rem 0.3rem;
+  border-bottom: 0.5px solid #edf2f7;
 }
 
 .innerTable th {
@@ -171,36 +172,69 @@
   border-bottom: none;
 }
 
+/* Toggle Button */
+.toggleButton {
+  margin-left: 0.5rem;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.7rem;
+  background: #2c3e50;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.toggleButton:hover {
+  background: #1a2634;
+}
+
+/* Error Message */
+.error {
+  color: #e53e3e;
+  font-weight: 600;
+  text-align: center;
+  padding: 0.5rem;
+  background: #fef2f2;
+  border-radius: 6px;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
   .costBreakdown {
-    padding: 0.4rem; /* Reduced from 0.75rem */
+    padding: 0.4rem;
   }
 
   .sectionTitle {
-    font-size: 0.9rem; /* Reduced from 1.1rem */
+    font-size: 0.9rem;
   }
 
   .subSectionTitle {
-    font-size: 0.8rem; /* Reduced from 0.95rem */
+    font-size: 0.8rem;
   }
 
   .breakdownTable th,
   .breakdownTable td {
-    padding: 0.2rem 0.3rem; /* Reduced from 0.3rem 0.5rem */
-    font-size: 0.7rem; /* Reduced from 0.8rem */
+    padding: 0.2rem 0.3rem;
+    font-size: 0.7rem;
   }
 
   .detailBreakdown {
-    padding: 0.2rem; /* Reduced from 0.3rem */
+    padding: 0.2rem;
   }
 
   .innerTable th,
   .innerTable td {
-    padding: 0.15rem 0.25rem; /* Reduced from 0.25rem 0.4rem */
-    font-size: 0.65rem; /* Reduced from 0.75rem */
+    padding: 0.15rem 0.25rem;
+    font-size: 0.65rem;
   }
 
   .grandTotalRow td {
-    font-size: 0.85rem; /* Reduced from 0.9rem */
+    font-size: 0.85rem;
+  }
+
+  .toggleButton {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.4rem;
   }
 }
