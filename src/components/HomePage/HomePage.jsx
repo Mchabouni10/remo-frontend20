@@ -1,3 +1,4 @@
+// src/components/HomePage/HomePage.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -12,7 +13,7 @@ export default function HomePage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const initialCustomerInfo = location.state?.customerInfo || {};
+  const initialCustomerInfo = location.pathname === '/home/new-customer-project' ? {} : location.state?.customerInfo || {};
 
   const [customer, setCustomer] = useState({
     firstName: initialCustomerInfo.firstName || '',
@@ -46,7 +47,7 @@ export default function HomePage() {
 
   const isDetailsMode = location.pathname.startsWith('/home/customer/') && id;
   const isEditMode = location.pathname.startsWith('/home/edit/') && id;
-  const isNewMode = location.pathname === '/home/customer' && !id;
+  const isNewMode = location.pathname === '/home/customer' || location.pathname === '/home/new-customer-project';
 
   useEffect(() => {
     const loadProject = async () => {

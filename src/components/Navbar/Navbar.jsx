@@ -1,3 +1,4 @@
+// src/components/Navbar/Navbar.jsx
 import { Link, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSignOutAlt, faUsers, faPlusCircle, faFileAlt } from '@fortawesome/free-solid-svg-icons';
@@ -22,7 +23,7 @@ export default function Navbar({ user, setUser }) {
           </Link>
         </li>
         <li>
-          <Link to="/home/customer" className={styles.navLink}>
+          <Link to="/home/new-customer-project" className={styles.navLink}>
             <FontAwesomeIcon icon={faPlusCircle} className={styles.navIcon} />
             <span>New Project</span>
           </Link>
