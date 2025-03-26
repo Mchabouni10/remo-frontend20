@@ -1,3 +1,4 @@
+// src/App.jsx
 import './App.css';
 import { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
@@ -8,7 +9,7 @@ import AuthPage from './components/AuthPage/AuthPage';
 import UserLogOut from './components/UserLogOut/UserLogOut';
 import HomePage from './components/HomePage/HomePage';
 import CustomersList from './components/CustomersList/CustomersList';
-import CustomerProjects from './components/CustomerProjects/CustomerProjects'; // Updated path
+import CustomerProjects from './components/CustomerProjects/CustomerProjects';
 import EstimateSummaryPage from './components/EstimateSummary/EstimateSummary';
 
 export default function App() {
@@ -28,6 +29,7 @@ export default function App() {
               <Route path="/home/customers" element={<CustomersList />} />
               <Route path="/home/customer-projects" element={<CustomerProjects />} />
               <Route path="/home/estimate/:id" element={<EstimateSummaryPage />} />
+              <Route path="/home/new-customer-project" element={<HomePage />} /> {/* New Route */}
               <Route path="/logout" element={<UserLogOut user={user} setUser={setUser} />} />
               <Route path="/" element={<Navigate to="/home/customers" />} />
             </Routes>

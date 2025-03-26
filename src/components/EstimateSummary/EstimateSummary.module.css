@@ -1,283 +1,167 @@
-/* src/components/Calculator/EstimateSummary/EstimateSummary.module.css */
 .mainContent {
-  background-color: #ffffff;
-  min-height: calc(100vh - 60px);
-  padding-top: 1rem;
-  margin: 0;
+  background: #fff;
+  min-height: 100vh;
+  padding: 0;
 }
 
 .container {
-  max-width: 1440px;
+  max-width: 595px; /* A4 width in pixels at 72 DPI */
   margin: 0 auto;
-  padding: 1.5rem;
-  background-color: #ffffff;
-  color: #000000;
+  padding: 10px;
 }
 
 .title {
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
+  font-size: 16px;
+  font-weight: bold;
   text-align: center;
-  color: #000000;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  margin-bottom: 10px;
 }
 
 .summary {
-  padding: 25px;
-  background-color: #fff;
+  padding: 10mm;
   font-family: Arial, sans-serif;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  font-size: 9px;
+  line-height: 1.2;
 }
 
 .header {
-  margin-bottom: 25px;
-  text-align: center;
-}
-
-.companyInfo {
-  margin-bottom: 20px;
-}
-
-.companyName {
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: #2c3e50;
   margin-bottom: 8px;
 }
 
+.companyInfo {
+  text-align: center;
+}
+
+.companyName {
+  font-size: 13px;
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
 .companyInfo p {
-  font-size: 0.95rem;
-  color: #6b7280;
+  font-size: 8px;
+  margin: 0;
 }
 
 .totalTitle {
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 20px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  font-size: 11px;
+  font-weight: bold;
+  text-align: center;
+  margin: 5px 0;
 }
 
 .customerInfo {
-  margin-top: 20px;
-  text-align: left;
-  padding: 15px;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  background-color: #f9fafb;
+  margin-top: 5px;
 }
 
 .customerInfo h4 {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 12px;
+  font-size: 10px;
+  font-weight: bold;
+  margin-bottom: 3px;
 }
 
 .customerInfo p {
-  margin: 6px 0;
-  font-size: 0.95rem;
-  color: #4b5563;
+  margin: 1px 0;
 }
 
-.breakdown {
-  margin-bottom: 30px;
+.categorySection, .totalSection, .signatureSection {
+  margin-bottom: 8px;
+}
+
+.categorySection h4, .totalSection h4, .signatureSection h4 {
+  font-size: 10px;
+  font-weight: bold;
+  margin-bottom: 4px;
 }
 
 .categoryBreakdown {
-  margin-bottom: 25px;
+  margin-bottom: 6px;
 }
 
-.categoryName {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 12px;
+.categoryBreakdown h5 {
+  font-size: 9px;
+  font-weight: bold;
+  margin-bottom: 3px;
 }
 
-.workTable {
+.workTable, .totalTable {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 15px;
+  margin-bottom: 4px;
 }
 
-.workTable th,
-.workTable td {
-  padding: 10px 15px;
-  border: 1px solid #e2e8f0;
+.workTable th, .workTable td, .totalTable td {
+  border: 0.5px solid #ccc;
+  padding: 2px 3px;
   text-align: left;
-  font-size: 0.9rem;
 }
 
 .workTable th {
-  background-color: #f1f5f9;
-  font-weight: 600;
-  color: #2c3e50;
-}
-
-.workTable td {
-  color: #4b5563;
-}
-
-.notes {
-  font-style: italic;
-  color: #6b7280;
-}
-
-.categoryTotal {
-  font-size: 1.05rem;
-  font-weight: 500;
-  color: #2c3e50;
-  text-align: right;
-  margin-top: 10px;
-}
-
-.grandTotal {
-  padding: 20px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  background-color: #f9fafb;
-}
-
-.grandTotal h4 {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 15px;
-}
-
-.totalTable {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.totalTable td {
-  padding: 10px 15px;
-  font-size: 0.95rem;
-  color: #4b5563;
-}
-
-.totalTable td:first-child {
-  font-weight: 500;
-  width: 60%;
+  background: #f0f0f0;
+  font-weight: bold;
 }
 
 .totalTable td:last-child {
   text-align: right;
 }
 
-.totalTable .grandTotalRow td {
-  font-weight: 700;
-  font-size: 1.15rem;
-  color: #2c3e50;
-  border-top: 2px solid #e2e8f0;
-  padding-top: 15px;
+.categoryTotalRow td {
+  font-weight: bold;
+  background: #f8f8f8;
 }
 
-.miscFee {
-  margin: 6px 0;
-  font-size: 0.9rem;
+.totalRow td {
+  font-weight: bold;
+  background: #f0f0f0;
 }
 
-.paymentTracking {
-  margin-top: 25px;
-  padding-top: 20px;
-  border-top: 1px solid #e2e8f0;
+.grandTotalRow td, .remainingRow td {
+  font-weight: bold;
+  border-top: 1px solid #000;
 }
 
-.paymentTracking h4 {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 15px;
+.signatureSection p {
+  margin: 3px 0;
+  font-size: 8px;
 }
 
-.remainingRow td {
-  font-weight: 700;
-  font-size: 1.15rem;
-  color: #2c3e50;
-  border-top: 2px solid #e2e8f0;
-  padding-top: 15px;
+.signatureLine {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
 }
 
-.overpaid {
-  color: #dc3545;
-  font-style: italic;
-  margin-left: 8px;
+.signatureLine span {
+  font-size: 9px;
 }
 
 .footer {
-  margin-top: 25px;
   text-align: center;
-  font-size: 0.9rem;
-  color: #6b7280;
+  font-size: 8px;
+  margin-top: 8px;
 }
 
 .buttonGroup {
   display: flex;
   justify-content: center;
-  gap: 1rem;
-  margin-top: 1.5rem;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.printButton, .backButton {
+  padding: 6px 12px;
+  font-size: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .printButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 12px 24px;
-  background: linear-gradient(135deg, #2c3e50 0%, #1a2634 100%);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.printButton:hover:not(:disabled) {
-  background: linear-gradient(135deg, #1a2634 0%, #2c3e50 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(44, 62, 80, 0.3);
-}
-
-.printButton:disabled {
-  background: #6c757d;
-  cursor: not-allowed;
+  background: #2c3e50;
+  color: #fff;
 }
 
 .backButton {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 12px 24px;
   background: #6c757d;
-  color: #ffffff;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.backButton:hover {
-  background: #5a6268;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
-}
-
-.buttonIcon {
-  font-size: 1rem;
-}
-
-.noItems {
-  font-size: 0.95rem;
-  color: #6b7280;
-  text-align: center;
+  color: #fff;
 }
