@@ -1,4 +1,4 @@
-/* Import Inter font from Google Fonts */
+/* Import Poppins font from Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
 
 /* Global Reset */
@@ -12,7 +12,7 @@
 
 /* CSS Variables */
 :root {
-  /* Colors */
+  /* Light Mode Colors (Default) */
   --primary: #2c3e50;         /* Main brand color */
   --primary-dark: #1a2634;    /* Darker variant for gradients */
   --secondary: #3498db;       /* Interactive elements */
@@ -25,7 +25,7 @@
   --shadow: rgba(44, 62, 80, 0.2); /* Subtle shadow */
 
   /* Typography */
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  --font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   --font-size-base: 1rem;     /* 16px */
   --font-size-sm: 0.875rem;   /* 14px */
   --font-size-lg: 1.25rem;    /* 20px */
@@ -48,6 +48,20 @@
   --radius-lg: 12px;
 }
 
+/* Dark Mode Colors */
+.dark {
+  --primary: #4a6fa5;         /* Lighter blue for contrast */
+  --primary-dark: #2e4a7d;    /* Darker variant for gradients */
+  --secondary: #60a5fa;       /* Brighter blue for interactivity */
+  --background: #1f2a44;      /* Dark background */
+  --surface: #2d3748;         /* Darker cards and sections */
+  --text: #e2e8f0;            /* Light text for readability */
+  --text-light: #94a3b8;      /* Softer gray for secondary text */
+  --error: #f87171;           /* Lighter red for visibility */
+  --success: #4ade80;         /* Brighter green for contrast */
+  --shadow: rgba(0, 0, 0, 0.4); /* Darker shadow for depth */
+}
+
 /* Body Styles */
 body {
   font-family: var(--font-family);
@@ -58,6 +72,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Utility Classes */
@@ -77,6 +92,7 @@ body {
   background: var(--surface);
   border-radius: var(--radius-lg);
   box-shadow: 0 6px 20px var(--shadow);
+  transition: background-color 0.3s ease;
 }
 
 .header {
@@ -84,7 +100,7 @@ body {
   justify-content: space-between;
   align-items: center;
   padding-bottom: var(--spacing-md);
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.2);
 }
 
 .title {
@@ -155,10 +171,11 @@ body {
 .input {
   width: 100%;
   padding: var(--spacing-sm) var(--spacing-md);
-  border: 1px solid #d1d5db;
+  border: 1px solid rgba(209, 213, 219, 0.3);
   border-radius: var(--radius-sm);
   font-size: var(--font-size-base);
   color: var(--text);
+  background-color: var(--surface);
   transition: all 0.3s ease;
 }
 
@@ -169,7 +186,7 @@ body {
 }
 
 .input:disabled {
-  background: #e9ecef;
+  background: rgba(233, 236, 239, 0.1);
   opacity: 0.7;
   cursor: not-allowed;
 }

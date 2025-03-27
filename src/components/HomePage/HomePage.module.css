@@ -1,4 +1,3 @@
-/* src/components/HomePage/HomePage.module.css */
 .mainContent {
   background-color: var(--background);
   min-height: calc(100vh - 60px);
@@ -7,6 +6,7 @@
   justify-content: center;
   align-items: flex-start;
   overflow-y: auto;
+  transition: background-color 0.3s ease;
 }
 
 .container {
@@ -17,6 +17,7 @@
   background-color: var(--surface);
   border-radius: var(--radius-lg);
   box-shadow: 0 6px 20px var(--shadow);
+  transition: background-color 0.3s ease;
 }
 
 .header {
@@ -25,7 +26,7 @@
   align-items: center;
   margin-bottom: var(--spacing-xl);
   padding-bottom: var(--spacing-md);
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.2);
 }
 
 .title {
@@ -52,11 +53,12 @@
   flex: 1;
   min-width: 300px;
   max-width: 600px;
-  background-color: #fafafa;
-  border: 1px solid #e2e8f0;
+  background-color: var(--surface);
+  border: 1px solid rgba(226, 232, 240, 0.2);
   border-radius: var(--radius-md);
   padding: var(--spacing-lg);
   box-shadow: 0 4px 14px var(--shadow);
+  transition: background-color 0.3s ease;
 }
 
 .calculatorSection {
@@ -64,19 +66,21 @@
   min-width: 800px;
   max-width: 900px;
   background-color: var(--surface);
-  border: 1px solid #e2e8f0;
+  border: 1px solid rgba(226, 232, 240, 0.2);
   border-radius: var(--radius-md);
   padding: var(--spacing-lg);
   box-shadow: 0 4px 14px var(--shadow);
+  transition: background-color 0.3s ease;
 }
 
 .costBreakdownSection {
   width: 100%;
   background-color: var(--surface);
-  border: 1px solid #e2e8f0;
+  border: 1px solid rgba(226, 232, 240, 0.2);
   border-radius: var(--radius-md);
   padding: var(--spacing-lg);
   box-shadow: 0 4px 14px var(--shadow);
+  transition: background-color 0.3s ease;
 }
 
 .buttonGroup {
@@ -86,10 +90,9 @@
   margin-top: var(--spacing-xl);
   flex-wrap: wrap;
   padding-top: var(--spacing-lg);
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid rgba(226, 232, 240, 0.2);
 }
 
-/* Button styles aligned with index.css */
 .saveButton,
 .resetButton,
 .backButton,
@@ -119,7 +122,7 @@
 }
 
 .saveButton:disabled {
-  background: #95a5a6;
+  background: var(--text-light);
   cursor: not-allowed;
   opacity: 0.5;
 }
@@ -135,7 +138,7 @@
 }
 
 .resetButton:disabled {
-  background: #95a5a6;
+  background: var(--text-light);
   cursor: not-allowed;
   opacity: 0.5;
 }
@@ -151,7 +154,7 @@
 }
 
 .backButton:disabled {
-  background: #95a5a6;
+  background: var(--text-light);
   cursor: not-allowed;
   opacity: 0.5;
 }

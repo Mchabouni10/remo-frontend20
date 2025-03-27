@@ -10,6 +10,7 @@
   top: 0;
   z-index: 1000;
   height: 60px;
+  transition: background 0.3s ease; /* Smooth transition for theme changes */
 }
 
 .logoContainer {
@@ -82,6 +83,38 @@
   color: var(--surface);
 }
 
+/* Dark Mode Toggle Button */
+.toggleButton {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.toggleButton:hover {
+  color: var(--surface);
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.toggleButton:active {
+  transform: translateY(0);
+}
+
+.toggleIcon {
+  font-size: var(--font-size-base);
+  width: 16px;
+  text-align: center;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .navbar {
@@ -92,7 +125,8 @@
     gap: var(--spacing-md);
   }
 
-  .navLink {
+  .navLink,
+  .toggleButton {
     padding: var(--spacing-sm) var(--spacing-sm);
     font-size: var(--font-size-sm);
   }
@@ -103,5 +137,11 @@
 
   .logoSubtitle {
     font-size: 0.75rem; /* Slightly smaller than --font-size-sm for mobile */
+  }
+
+  .navIcon,
+  .toggleIcon {
+    font-size: var(--font-size-sm);
+    width: 14px;
   }
 }

@@ -1,13 +1,13 @@
-/* src/components/Calculator/CostBreakdown/CostBreakdown.module.css */
 .costBreakdown {
   margin-top: var(--spacing-sm);
   padding: var(--spacing-md);
-  background: linear-gradient(135deg, var(--surface) 0%, #f9fafb 100%);
+  background: linear-gradient(135deg, var(--surface) 0%, var(--background) 100%);
   border-radius: var(--radius-md);
   box-shadow: 0 2px 8px var(--shadow);
   max-width: 1000px;
   margin-left: auto;
   margin-right: auto;
+  transition: background-color 0.3s ease;
 }
 
 .sectionTitle {
@@ -41,7 +41,7 @@
   background: var(--surface);
   border-radius: var(--radius-sm);
   box-shadow: 0 1px 4px var(--shadow);
-  transition: transform 0.1s ease;
+  transition: transform 0.1s ease, background-color 0.3s ease;
 }
 
 .categorySection:hover,
@@ -61,7 +61,7 @@
 .breakdownTable th,
 .breakdownTable td {
   padding: var(--spacing-sm) var(--spacing-md);
-  border-bottom: 0.5px solid #e2e8f0;
+  border-bottom: 0.5px solid rgba(226, 232, 240, 0.2);
 }
 
 .breakdownTable th {
@@ -74,16 +74,17 @@
 }
 
 .breakdownTable td {
-  background: #fafafa;
+  background: var(--surface);
+  transition: background-color 0.3s ease;
 }
 
 .categoryRow:hover td {
-  background: #f1f5f9;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .totalRow td {
   font-weight: var(--font-weight-bold);
-  background: #edf2f7;
+  background: var(--background);
   color: var(--primary);
 }
 
@@ -95,7 +96,7 @@
 .subtotalRow td {
   font-weight: var(--font-weight-bold);
   color: var(--text);
-  background: #e6f0fa;
+  background: rgba(230, 240, 250, 0.1);
   border-top: 0.5px solid var(--primary);
 }
 
@@ -103,7 +104,7 @@
   font-weight: var(--font-weight-extrabold);
   font-size: var(--font-size-base);
   color: var(--primary-dark);
-  background: linear-gradient(135deg, #edf2f7 0%, #dbe2ea 100%);
+  background: linear-gradient(135deg, var(--background) 0%, rgba(219, 226, 234, 0.2) 100%);
   border-top: 1px solid var(--primary);
 }
 
@@ -118,7 +119,7 @@
 .overpaymentRow td {
   font-weight: var(--font-weight-medium);
   color: #d69e2e;
-  background: #fefcbf;
+  background: rgba(254, 252, 191, 0.2);
 }
 
 /* Detailed Breakdown Styles */
@@ -135,11 +136,12 @@
 }
 
 .detailBreakdown {
-  background: #f9fafb;
-  border: 1px solid #e2e8f0;
+  background: var(--background);
+  border: 1px solid rgba(226, 232, 240, 0.2);
   border-radius: var(--radius-sm);
   padding: var(--spacing-sm);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.02);
+  transition: background-color 0.3s ease;
 }
 
 .innerTable {
@@ -151,11 +153,11 @@
 .innerTable th,
 .innerTable td {
   padding: var(--spacing-sm) var(--spacing-md);
-  border-bottom: 0.5px solid #edf2f7;
+  border-bottom: 0.5px solid rgba(226, 232, 240, 0.2);
 }
 
 .innerTable th {
-  background: #e2e8f0;
+  background: var(--primary-dark);
   color: var(--text);
   font-weight: var(--font-weight-bold);
   text-align: left;
@@ -166,7 +168,7 @@
 }
 
 .innerTable tr:hover td {
-  background: #f1f5f9;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .innerTable tr:last-child td {

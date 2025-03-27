@@ -1,12 +1,11 @@
-/* src/components/WorkItem/WorkItem.module.css */
 .workCard {
   padding: var(--spacing-lg);
-  border: 1px solid #e2e8f0;
+  border: 1px solid rgba(226, 232, 240, 0.2);
   border-radius: var(--radius-md);
   background: var(--surface);
   margin-bottom: var(--spacing-lg);
   box-shadow: 0 2px 6px var(--shadow);
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease, background-color 0.3s ease;
 }
 
 .workCard:hover {
@@ -40,19 +39,19 @@
   width: 100%;
   padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) 2rem;
   font-size: var(--font-size-sm);
-  border: 1px solid #ced4da;
+  border: 1px solid rgba(209, 213, 219, 0.3);
   border-radius: var(--radius-sm);
   background: var(--surface);
-  color: var(--primary);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  color: var(--text);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
 }
 
 .pricingField .select {
-  max-width: 120px; /* Compact dropdown */
+  max-width: 120px;
 }
 
 .pricingField .input {
-  max-width: 100px; /* Compact input */
+  max-width: 100px;
 }
 
 .input:focus,
@@ -64,8 +63,8 @@
 
 .input:disabled,
 .select:disabled {
-  background: #e9ecef;
-  border-color: #dee2e6;
+  background: rgba(233, 236, 239, 0.1);
+  border-color: rgba(226, 232, 240, 0.2);
   opacity: 0.7;
   cursor: not-allowed;
 }
@@ -117,12 +116,13 @@
 .pricingSection {
   margin-top: var(--spacing-md);
   padding: var(--spacing-md);
-  border: 1px solid #e2e8f0;
+  border: 1px solid rgba(226, 232, 240, 0.2);
   border-radius: var(--radius-sm);
-  background: #fafafa;
+  background: var(--background);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
+  transition: background-color 0.3s ease;
 }
 
 .pricingField {

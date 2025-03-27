@@ -1,10 +1,10 @@
 // src/components/Navbar/Navbar.jsx
 import { Link, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSignOutAlt, faUsers, faPlusCircle, faFileAlt } from '@fortawesome/free-solid-svg-icons';
+import { faSignOutAlt, faUsers, faPlusCircle, faFileAlt, faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
 import styles from './Navbar.module.css';
 
-export default function Navbar({ user, setUser }) {
+export default function Navbar({ user, setUser, toggleDarkMode, isDarkMode }) {
   const location = useLocation();
   const projectId = location.pathname.match(/\/home\/(customer|edit|estimate)\/([^/]+)/)?.[2];
 
@@ -36,6 +36,15 @@ export default function Navbar({ user, setUser }) {
             </Link>
           </li>
         )}
+        <li>
+          <button onClick={toggleDarkMode} className={styles.toggleButton}>
+            <FontAwesomeIcon
+              icon={isDarkMode ? faSun : faMoon}
+              className={styles.toggleIcon}
+            />
+            <span>{isDarkMode ? 'Light' : 'Dark'}</span>
+          </button>
+        </li>
         <li>
           <Link to="/logout" className={`${styles.navLink} ${styles.logoutLink}`}>
             <FontAwesomeIcon icon={faSignOutAlt} className={styles.navIcon} />
