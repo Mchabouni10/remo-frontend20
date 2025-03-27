@@ -1,45 +1,46 @@
+/* src/components/Calculator/CostBreakdown/CostBreakdown.module.css */
 .costBreakdown {
-  margin-top: 0.5rem;
-  padding: 0.5rem;
-  background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin-top: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: linear-gradient(135deg, var(--surface) 0%, #f9fafb 100%);
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 8px var(--shadow);
   max-width: 1000px;
   margin-left: auto;
   margin-right: auto;
 }
 
 .sectionTitle {
-  font-size: 1rem;
-  font-weight: 800;
-  color: #2c3e50;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-extrabold);
+  color: var(--primary);
   text-align: center;
-  margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, #2c3e50 0%, #1a2634 100%);
+  margin-bottom: var(--spacing-md);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  padding-bottom: 0.15rem;
-  border-bottom: 1px solid #2c3e50;
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1px solid var(--primary);
 }
 
 .subSectionTitle {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #2c3e50;
-  margin-bottom: 0.4rem;
-  padding-left: 0.3rem;
-  border-left: 2px solid #2c3e50;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  color: var(--primary);
+  margin-bottom: var(--spacing-sm);
+  padding-left: var(--spacing-sm);
+  border-left: 2px solid var(--primary);
 }
 
 .categorySection,
 .totalSection,
 .paymentSection {
-  margin-bottom: 0.5rem;
-  padding: 0.4rem;
-  background: #ffffff;
-  border-radius: 6px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-sm);
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 1px 4px var(--shadow);
   transition: transform 0.1s ease;
 }
 
@@ -53,20 +54,20 @@
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  font-size: 0.75rem;
-  color: #4a5568;
+  font-size: var(--font-size-sm);
+  color: var(--text);
 }
 
 .breakdownTable th,
 .breakdownTable td {
-  padding: 0.25rem 0.4rem;
+  padding: var(--spacing-sm) var(--spacing-md);
   border-bottom: 0.5px solid #e2e8f0;
 }
 
 .breakdownTable th {
-  background: linear-gradient(135deg, #2c3e50 0%, #1a2634 100%);
-  color: #ffffff;
-  font-weight: 600;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: var(--surface);
+  font-weight: var(--font-weight-bold);
   text-align: left;
   text-transform: uppercase;
   letter-spacing: 0.2px;
@@ -81,41 +82,41 @@
 }
 
 .totalRow td {
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   background: #edf2f7;
-  color: #2c3e50;
+  color: var(--primary);
 }
 
 .subtotal {
-  font-weight: 600;
-  color: #2d3748;
+  font-weight: var(--font-weight-medium);
+  color: var(--text);
 }
 
 .subtotalRow td {
-  font-weight: 700;
-  color: #2d3748;
+  font-weight: var(--font-weight-bold);
+  color: var(--text);
   background: #e6f0fa;
-  border-top: 0.5px solid #2c3e50;
+  border-top: 0.5px solid var(--primary);
 }
 
 .grandTotalRow td {
-  font-weight: 800;
-  font-size: 0.9rem;
-  color: #1a365d;
+  font-weight: var(--font-weight-extrabold);
+  font-size: var(--font-size-base);
+  color: var(--primary-dark);
   background: linear-gradient(135deg, #edf2f7 0%, #dbe2ea 100%);
-  border-top: 1px solid #2c3e50;
+  border-top: 1px solid var(--primary);
 }
 
 .remaining {
-  color: #e53e3e;
+  color: var(--error);
 }
 
 .paid {
-  color: #38a169;
+  color: var(--success);
 }
 
 .overpaymentRow td {
-  font-weight: 600;
+  font-weight: var(--font-weight-medium);
   color: #d69e2e;
   background: #fefcbf;
 }
@@ -123,45 +124,45 @@
 /* Detailed Breakdown Styles */
 .detailRow td {
   vertical-align: top;
-  padding: 0.3rem;
+  padding: var(--spacing-sm);
 }
 
 .totalValue {
-  font-weight: 700;
-  color: #2c3e50;
+  font-weight: var(--font-weight-bold);
+  color: var(--primary);
   display: block;
-  margin-bottom: 0.25rem;
+  margin-bottom: var(--spacing-sm);
 }
 
 .detailBreakdown {
   background: #f9fafb;
   border: 1px solid #e2e8f0;
-  border-radius: 4px;
-  padding: 0.25rem;
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-sm);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.02);
 }
 
 .innerTable {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.7rem;
+  font-size: var(--font-size-sm);
 }
 
 .innerTable th,
 .innerTable td {
-  padding: 0.2rem 0.3rem;
+  padding: var(--spacing-sm) var(--spacing-md);
   border-bottom: 0.5px solid #edf2f7;
 }
 
 .innerTable th {
   background: #e2e8f0;
-  color: #4a5568;
-  font-weight: 600;
+  color: var(--text);
+  font-weight: var(--font-weight-bold);
   text-align: left;
 }
 
 .innerTable td {
-  color: #718096;
+  color: var(--text-light);
 }
 
 .innerTable tr:hover td {
@@ -174,67 +175,67 @@
 
 /* Toggle Button */
 .toggleButton {
-  margin-left: 0.5rem;
-  padding: 0.2rem 0.5rem;
-  font-size: 0.7rem;
-  background: #2c3e50;
-  color: #fff;
+  margin-left: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-sm);
+  background: var(--primary);
+  color: var(--surface);
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: background 0.2s ease;
 }
 
 .toggleButton:hover {
-  background: #1a2634;
+  background: var(--primary-dark);
 }
 
 /* Error Message */
 .error {
-  color: #e53e3e;
-  font-weight: 600;
+  color: var(--error);
+  font-weight: var(--font-weight-medium);
   text-align: center;
-  padding: 0.5rem;
-  background: #fef2f2;
-  border-radius: 6px;
+  padding: var(--spacing-md);
+  background: rgba(var(--error), 0.1);
+  border-radius: var(--radius-md);
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .costBreakdown {
-    padding: 0.4rem;
+    padding: var(--spacing-sm);
   }
 
   .sectionTitle {
-    font-size: 0.9rem;
+    font-size: var(--font-size-base);
   }
 
   .subSectionTitle {
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
   }
 
   .breakdownTable th,
   .breakdownTable td {
-    padding: 0.2rem 0.3rem;
+    padding: var(--spacing-sm) var(--spacing-sm);
     font-size: 0.7rem;
   }
 
   .detailBreakdown {
-    padding: 0.2rem;
+    padding: var(--spacing-sm);
   }
 
   .innerTable th,
   .innerTable td {
-    padding: 0.15rem 0.25rem;
+    padding: var(--spacing-sm) var(--spacing-sm);
     font-size: 0.65rem;
   }
 
   .grandTotalRow td {
-    font-size: 0.85rem;
+    font-size: var(--font-size-sm);
   }
 
   .toggleButton {
     font-size: 0.65rem;
-    padding: 0.15rem 0.4rem;
+    padding: var(--spacing-sm) var(--spacing-sm);
   }
 }

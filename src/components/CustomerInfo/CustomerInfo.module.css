@@ -1,12 +1,19 @@
+/* Import font if not already in index.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
 .customerInfo {
-  /* No container-level styles here; handled by .customerSection in HomePage.module.css */
+  width: 100%;
+  padding: var(--spacing-md);
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 6px 20px var(--shadow);
 }
 
 .title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  color: #2c3e50; /* Matches HomePage title color */
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-md);
+  color: var(--primary);
   text-align: center;
   letter-spacing: 1px;
 }
@@ -14,7 +21,7 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--spacing-md);
 }
 
 .field {
@@ -23,51 +30,52 @@
 }
 
 .label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: #2c3e50; /* Matches HomePage text color */
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-sm);
+  color: var(--primary);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--spacing-sm);
 }
 
 .icon {
-  color: #6b7280;
-  font-size: 1.1rem;
+  color: var(--text-light);
+  font-size: var(--font-size-base);
 }
 
 .required {
-  background: linear-gradient(135deg, #2c3e50 0%, #1a2634 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
-  font-weight: 900; /* Extra bold */
-  font-size: 1.4rem; /* Larger size for emphasis */
-  line-height: 1; /* Aligns with label text */
-  text-shadow: 0 0 4px rgba(44, 62, 80, 0.5); /* Subtle glow effect with gradient color */
+  font-weight: var(--font-weight-extrabold);
+  font-size: var(--font-size-lg);
+  line-height: 1;
+  text-shadow: 0 0 4px rgba(44, 62, 80, 0.5);
 }
 
 .input {
-  padding: 0.75rem 0.75rem 0.75rem 2.5rem; /* Space for icon */
-  font-size: 1rem;
+  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) 2.5rem;
+  font-size: var(--font-size-base);
   border: 1px solid #d1d5db;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   width: 100%;
   box-sizing: border-box;
-  background-color: #ffffff;
-  color: #2c3e50;
+  background-color: var(--surface);
+  color: var(--text);
   transition: all 0.3s ease;
 }
 
 .input:focus {
   outline: none;
-  border-color: #2c3e50;
-  box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.2);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--shadow);
 }
 
 .input.error {
-  border-color: #2c3e50; /* Solid color from your gradient */
-  box-shadow: 0 0 4px rgba(44, 62, 80, 0.5); /* Subtle glow to highlight error */
+  border-color: var(--error);
+  box-shadow: 0 0 4px var(--shadow);
 }
 
 .input:disabled {
@@ -80,178 +88,124 @@ textarea.input {
   min-height: 80px;
 }
 
-/* Style the PhoneInput specifically */
 .phoneContainer {
   width: 100%;
 }
 
 .phoneInput {
-  padding: 0.75rem 0.75rem 0.75rem 2.5rem !important; /* Override library styles */
-  font-size: 1rem !important;
+  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) 2.5rem !important;
+  font-size: var(--font-size-base) !important;
   border: 1px solid #d1d5db !important;
-  border-radius: 6px !important;
+  border-radius: var(--radius-sm) !important;
   width: 100% !important;
   box-sizing: border-box !important;
-  background-color: #ffffff !important;
-  color: #2c3e50 !important;
+  background-color: var(--surface) !important;
+  color: var(--text) !important;
   transition: all 0.3s ease !important;
 }
 
 .phoneInput:focus {
   outline: none !important;
-  border-color: #2c3e50 !important;
-  box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.2) !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 2px var(--shadow) !important;
 }
 
 .phoneInput.error {
-  border-color: #2c3e50 !important; /* Solid color from your gradient */
-.customerInfo {
-  /* No container-level styles here; handled by .customerSection in HomePage.module.css */
+  border-color: var(--error) !important;
+  box-shadow: 0 0 4px var(--shadow) !important;
 }
 
-.title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  color: #2c3e50; /* Matches HomePage title color */
-  text-align: center;
-  letter-spacing: 1px;
+.phoneInput:disabled {
+  background-color: #e9ecef !important;
+  cursor: not-allowed !important;
 }
 
-.form {
+/* Busy Dates Section */
+.busyDatesSection {
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background: var(--background);
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 10px var(--shadow);
+}
+
+.busyDatesHeader {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-}
-
-.label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: #2c3e50; /* Matches HomePage text color */
-  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
+  cursor: pointer;
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1px solid #e2e8f0;
 }
 
-.icon {
-  color: #6b7280;
-  font-size: 1.1rem;
+.busyDatesHeader h3 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--primary);
 }
 
-.required {
-  background: linear-gradient(135deg, #2c3e50 0%, #1a2634 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 900; /* Extra bold */
-  font-size: 1.4rem; /* Larger size for emphasis */
-  line-height: 1; /* Aligns with label text */
-  text-shadow: 0 0 4px rgba(44, 62, 80, 0.5); /* Subtle glow effect with gradient color */
+.toggleIcon {
+  color: var(--secondary);
+  font-size: var(--font-size-base);
+  transition: transform 0.3s ease;
 }
 
-.input {
-  padding: 0.75rem 0.75rem 0.75rem 2.5rem; /* Space for icon */
-  font-size: 1rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  width: 100%;
-  box-sizing: border-box;
-  background-color: #ffffff;
-  color: #2c3e50;
-  transition: all 0.3s ease;
+.busyDatesList {
+  list-style: none;
+  margin-top: var(--spacing-md);
+  max-height: 200px;
+  overflow-y: auto;
 }
 
-.input:focus {
-  outline: none;
-  border-color: #2c3e50;
-  box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.2);
+.busyDateItem {
+  padding: var(--spacing-sm);
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--spacing-sm);
+  box-shadow: 0 1px 5px var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
 }
 
-.input.error {
-  border-color: #2c3e50; /* Solid color from your gradient */
-  box-shadow: 0 0 4px rgba(44, 62, 80, 0.5); /* Subtle glow to highlight error */
+.busyCustomer {
+  font-weight: var(--font-weight-bold);
+  color: var(--primary);
 }
 
-.input:disabled {
-  background-color: #e9ecef;
-  cursor: not-allowed;
+.busyProject {
+  font-style: italic;
+  color: var(--text-light);
 }
 
-textarea.input {
-  resize: vertical;
-  min-height: 80px;
+.busyRange {
+  color: var(--text);
+  font-size: var(--font-size-sm);
 }
 
-/* Style the PhoneInput specifically */
-.phoneContainer {
-  width: 100%;
+.busyDatesNote {
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+  margin-top: var(--spacing-md);
+  text-align: center;
 }
 
-.phoneInput {
-  padding: 0.75rem 0.75rem 0.75rem 2.5rem !important; /* Override library styles */
-  font-size: 1rem !important;
-  border: 1px solid #d1d5db !important;
-  border-radius: 6px !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
-  background-color: #ffffff !important;
-  color: #2c3e50 !important;
-  transition: all 0.3s ease !important;
-}
-
-.phoneInput:focus {
-  outline: none !important;
-  border-color: #2c3e50 !important;
-  box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.2) !important;
-}
-
-.phoneInput.error {
-  border-color: #2c3e50 !important; /* Solid color from your gradient */
-  box-shadow: 0 0 4px rgba(44, 62, 80, 0.5) !important; /* Subtle glow to highlight error */
-}
-
-.phoneInput:disabled {
-  background-color: #e9ecef !important;
-  cursor: not-allowed !important;
-}
-
+/* Responsive Design */
 @media (max-width: 768px) {
   .title {
-    font-size: 1.3rem;
+    font-size: var(--font-size-lg);
   }
 
   .input,
   .phoneInput {
-    font-size: 0.9rem !important; /* Ensure PhoneInput scales */
+    font-size: var(--font-size-sm) !important;
   }
 
   .required {
-    font-size: 1.2rem; /* Slightly smaller on mobile but still prominent */
-  }
-}
-}
-
-.phoneInput:disabled {
-  background-color: #e9ecef !important;
-  cursor: not-allowed !important;
-}
-
-@media (max-width: 768px) {
-  .title {
-    font-size: 1.3rem;
+    font-size: var(--font-size-base);
   }
 
-  .input,
-  .phoneInput {
-    font-size: 0.9rem !important; /* Ensure PhoneInput scales */
-  }
-
-  .required {
-    font-size: 1.2rem; /* Slightly smaller on mobile but still prominent */
+  .busyDateItem {
+    font-size: var(--font-size-sm);
   }
 }

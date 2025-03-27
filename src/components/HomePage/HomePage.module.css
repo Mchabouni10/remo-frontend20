@@ -1,7 +1,8 @@
+/* src/components/HomePage/HomePage.module.css */
 .mainContent {
-  background-color: #f7f9fc;
+  background-color: var(--background);
   min-height: calc(100vh - 60px);
-  padding: 0.5rem 1rem;
+  padding: var(--spacing-sm) var(--spacing-md);
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -12,38 +13,38 @@
   max-width: 1500px;
   width: 100%;
   margin: 0 auto;
-  padding: .5rem;
-  background-color: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  padding: var(--spacing-md);
+  background-color: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 6px 20px var(--shadow);
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2.5rem;
-  padding-bottom: 1rem;
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-md);
   border-bottom: 1px solid #e2e8f0;
 }
 
 .title {
-  font-size: 2.25rem;
-  font-weight: 800;
-  color: #2c3e50;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-extrabold);
+  color: var(--primary);
   letter-spacing: 1.5px;
 }
 
 .content {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: var(--spacing-lg);
 }
 
 .topRow {
   display: flex;
   justify-content: space-between;
-  gap: .5rem;
+  gap: var(--spacing-sm);
   flex-wrap: wrap;
 }
 
@@ -53,129 +54,128 @@
   max-width: 600px;
   background-color: #fafafa;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 14px rgba(44, 62, 80, 0.08);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  box-shadow: 0 4px 14px var(--shadow);
 }
 
 .calculatorSection {
   flex: 1;
   min-width: 800px;
   max-width: 900px;
-  background-color: #ffffff;
+  background-color: var(--surface);
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 14px rgba(44, 62, 80, 0.08);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  box-shadow: 0 4px 14px var(--shadow);
 }
 
 .costBreakdownSection {
   width: 100%;
-  background-color: #ffffff;
+  background-color: var(--surface);
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 14px rgba(44, 62, 80, 0.08);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  box-shadow: 0 4px 14px var(--shadow);
 }
 
 .buttonGroup {
   display: flex;
   justify-content: center;
-  gap: 1.75rem;
-  margin-top: 2.5rem;
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-xl);
   flex-wrap: wrap;
-  padding-top: 1.5rem;
+  padding-top: var(--spacing-lg);
   border-top: 1px solid #e2e8f0;
 }
 
-/* Button styles remain the same */
+/* Button styles aligned with index.css */
 .saveButton,
 .resetButton,
 .backButton,
 .editButton {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.9rem 2rem;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-lg);
   border: none;
-  border-radius: 10px;
-  color: #ffffff;
+  border-radius: var(--radius-sm);
+  color: var(--surface);
   cursor: pointer;
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
   transition: all 0.3s ease;
 }
 
 .saveButton {
-  background: linear-gradient(135deg, #2c3e50 0%, #1a2634 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
 }
 
 .saveButton:hover:not(:disabled) {
-  background: linear-gradient(135deg, #1a2634 0%, #2c3e50 100%);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(44, 62, 80, 0.35);
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px var(--shadow);
 }
 
 .saveButton:disabled {
   background: #95a5a6;
   cursor: not-allowed;
-  opacity: 0.7;
+  opacity: 0.5;
 }
 
 .resetButton {
-  background: #e74c3c;
+  background: var(--error);
 }
 
 .resetButton:hover:not(:disabled) {
-  background: #c0392b;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(231, 76, 60, 0.35);
+  background: #c53030;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px var(--shadow);
 }
 
 .resetButton:disabled {
   background: #95a5a6;
   cursor: not-allowed;
-  opacity: 0.7;
+  opacity: 0.5;
 }
 
 .backButton {
-  background: #7f8c8d;
+  background: var(--text-light);
 }
 
 .backButton:hover:not(:disabled) {
   background: #6c757d;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(127, 140, 141, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px var(--shadow);
 }
 
 .backButton:disabled {
   background: #95a5a6;
   cursor: not-allowed;
-  opacity: 0.7;
+  opacity: 0.5;
 }
 
 .editButton {
-  background: #00b894;
+  background: var(--success);
 }
 
-.editButton:hover {
-  background: #009975;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0, 184, 148, 0.35);
+.editButton:hover:not(:disabled) {
+  background: #2e8b57;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px var(--shadow);
 }
 
 .buttonIcon {
-  font-size: 1.2rem;
+  font-size: var(--font-size-lg);
 }
 
 .loadingText {
-  font-size: 1.4rem;
-  font-weight: 500;
-  color: #7f8c8d;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-light);
   text-align: center;
-  margin-top: 3rem;
+  margin-top: var(--spacing-xl);
   animation: fade 1.5s infinite;
 }
 
@@ -184,6 +184,7 @@
   50% { opacity: 1; }
 }
 
+/* Responsive Adjustments */
 @media (max-width: 1200px) {
   .topRow {
     flex-direction: column;
@@ -197,46 +198,46 @@
 
 @media (max-width: 768px) {
   .mainContent {
-    padding: 1rem;
+    padding: var(--spacing-md);
   }
 
   .container {
-    padding: 1.5rem;
+    padding: var(--spacing-lg);
   }
 
   .header {
     flex-direction: column;
-    gap: 1.5rem;
+    gap: var(--spacing-md);
     text-align: center;
   }
 
   .title {
-    font-size: 1.75rem;
+    font-size: var(--font-size-xl);
   }
 
   .customerSection,
   .calculatorSection,
   .costBreakdownSection {
-    padding: 1.25rem;
+    padding: var(--spacing-md);
   }
 
   .buttonGroup {
     flex-direction: column;
-    gap: 1.25rem;
+    gap: var(--spacing-md);
   }
 
   .saveButton,
   .resetButton,
   .backButton,
   .editButton {
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
+    padding: var(--spacing-sm) var(--spacing-sm);
+    font-size: var(--font-size-sm);
   }
 }
 
 @media (max-width: 480px) {
   .title {
-    font-size: 1.5rem;
+    font-size: var(--font-size-lg);
   }
 
   .customerSection,
@@ -246,6 +247,6 @@
   }
 
   .buttonIcon {
-    font-size: 1rem;
+    font-size: var(--font-size-base);
   }
 }

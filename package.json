@@ -1,5 +1,5 @@
 {
-  "name": "caffe",
+  "name": "Remo_app",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -21,6 +21,7 @@
     "print-js": "^1.6.0",
     "react": "^18.2.0",
     "react-date-range": "^2.0.1",
+    "react-day-picker": "^9.6.3",
     "react-dom": "^18.2.0",
     "react-phone-input-2": "^2.15.1",
     "react-router-dom": "^6.21.1",
@@ -56,6 +57,7 @@
   },
   "proxy": "http://localhost:3001",
   "devDependencies": {
-    "eslint-plugin-css-modules": "^2.12.0"
+    "eslint-plugin-css-modules": "^2.12.0",
+    "react-app-rewired": "^2.2.1"
   }
 }

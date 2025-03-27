@@ -185,14 +185,14 @@ export default function EstimateSummary() {
   return (
     <main className={styles.mainContent}>
       <div className={styles.container}>
+      <div className={styles.companyInfo}>
+              <h2 className={styles.companyName}>RAWDAH REMODELING COMPANY</h2>
+              <p>Lake in the Hills, IL | (224) 817-3264 | rawdahremodeling@gmail.com</p>
+              <img src={logoImage} alt="Rawdah Remodeling Logo" className={styles.logo} />
+            </div>
         <h1 className={styles.title}>Estimate Summary</h1>
         <div className={styles.summary} ref={componentRef}>
           <div className={styles.header}>
-            <img src={logoImage} alt="Rawdah Remodeling Logo" className={styles.logo} />
-            <div className={styles.companyInfo}>
-              <h2 className={styles.companyName}>RAWDAH REMODELING COMPANY</h2>
-              <p>Lake in the Hills, IL | (224) 817-3264 | rawdahremodeling@gmail.com</p>
-            </div>
             <h3 className={styles.totalTitle}>Estimate Breakdown</h3>
             <div className={styles.customerInfo}>
               <h4>Customer Information</h4>

@@ -1,98 +1,98 @@
+/* src/components/Calculator/Calculator.module.css */
 .calculator {
-  padding: 1rem;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: var(--spacing-md);
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 8px var(--shadow);
   max-width: 1200px;
   margin: 0 auto;
 }
 
 .title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-  color: #2c3e50;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-lg);
+  color: var(--primary);
   text-align: center;
-  text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .categoryControls {
   display: flex;
   justify-content: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
 }
 
 .addCategoryButton {
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #2c3e50, #34495e);
-  color: #fff;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: var(--surface);
   border: none;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 600;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
   transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .addCategoryButton:hover {
-  background: linear-gradient(135deg, #34495e, #2c3e50);
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(44, 62, 80, 0.2);
+  box-shadow: 0 4px 12px var(--shadow);
 }
 
 /* Totals Section */
 .totalsSection {
-  margin-top: 2rem;
-  padding: 1.5rem;
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-lg);
   background: #f9fafb;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 
 .sectionTitle {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 1rem;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--primary);
+  margin-bottom: var(--spacing-md);
   text-align: center;
 }
 
 .subSectionTitle {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 0.75rem;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  color: var(--primary);
+  margin-bottom: var(--spacing-sm);
 }
 
 .categoryBreakdown,
 .totalBreakdown,
 .paymentDetails {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--spacing-lg);
 }
 
 .breakdownTable {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.9rem;
-  color: #4b5563;
+  font-size: var(--font-size-sm);
+  color: var(--text);
 }
 
 .breakdownTable th,
 .breakdownTable td {
-  padding: 0.75rem 1rem;
+  padding: var(--spacing-sm) var(--spacing-md);
   border-bottom: 1px solid #e2e8f0;
 }
 
 .breakdownTable th {
   background: #f1f5f9;
-  font-weight: 600;
+  font-weight: var(--font-weight-bold);
   text-align: left;
 }
 
 .breakdownTable td:first-child {
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   width: 60%;
 }
 
@@ -101,57 +101,57 @@
 }
 
 .subtotalRow td {
-  font-weight: 600;
-  color: #2c3e50;
+  font-weight: var(--font-weight-bold);
+  color: var(--primary);
   border-top: 2px solid #e2e8f0;
 }
 
 .grandTotalRow td {
-  font-weight: 700;
-  font-size: 1rem;
-  color: #2c3e50;
+  font-weight: var(--font-weight-extrabold);
+  font-size: var(--font-size-base);
+  color: var(--primary);
   border-top: 2px solid #e2e8f0;
 }
 
 .miscFee {
-  margin: 0.5rem 0;
-  font-size: 0.85rem;
+  margin: var(--spacing-sm) 0;
+  font-size: var(--font-size-sm);
 }
 
 .overpaid {
-  color: #dc3545;
-  font-size: 0.85rem;
-  margin-left: 0.5rem;
+  color: var(--error);
+  font-size: var(--font-size-sm);
+  margin-left: var(--spacing-sm);
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .calculator {
-    padding: 1rem;
+    padding: var(--spacing-md);
   }
 
   .title {
-    font-size: 1.25rem;
+    font-size: var(--font-size-lg);
   }
 
   .categoryControls {
     flex-direction: column;
-    gap: 0.75rem;
+    gap: var(--spacing-sm);
   }
 
   .addCategoryButton {
     width: 100%;
-    padding: 0.75rem;
+    padding: var(--spacing-sm);
   }
 
   .totalsSection {
-    padding: 1rem;
+    padding: var(--spacing-md);
   }
 
   .breakdownTable th,
   .breakdownTable td {
-    padding: 0.5rem;
-    font-size: 0.85rem;
+    padding: var(--spacing-sm);
+    font-size: var(--font-size-sm);
   }
 
   .breakdownTable td:first-child {

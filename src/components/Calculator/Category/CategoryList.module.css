@@ -1,24 +1,25 @@
+/* src/components/Calculator/Category/CategoryList.module.css */
 .container {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  padding: 1rem;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-md);
   max-width: 1200px;
   margin: 0 auto;
 }
 
 .section {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 6px var(--shadow);
   overflow: hidden;
 }
 
 .sectionHeader {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
   background: #f9f9f9;
   border-bottom: 1px solid #e9ecef;
 }
@@ -26,10 +27,10 @@
 .toggleButton {
   background: none;
   border: none;
-  font-size: 1rem;
-  color: #495057;
+  font-size: var(--font-size-base);
+  color: var(--text);
   cursor: pointer;
-  padding: 0.25rem;
+  padding: var(--spacing-sm);
   width: 28px;
   height: 28px;
   display: flex;
@@ -39,7 +40,7 @@
 }
 
 .toggleButton:hover {
-  color: #007bff;
+  color: var(--secondary);
 }
 
 .toggleButton:disabled {
@@ -48,57 +49,57 @@
 }
 
 .sectionTitle {
-  font-size: 1.25rem;
+  font-size: var(--font-size-lg);
   margin: 0;
-  color: #343a40;
+  color: var(--primary);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--spacing-sm);
 }
 
 .categories,
 .settingsContent {
-  padding: 1.5rem;
+  padding: var(--spacing-lg);
 }
 
 .categories {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: var(--spacing-lg);
 }
 
 .category {
   background: #f9f9f9;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  box-shadow: 0 2px 6px var(--shadow);
   transition: box-shadow 0.2s ease;
 }
 
 .category:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px var(--shadow);
 }
 
 .categoryHeader {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
 }
 
 .categoryInput {
   flex: 1;
-  padding: 0.5rem 0.75rem;
-  font-size: 1.1rem;
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-base);
   border: 1px solid #ced4da;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .categoryInput:focus {
   outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
+  border-color: var(--secondary);
+  box-shadow: 0 0 4px var(--shadow);
 }
 
 .categoryInput:disabled {
@@ -107,14 +108,14 @@
 }
 
 .workItems {
-  margin-top: 1rem;
+  margin-top: var(--spacing-md);
 }
 
 .workControls {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-top: 1rem;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
 }
 
 .inputWrapper {
@@ -124,67 +125,67 @@
 
 .workInput {
   width: 100%;
-  padding: 0.5rem 0.75rem 0.5rem 2rem;
+  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) 2rem;
   border: 1px solid #ced4da;
-  border-radius: 6px;
-  font-size: 0.95rem;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .workInput:focus {
   outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
+  border-color: var(--secondary);
+  box-shadow: 0 0 4px var(--shadow);
 }
 
 .inputIcon {
   position: absolute;
-  left: 0.5rem;
+  left: var(--spacing-sm);
   top: 50%;
   transform: translateY(-50%);
-  font-size: 0.9rem;
-  color: #6c757d;
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
 }
 
 .addButton {
-  padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, #007bff, #0056b3);
-  color: #fff;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: linear-gradient(135deg, var(--secondary) 0%, #0056b3 100%);
+  color: var(--surface);
   border: none;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 600;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: var(--spacing-xs);
   transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .addButton:hover {
-  background: linear-gradient(135deg, #0056b3, #007bff);
+  background: linear-gradient(135deg, #0056b3 0%, var(--secondary) 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+  box-shadow: 0 4px 12px var(--shadow);
 }
 
 .addButton:disabled {
-  background: #6c757d;
+  background: var(--text-light);
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
 
 .removeButton {
-  background: #dc3545;
-  color: #fff;
+  background: var(--error);
+  color: var(--surface);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   width: 28px;
   height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.9rem;
+  font-size: var(--font-size-sm);
   cursor: pointer;
   transition: background 0.2s ease, transform 0.2s ease;
 }
@@ -197,26 +198,26 @@
 .field {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
 }
 
 .field label {
   flex: 0 0 160px;
-  font-weight: 500;
-  color: #495057;
+  font-weight: var(--font-weight-medium);
+  color: var(--text);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--spacing-sm);
 }
 
 .field input,
 .field select {
   flex: 1;
-  padding: 0.5rem 0.75rem;
+  padding: var(--spacing-sm) var(--spacing-md);
   border: 1px solid #ced4da;
-  border-radius: 6px;
-  font-size: 0.95rem;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
   max-width: 200px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -224,8 +225,8 @@
 .field input:focus,
 .field select:focus {
   outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
+  border-color: var(--secondary);
+  box-shadow: 0 0 4px var(--shadow);
 }
 
 .field input:disabled,
@@ -237,29 +238,29 @@
 .checkbox {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-left: 0.75rem;
-  font-size: 0.9rem;
-  color: #495057;
+  gap: var(--spacing-sm);
+  margin-left: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  color: var(--text);
 }
 
 .miscFees {
-  margin-bottom: 1rem;
+  margin-bottom: var(--spacing-md);
 }
 
 .miscFeeRow {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
 }
 
 .miscFeeRow input {
   flex: 1;
-  padding: 0.5rem 0.75rem 0.5rem 2rem;
+  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) 2rem;
   border: 1px solid #ced4da;
-  border-radius: 6px;
-  font-size: 0.95rem;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
 }
 
 .miscFeeRow input:first-child {
@@ -267,28 +268,29 @@
 }
 
 .totals {
-  padding: 1rem;
+  padding: var(--spacing-md);
   background: #f9fafb;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 6px var(--shadow);
 }
 
 .overpaymentNotice {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  color: #dc3545;
-  font-weight: 500;
-  font-size: 1rem;
+  gap: var(--spacing-sm);
+  color: var(--error);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-base);
 }
 
 .overpaymentNotice i {
-  font-size: 1.2rem;
+  font-size: var(--font-size-lg);
 }
 
+/* Responsive Design */
 @media (max-width: 768px) {
   .container {
-    padding: 0.5rem;
+    padding: var(--spacing-sm);
   }
 
   .sectionHeader,
@@ -298,7 +300,7 @@
   .miscFeeRow {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.5rem;
+    gap: var(--spacing-sm);
   }
 
   .field label,
