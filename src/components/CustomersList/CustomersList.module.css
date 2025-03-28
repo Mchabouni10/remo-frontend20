@@ -21,7 +21,7 @@
 }
 
 .title {
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-l);
   font-weight: var(--font-weight-extrabold);
   color: var(--primary);
   letter-spacing: 0.8px;
@@ -116,7 +116,33 @@
 }
 
 .phoneColumn {
-  min-width: 220px;
+  min-width: 320px;
+}
+
+/* Phone number styles with custom tooltip */
+.phoneNumber {
+  position: relative;
+  display: inline-block; /* Ensures the span behaves correctly */
+  white-space: nowrap; /* Keeps the number on one line */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%; /* Matches the td’s max-width */
+}
+
+.phoneNumber:hover::after {
+  content: attr(data-tooltip); /* Uses the data-tooltip attribute for content */
+  position: absolute;
+  bottom: 100%; /* Appears above the cell */
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--primary);
+  color: var(--surface);
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+  z-index: 10;
+  pointer-events: none; /* Prevents tooltip from interfering with clicks */
 }
 
 .firstName {
@@ -127,6 +153,76 @@
 .table td:nth-child(4),
 .table th:nth-child(4) {
   text-align: center;
+}
+
+/* Fix for phone column */
+.table td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.table td:nth-child(3) {
+  min-width: 120px;
+  max-width: 150px;
+  white-space: nowrap;
+}
+
+.tableWrapper {
+  overflow-x: auto; /* Allows horizontal scrolling if table exceeds container width */
+}
+
+/* Pagination styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
+}
+
+.pagination button {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--primary);
+  color: var(--surface);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Loading and error styles */
+.loading {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  justify-content: center;
+  padding: var(--spacing-lg);
+  color: var(--text-light);
+}
+
+.error {
+  color: var(--error);
+  text-align: center;
+  margin: var(--spacing-md) 0;
+}
+
+/* No results with inline button */
+.noResults {
+  text-align: center;
+  padding: var(--spacing-lg);
+}
+
+.inlineButton {
+  background: none;
+  border: none;
+  color: var(--primary);
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 .table td:nth-child(4) span {
@@ -232,6 +328,35 @@
   box-shadow: none;
   opacity: 0.8;
 }
+
+/* Remove or avoid applying actionButton styles to this button */
+.backButtonEnhanced {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm); /* Space between icon and text */
+  padding: var(--spacing-md) var(--spacing-md); /* Larger padding for bigger size */
+  font-size: var(--font-size-md); /* Bigger text */
+  background: var(--primary); /* Use your primary color */
+  color: var(--surface); /* White or contrasting text color */
+ font-weight: bolder;
+  border: none;
+  border-radius: var(--radius-md); /* Slightly larger radius */
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease; /* Smooth hover effect */
+  margin-bottom: var(--spacing-lg); /* Space below to separate from table */
+}
+
+/* Hover effect */
+.backButtonEnhanced:hover {
+  background: var(--primary-dark); /* Darker shade on hover */
+  transform: scale(1.05); /* Slight grow effect */
+}
+
+/* Ensure icon scales with button */
+.backButtonEnhanced svg {
+  font-size: var(--font-size-md); /* Larger icon */
+}
+
 
 .editButton {
   background: var(--success);
@@ -391,26 +516,131 @@
   margin-right: 4px;
 }
 
+/* Base status class - remove circle and set dark text */
 .status {
-  padding: 1px 4px;
+  padding: 4px 8px; /* Adjust padding as needed */
+  color: #333; /* Dark gray text (you can use #000 for black) */
+  /* Remove background and border-radius to eliminate the circle */
+  background: none;
+  border-radius: 0;
+  display: inline-block;
+}
+
+/* Status-specific classes - keep text color dark and remove circles */
+.completed {
+  color: #333; /* Dark text */
+  background: none; /* No background */
+}
+
+.overdue {
+  color: #333; /* Dark text */
+  background: none; /* No background */
+}
+
+.pending {
+  color: #333; /* Dark text */
+  background: none; /* No background */
+}
+
+.inprogress {
+  color: #333; /* Dark text */
+  background: none; /* No background */
+}
+
+.unknown {
+  color: #333; /* Dark text */
+  background: none; /* No background */
+}
+
+
+/* Enhanced styles for CustomerProjects */
+.customerSummary {
+  margin: var(--spacing-md) 0;
+  padding: var(--spacing-md);
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+}
+
+.subTitle {
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--spacing-md);
+  color: var(--text);
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.infoGrid p {
+  margin: 0;
+  color: var(--text-light);
+}
+
+.infoGrid strong {
+  color: var(--text);
+}
+
+.expandButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-right: var(--spacing-sm);
+  color: var(--primary);
+}
+
+.expandedRow {
+  background: var(--surface-light);
+}
+
+.detailRow td {
+  padding: var(--spacing-md);
+  background: var(--surface);
+}
+
+.projectDetails {
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  font-size: 0.85em;
+  padding: var(--spacing-md);
 }
 
-.status.inprogress {
-  background: var(--secondary);
-  color: var(--surface);
+.detailSection {
+  margin-top: var(--spacing-md);
 }
 
-.status.completed {
+.detailSection h4 {
+  font-size: var(--font-size-md);
+  color: var(--primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.downloadButton {
   background: var(--success);
   color: var(--surface);
 }
 
+.downloadButton:hover {
+  background: var(--success-dark);
+}
+
+/* Status styles (assuming these exist, adjust as needed) */
+/* .status.completed {
+  background: var(--success);
+}
+
 .status.overdue {
   background: var(--error);
-  color: var(--surface);
 }
+
+.status.pending {
+  background: var(--warning);
+}
+
+.status.inprogress {
+  background: var(--primary);
+} */
 
 /* Responsive Adjustments */
 @media (max-width: 1024px) {

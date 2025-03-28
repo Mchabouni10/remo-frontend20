@@ -229,21 +229,40 @@
   color: var(--text-light);
 }
 
+
+
 /* Print-specific adjustments */
 @media print {
-  .buttonGroup {
-    display: none;
+  /* Ensure the container and summary have a white background and no padding */
+  .container {
+    padding: 0;
+    background: #fff !important; /* Force white background */
   }
 
   .summary {
     padding: 0;
+    background: #fff !important; /* Force white background */
   }
 
-  .container {
-    padding: 0;
+  /* Reset dark mode variables to light mode equivalents for printing */
+  :root,
+  .dark {
+    --primary: #000 !important;      /* Black instead of dark mode's #4a6fa5 */
+    --primary-dark: #000 !important; /* Black instead of #2e4a7d */
+    --surface: #fff !important;      /* White background */
+    --text: #000 !important;         /* Black text */
+    --text-light: #000 !important;   /* Black for secondary text */
+    --shadow: rgba(0, 0, 0, 0.2) !important; /* Subtle shadow */
   }
 
-  /* Black and white adjustments for print */
+  /* Hide buttons */
+  .buttonGroup,
+  .printButton,
+  .backButton {
+    display: none !important;
+  }
+
+  /* Force black text and white/light backgrounds for all elements */
   .title,
   .companyName,
   .totalTitle,
@@ -253,7 +272,7 @@
   .signatureSection h4,
   .notesSection h4,
   .categoryBreakdown h5 {
-    color: #000; /* Black text for print */
+    color: #000 !important; /* Black text */
   }
 
   .companyInfo p,
@@ -265,25 +284,28 @@
   .signatureSection p,
   .signatureLine span,
   .footer {
-    color: #000; /* Black text for print */
+    color: #000 !important; /* Black text */
   }
 
+  /* Ensure table backgrounds remain subtle but visible */
   .workTable th,
   .totalRow td {
-    background: #f0f0f0; /* Keep light gray for headers/totals */
+    background: #f0f0f0 !important; /* Light gray */
   }
 
   .categoryTotalRow td {
-    background: #f8f8f8; /* Keep subtle gray for category totals */
+    background: #f8f8f8 !important; /* Very light gray */
   }
 
+  .grandTotalRow td,
+  .remainingRow td {
+    background: #fff !important; /* White background for emphasis */
+    border-top: 1px solid #000 !important;
+  }
+
+  /* Notes section adjustments */
   .notesSection p {
-    background: #fff; /* White background for notes in print */
-    border: 1px dashed #000; /* Black dashed border */
-  }
-
-  .printButton,
-  .backButton {
-    display: none; /* Ensure buttons don’t appear in print */
+    background: #fff !important; /* White background */
+    border: 1px dashed #000 !important; /* Black dashed border */
   }
 }

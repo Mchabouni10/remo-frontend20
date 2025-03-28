@@ -71,6 +71,8 @@
   text-align: left;
   text-transform: uppercase;
   letter-spacing: 0.2px;
+  border: 2px solid red;
+  
 }
 
 .breakdownTable td {

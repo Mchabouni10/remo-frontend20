@@ -19,14 +19,16 @@ import {
   faTasks,
   faCalendarAlt,
   faDollarSign,
+  faSpinner,
 } from '@fortawesome/free-solid-svg-icons';
 import { getProjects, deleteProject } from '../../services/projectService';
 import { calculateTotal } from '../Calculator/calculations/costCalculations';
-import { formatPhoneNumber, formatDate } from '../Calculator/utils/customerhelper'; 
+import { formatPhoneNumber, formatDate } from '../Calculator/utils/customerhelper';
 import styles from './CustomersList.module.css';
 
 const DUE_SOON_DAYS = 7;
 const OVERDUE_THRESHOLD = -1;
+const ITEMS_PER_PAGE = 10;
 
 export default function CustomersList() {
   const [projects, setProjects] = useState([]);
@@ -35,6 +37,8 @@ export default function CustomersList() {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [lastUpdated, setLastUpdated] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const projectTotals = useCallback((project) => {
@@ -127,13 +131,14 @@ export default function CustomersList() {
   useEffect(() => {
     const fetchProjects = async () => {
       setIsLoading(true);
+      setError(null);
       try {
         const fetchedProjects = await getProjects();
         setProjects(fetchedProjects);
         setLastUpdated(new Date());
       } catch (err) {
         console.error('Error fetching projects:', err);
-        alert('Failed to load customers.');
+        setError('Failed to load customers. Please try again later.');
       } finally {
         setIsLoading(false);
       }
@@ -147,11 +152,17 @@ export default function CustomersList() {
   }, [searchQuery]);
 
   const filteredCustomers = useMemo(() => groupAndSetCustomers(projects), [projects, groupAndSetCustomers]);
+  const paginatedCustomers = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredCustomers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredCustomers, currentPage]);
+  const totalPages = Math.ceil(filteredCustomers.length / ITEMS_PER_PAGE);
+
   const totals = useMemo(
     () =>
       projects.reduce(
-        (acc, p) => {
-          const { grandTotal, amountRemaining } = projectTotals(p);
+        (acc, project) => {
+          const { grandTotal, amountRemaining } = projectTotals(project);
           acc.grandTotal += grandTotal;
           acc.amountRemaining += amountRemaining;
           return acc;
@@ -161,28 +172,23 @@ export default function CustomersList() {
     [projects, projectTotals]
   );
 
-  const notifications = useMemo(
-    () =>
-      filteredCustomers.flatMap((customer) =>
-        customer.projects
-          .map((project) => {
-            const finishDate = project.customerInfo?.finishDate ? new Date(project.customerInfo.finishDate) : null;
-            if (!finishDate) return null;
-            const daysUntilFinish = (finishDate - new Date()) / (1000 * 60 * 60 * 24);
-            if (daysUntilFinish <= DUE_SOON_DAYS && daysUntilFinish >= OVERDUE_THRESHOLD) {
-              return {
-                message: `${project.customerInfo.firstName} ${project.customerInfo.lastName}'s project is due on ${new Date(
-                  finishDate
-                ).toLocaleDateString()}.`,
-                overdue: finishDate < new Date(),
-              };
-            }
-            return null;
-          })
-          .filter(Boolean)
-      ),
-    [filteredCustomers]
-  );
+  const notifications = useMemo(() => {
+    const today = new Date();
+    return filteredCustomers.reduce((acc, customer) => {
+      customer.projects.forEach((project) => {
+        const finishDate = project.customerInfo?.finishDate ? new Date(project.customerInfo.finishDate) : null;
+        if (!finishDate) return;
+        const daysUntilFinish = (finishDate - today) / (1000 * 60 * 60 * 24);
+        if (daysUntilFinish <= DUE_SOON_DAYS && daysUntilFinish >= OVERDUE_THRESHOLD) {
+          acc.push({
+            message: `${project.customerInfo.firstName} ${project.customerInfo.lastName}'s project is due on ${finishDate.toLocaleDateString()}.`,
+            overdue: finishDate < today,
+          });
+        }
+      });
+      return acc;
+    }, []);
+  }, [filteredCustomers]);
 
   const handleSort = (key) =>
     setSortConfig((prev) => ({
@@ -243,9 +249,12 @@ export default function CustomersList() {
             </ul>
           </div>
         )}
+        {error && <p className={styles.error}>{error}</p>}
         {isLoading ? (
-          <p className={styles.loading}>Loading customers...</p>
-        ) : filteredCustomers.length > 0 ? (
+          <div className={styles.loading}>
+            <FontAwesomeIcon icon={faSpinner} spin /> Loading customers...
+          </div>
+        ) : paginatedCustomers.length > 0 ? (
           <div className={styles.tableWrapper}>
             <table className={styles.table}>
               <thead>
@@ -262,7 +271,7 @@ export default function CustomersList() {
                     <FontAwesomeIcon icon={faAddressCard} /> Last Name <FontAwesomeIcon icon={getSortIcon('lastName')} />
                   </th>
                   <th scope="col">
-                    <FontAwesomeIcon icon={faPhone} />  Customer Phone Number 
+                    <FontAwesomeIcon icon={faPhone} /> Customer Phone Number
                   </th>
                   <th scope="col">
                     <FontAwesomeIcon icon={faTasks} /> Project Count
@@ -294,13 +303,15 @@ export default function CustomersList() {
                 </tr>
               </thead>
               <tbody>
-                {filteredCustomers.map((customer) => {
+                {paginatedCustomers.map((customer) => {
                   const hasMultipleProjects = customer.projects.length > 1;
                   return (
                     <tr key={`${customer.customerInfo.lastName}-${customer.customerInfo.phone}`}>
-                      <td>{customer.customerInfo.firstName || 'N/A'}</td>
+                      <td scope="row">{customer.customerInfo.firstName || 'N/A'}</td>
                       <td className={styles.firstName}>{customer.customerInfo.lastName || 'N/A'}</td>
-                      <td>{formatPhoneNumber(customer.customerInfo.phone)}</td>
+                      <td title={formatPhoneNumber(customer.customerInfo.phone)}>
+                        {formatPhoneNumber(customer.customerInfo.phone)}
+                      </td>
                       <td>
                         <span>{customer.projects.length}</span>
                       </td>
@@ -326,13 +337,17 @@ export default function CustomersList() {
                       </td>
                       <td className={styles.grandTotal}>${customer.totalGrandTotal.toFixed(2)}</td>
                       <td className={styles.actions}>
-                        <button onClick={() => handleDetails(customer.projects)} className={styles.actionButton} title="View Details">
+                        <button
+                          onClick={() => handleDetails(customer.projects)}
+                          className={styles.actionButton}
+                          aria-label="View customer project details"
+                        >
                           <FontAwesomeIcon icon={faEye} />
                         </button>
                         <button
                           onClick={() => handleEdit(customer.projects[0]._id)}
                           className={`${styles.actionButton} ${styles.editButton}`}
-                          title={hasMultipleProjects ? 'View details to edit specific project' : 'Edit'}
+                          aria-label={hasMultipleProjects ? 'View details to edit specific project' : 'Edit project'}
                           disabled={hasMultipleProjects}
                         >
                           <FontAwesomeIcon icon={faEdit} />
@@ -340,14 +355,14 @@ export default function CustomersList() {
                         <button
                           onClick={() => handleNewProjectForCustomer(customer.customerInfo)}
                           className={`${styles.actionButton} ${styles.newProjectButton}`}
-                          title="New Project for Customer"
+                          aria-label="Create new project for customer"
                         >
                           <FontAwesomeIcon icon={faPlusCircle} />
                         </button>
                         <button
                           onClick={() => handleDelete(customer.projects[0]._id)}
                           className={`${styles.actionButton} ${styles.deleteButton}`}
-                          title={hasMultipleProjects ? 'View details to delete specific project' : 'Delete'}
+                          aria-label={hasMultipleProjects ? 'View details to delete specific project' : 'Delete project'}
                           disabled={hasMultipleProjects}
                         >
                           <FontAwesomeIcon icon={faTrashAlt} />
@@ -358,6 +373,25 @@ export default function CustomersList() {
                 })}
               </tbody>
             </table>
+            {totalPages > 1 && (
+              <div className={styles.pagination}>
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                >
+                  Previous
+                </button>
+                <span>
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </button>
+              </div>
+            )}
             <div className={styles.totalsSection}>
               <p>
                 Total Grand Total: <span className={styles.grandTotal}>${totals.grandTotal.toFixed(2)}</span>
@@ -369,7 +403,12 @@ export default function CustomersList() {
             </div>
           </div>
         ) : (
-          <p className={styles.noResults}>No customers found.</p>
+          <p className={styles.noResults}>
+            No customers found. Try adjusting your search or{' '}
+            <button onClick={() => navigate('/home/customer')} className={styles.inlineButton}>
+              add a new customer
+            </button>.
+          </p>
         )}
       </div>
     </main>
