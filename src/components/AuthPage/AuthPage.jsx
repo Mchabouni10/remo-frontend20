@@ -1,9 +1,12 @@
+// src/components/AuthPage/AuthPage.jsx
 import React, { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
 import styles from './AuthPage.module.css';
 import SignUpForm from '../SignUpForm/SignUpForm';
 import LoginForm from '../LoginForm/LoginForm';
 
-export default function AuthPage({ setUser }) {
+export default function AuthPage({ setUser, toggleDarkMode, isDarkMode }) {
   const [showLogin, setShowLogin] = useState(true);
   const [animate, setAnimate] = useState(false);
 
@@ -48,6 +51,13 @@ export default function AuthPage({ setUser }) {
 
         <div className={styles.footer}>
           <p>Protected by Quantum Encryption</p>
+          <button
+            className={styles.darkModeToggle}
+            onClick={toggleDarkMode}
+            aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            <FontAwesomeIcon icon={isDarkMode ? faSun : faMoon} />
+          </button>
         </div>
       </div>
     </main>

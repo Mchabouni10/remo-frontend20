@@ -271,7 +271,7 @@ export default function CustomersList() {
                     <FontAwesomeIcon icon={faAddressCard} /> Last Name <FontAwesomeIcon icon={getSortIcon('lastName')} />
                   </th>
                   <th scope="col">
-                    <FontAwesomeIcon icon={faPhone} /> Customer Phone Number
+                    <FontAwesomeIcon icon={faPhone} /> Phone Number
                   </th>
                   <th scope="col">
                     <FontAwesomeIcon icon={faTasks} /> Project Count

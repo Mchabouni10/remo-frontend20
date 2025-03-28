@@ -1,3 +1,4 @@
+/* src/components/CostBreakdown.module.css */
 .costBreakdown {
   margin-top: var(--spacing-sm);
   padding: var(--spacing-md);
@@ -71,8 +72,6 @@
   text-align: left;
   text-transform: uppercase;
   letter-spacing: 0.2px;
-  border: 2px solid red;
-  
 }
 
 .breakdownTable td {
@@ -160,7 +159,7 @@
 
 .innerTable th {
   background: var(--primary-dark);
-  color: var(--text);
+  color: var(--surface); /* Changed to white for visibility */
   font-weight: var(--font-weight-bold);
   text-align: left;
 }

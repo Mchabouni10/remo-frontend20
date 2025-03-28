@@ -2,22 +2,21 @@
 .mainContent {
   background-color: var(--background);
   min-height: calc(100vh - 60px);
-  padding: var(--spacing-sm) .5 var(--spacing-lg); /* Reduced left/right padding to 0 */
+  padding: var(--spacing-sm) 0 var(--spacing-lg);
   display: flex;
   justify-content: center;
   align-items: flex-start;
 }
 
 .container {
-  max-width: 1400px; /* Increased from 1200px to give more room */
+  max-width: 1400px;
   width: 100%;
   margin: 0 auto;
-  padding: var(--spacing-sm); /* Kept internal padding minimal */
+  padding: var(--spacing-sm);
   background: linear-gradient(135deg, var(--surface) 0%, #f9fafb 100%);
   border-radius: var(--radius-md);
   box-shadow: 0 3px 10px var(--shadow);
   position: relative;
-
 }
 
 .title {
@@ -78,6 +77,31 @@
   color: #95a5a6;
 }
 
+.clearButton {
+  position: absolute;
+  top: 50%;
+  right: var(--spacing-sm);
+  transform: translateY(-50%);
+  padding: 0.2rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--error);
+  color: var(--surface);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.clearButton:hover {
+  background: #c53030;
+  transform: translateY(-50%) scale(1.05);
+}
+
 .tableWrapper {
   overflow-x: auto;
   border-radius: var(--radius-md);
@@ -101,48 +125,27 @@
 }
 
 .table th {
-  background: var(--primary); /* Solid color for simplicity */
+  background: var(--primary);
   font-weight: var(--font-weight-bold);
-  font-size: var(--font-size-base); /* Slightly larger for readability */
-  text-transform: capitalize; /* Softer than uppercase, still polished */
-  letter-spacing: 0.1px; /* Reduced for a cleaner look */
+  font-size: var(--font-size-base);
+  text-transform: capitalize;
+  letter-spacing: 0.1px;
   color: var(--surface);
   position: sticky;
   top: 0;
   z-index: 10;
-  padding: var(--spacing-sm) var(--spacing-md); /* Fixed typo and balanced */
-  border-bottom: 2px solid var(--primary-dark); /* Adds depth */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow when sticky */
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: 2px solid var(--primary-dark);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.phoneColumn {
-  min-width: 320px;
+.sortable {
+  cursor: pointer;
+  user-select: none;
 }
 
-/* Phone number styles with custom tooltip */
-.phoneNumber {
-  position: relative;
-  display: inline-block; /* Ensures the span behaves correctly */
-  white-space: nowrap; /* Keeps the number on one line */
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%; /* Matches the td’s max-width */
-}
-
-.phoneNumber:hover::after {
-  content: attr(data-tooltip); /* Uses the data-tooltip attribute for content */
-  position: absolute;
-  bottom: 100%; /* Appears above the cell */
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--primary);
-  color: var(--surface);
-  padding: var(--spacing-sm);
-  border-radius: var(--radius-sm);
-  font-size: var(--font-size-sm);
-  white-space: nowrap;
-  z-index: 10;
-  pointer-events: none; /* Prevents tooltip from interfering with clicks */
+.sortable:hover {
+  background: linear-gradient(135deg, #3a506b 0%, var(--primary) 100%);
 }
 
 .firstName {
@@ -155,74 +158,10 @@
   text-align: center;
 }
 
-/* Fix for phone column */
-.table td {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.table td:nth-child(3) {
-  min-width: 120px;
-  max-width: 150px;
-  white-space: nowrap;
-}
-
-.tableWrapper {
-  overflow-x: auto; /* Allows horizontal scrolling if table exceeds container width */
-}
-
-/* Pagination styles */
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-md);
-}
-
-.pagination button {
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: var(--primary);
-  color: var(--surface);
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-}
-
-.pagination button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Loading and error styles */
-.loading {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  justify-content: center;
-  padding: var(--spacing-lg);
-  color: var(--text-light);
-}
-
-.error {
-  color: var(--error);
+.table td:nth-child(3),
+.table th:nth-child(3) {
+  min-width: 170px;
   text-align: center;
-  margin: var(--spacing-md) 0;
-}
-
-/* No results with inline button */
-.noResults {
-  text-align: center;
-  padding: var(--spacing-lg);
-}
-
-.inlineButton {
-  background: none;
-  border: none;
-  color: var(--primary);
-  text-decoration: underline;
-  cursor: pointer;
 }
 
 .table td:nth-child(4) span {
@@ -329,35 +268,6 @@
   opacity: 0.8;
 }
 
-/* Remove or avoid applying actionButton styles to this button */
-.backButtonEnhanced {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm); /* Space between icon and text */
-  padding: var(--spacing-md) var(--spacing-md); /* Larger padding for bigger size */
-  font-size: var(--font-size-md); /* Bigger text */
-  background: var(--primary); /* Use your primary color */
-  color: var(--surface); /* White or contrasting text color */
- font-weight: bolder;
-  border: none;
-  border-radius: var(--radius-md); /* Slightly larger radius */
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.1s ease; /* Smooth hover effect */
-  margin-bottom: var(--spacing-lg); /* Space below to separate from table */
-}
-
-/* Hover effect */
-.backButtonEnhanced:hover {
-  background: var(--primary-dark); /* Darker shade on hover */
-  transform: scale(1.05); /* Slight grow effect */
-}
-
-/* Ensure icon scales with button */
-.backButtonEnhanced svg {
-  font-size: var(--font-size-md); /* Larger icon */
-}
-
-
 .editButton {
   background: var(--success);
 }
@@ -385,18 +295,6 @@
   box-shadow: 0 2px 6px rgba(var(--secondary), 0.3);
 }
 
-.backButton {
-  background: var(--text-light);
-  position: absolute;
-  top: var(--spacing-md);
-  right: var(--spacing-md);
-}
-
-.backButton:hover {
-  background: #6c757d;
-  box-shadow: 0 2px 6px rgba(var(--text-light), 0.3);
-}
-
 .noResults {
   text-align: center;
   color: var(--text-light);
@@ -408,20 +306,34 @@
   margin-top: 0.2rem;
 }
 
-.loading {
-  text-align: center;
+.inlineButton {
+  background: none;
+  border: none;
   color: var(--primary);
-  font-size: var(--font-size-base);
-  padding: var(--spacing-md);
-}
-
-.sortable {
+  text-decoration: underline;
   cursor: pointer;
-  user-select: none;
 }
 
-.sortable:hover {
-  background: linear-gradient(135deg, #3a506b 0%, var(--primary) 100%);
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
+}
+
+.pagination button {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--primary);
+  color: var(--surface);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .totalsSection {
@@ -452,31 +364,6 @@
   font-size: 0.7rem;
   color: #666;
   font-style: italic;
-}
-
-.clearButton {
-  position: absolute;
-  top: 50%;
-  right: var(--spacing-sm);
-  transform: translateY(-50%);
-  padding: 0.2rem;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: var(--error);
-  color: var(--surface);
-  cursor: pointer;
-  font-size: var(--font-size-sm);
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.clearButton:hover {
-  background: #c53030;
-  transform: translateY(-50%) scale(1.05);
 }
 
 .notificationsSection {
@@ -516,131 +403,20 @@
   margin-right: 4px;
 }
 
-/* Base status class - remove circle and set dark text */
-.status {
-  padding: 4px 8px; /* Adjust padding as needed */
-  color: #333; /* Dark gray text (you can use #000 for black) */
-  /* Remove background and border-radius to eliminate the circle */
-  background: none;
-  border-radius: 0;
-  display: inline-block;
-}
-
-/* Status-specific classes - keep text color dark and remove circles */
-.completed {
-  color: #333; /* Dark text */
-  background: none; /* No background */
-}
-
-.overdue {
-  color: #333; /* Dark text */
-  background: none; /* No background */
-}
-
-.pending {
-  color: #333; /* Dark text */
-  background: none; /* No background */
-}
-
-.inprogress {
-  color: #333; /* Dark text */
-  background: none; /* No background */
-}
-
-.unknown {
-  color: #333; /* Dark text */
-  background: none; /* No background */
-}
-
-
-/* Enhanced styles for CustomerProjects */
-.customerSummary {
-  margin: var(--spacing-md) 0;
-  padding: var(--spacing-md);
-  background: var(--surface);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow);
-}
-
-.subTitle {
-  font-size: var(--font-size-lg);
-  margin-bottom: var(--spacing-md);
-  color: var(--text);
-}
-
-.infoGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--spacing-md);
-}
-
-.infoGrid p {
-  margin: 0;
+.loading {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  justify-content: center;
+  padding: var(--spacing-lg);
   color: var(--text-light);
 }
 
-.infoGrid strong {
-  color: var(--text);
+.error {
+  color: var(--error);
+  text-align: center;
+  margin: var(--spacing-md) 0;
 }
-
-.expandButton {
-  background: none;
-  border: none;
-  cursor: pointer;
-  margin-right: var(--spacing-sm);
-  color: var(--primary);
-}
-
-.expandedRow {
-  background: var(--surface-light);
-}
-
-.detailRow td {
-  padding: var(--spacing-md);
-  background: var(--surface);
-}
-
-.projectDetails {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: var(--spacing-md);
-}
-
-.detailSection {
-  margin-top: var(--spacing-md);
-}
-
-.detailSection h4 {
-  font-size: var(--font-size-md);
-  color: var(--primary);
-  margin-bottom: var(--spacing-sm);
-}
-
-.downloadButton {
-  background: var(--success);
-  color: var(--surface);
-}
-
-.downloadButton:hover {
-  background: var(--success-dark);
-}
-
-/* Status styles (assuming these exist, adjust as needed) */
-/* .status.completed {
-  background: var(--success);
-}
-
-.status.overdue {
-  background: var(--error);
-}
-
-.status.pending {
-  background: var(--warning);
-}
-
-.status.inprogress {
-  background: var(--primary);
-} */
 
 /* Responsive Adjustments */
 @media (max-width: 1024px) {
@@ -651,10 +427,6 @@
   .table th,
   .table td {
     padding: var(--spacing-sm) var(--spacing-sm);
-  }
-
-  .phoneColumn {
-    min-width: 100px;
   }
 
   .currency,
@@ -707,10 +479,6 @@
   .table td {
     font-size: 0.75rem;
     padding: 0.3rem var(--spacing-sm);
-  }
-
-  .phoneColumn {
-    min-width: 90px;
   }
 
   .currency,

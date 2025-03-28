@@ -18,7 +18,7 @@ import { deleteProject } from "../../services/projectService";
 import { calculateTotal } from "../Calculator/calculations/costCalculations";
 import { formatPhoneNumber } from "../Calculator/utils/customerhelper";
 import CostBreakdown from "../Calculator/CostBreakdown/CostBreakdown"; // Assuming this is in the same directory or adjust path
-import styles from "../CustomersList/CustomersList.module.css";
+import styles from "./CustomerProjects.module.css";
 
 export default function CustomerProjects() {
   const location = useLocation();

@@ -16,24 +16,25 @@ export default function App() {
   const [user, setUser] = useState(getUser());
   const [isDarkMode, setIsDarkMode] = useState(() => {
     // Check localStorage or system preference for initial theme
-    const savedTheme = localStorage.getItem('theme');
-    return savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    const savedMode = localStorage.getItem('darkMode');
+    return savedMode === 'true' || (!savedMode && window.matchMedia('(prefers-color-scheme: dark)').matches);
   });
 
   // Effect to toggle dark mode class and persist to localStorage
   useEffect(() => {
+    const htmlElement = document.documentElement; // Apply to <html> instead of <body>
     if (isDarkMode) {
-      document.body.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
+      htmlElement.classList.add('dark');
+      localStorage.setItem('darkMode', 'true');
     } else {
-      document.body.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
+      htmlElement.classList.remove('dark');
+      localStorage.setItem('darkMode', 'false');
     }
   }, [isDarkMode]);
 
   // Function to toggle dark mode
   const toggleDarkMode = () => {
-    setIsDarkMode(prevMode => !prevMode);
+    setIsDarkMode((prevMode) => !prevMode);
   };
 
   return (
@@ -41,7 +42,12 @@ export default function App() {
       <div className="backgroundEffects"></div>
       {user ? (
         <>
-          <Navbar user={user} setUser={setUser} toggleDarkMode={toggleDarkMode} isDarkMode={isDarkMode} />
+          <Navbar
+            user={user}
+            setUser={setUser}
+            toggleDarkMode={toggleDarkMode}
+            isDarkMode={isDarkMode}
+          />
           <main className="mainContent">
             <Routes>
               <Route path="/home/customer" element={<HomePage />} />
@@ -57,7 +63,11 @@ export default function App() {
           </main>
         </>
       ) : (
-        <AuthPage setUser={setUser} />
+        <AuthPage
+          setUser={setUser}
+          toggleDarkMode={toggleDarkMode}
+          isDarkMode={isDarkMode}
+        />
       )}
     </div>
   );
