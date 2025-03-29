@@ -20,6 +20,9 @@ import {
   faCalendarAlt,
   faDollarSign,
   faSpinner,
+  faDownload,
+  faChevronDown,
+  faChevronUp,
 } from '@fortawesome/free-solid-svg-icons';
 import { getProjects, deleteProject } from '../../services/projectService';
 import { calculateTotal } from '../Calculator/calculations/costCalculations';
@@ -39,6 +42,7 @@ export default function CustomersList() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [error, setError] = useState(null);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(true); // New state for toggle
   const navigate = useNavigate();
 
   const projectTotals = useCallback((project) => {
@@ -61,7 +65,6 @@ export default function CustomersList() {
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Normalize to start of day
 
-    // Aggregate project dates and payment status
     let earliestStart = null;
     let latestFinish = null;
     let totalAmountRemaining = 0;
@@ -80,7 +83,7 @@ export default function CustomersList() {
       totalAmountRemaining += amountRemaining;
     });
 
-    if (!earliestStart && !latestFinish) return 'Not Started'; // No dates provided
+    if (!earliestStart && !latestFinish) return 'Not Started';
 
     const daysToStart = earliestStart ? (earliestStart - today) / (1000 * 60 * 60 * 24) : Infinity;
     const daysToFinish = latestFinish ? (latestFinish - today) / (1000 * 60 * 60 * 24) : Infinity;
@@ -92,7 +95,7 @@ export default function CustomersList() {
     if (daysToFinish <= OVERDUE_THRESHOLD && totalAmountRemaining > 0) return 'Overdue';
     if (daysToFinish <= OVERDUE_THRESHOLD && totalAmountRemaining === 0) return 'Completed';
 
-    return 'In Progress'; // Default fallback
+    return 'In Progress';
   }, [projectTotals]);
 
   const groupAndSetCustomers = useCallback(
@@ -257,6 +260,43 @@ export default function CustomersList() {
   const handleSearchChange = (e) => setSearchQuery(e.target.value);
   const handleClearSearch = () => setSearchQuery('');
   const getSortIcon = (key) => (sortConfig.key === key ? (sortConfig.direction === 'asc' ? faSortUp : faSortDown) : faSort);
+  const toggleNotifications = () => setIsNotificationsOpen((prev) => !prev); // New toggle function
+
+  const handleExportCSV = () => {
+    const headers = [
+      'First Name',
+      'Last Name',
+      'Phone Number',
+      'Project Count',
+      'Earliest Start Date',
+      'Latest Finish Date',
+      'Status',
+      'Total Amount Remaining',
+      'Total Grand Total',
+    ];
+    const rows = filteredCustomers.map((customer) => [
+      customer.customerInfo.firstName || 'N/A',
+      customer.customerInfo.lastName || 'N/A',
+      formatPhoneNumber(customer.customerInfo.phone),
+      customer.projects.length,
+      customer.earliestStartDate ? new Date(customer.earliestStartDate).toLocaleDateString() : 'N/A',
+      customer.latestFinishDate ? new Date(customer.latestFinishDate).toLocaleDateString() : 'N/A',
+      customer.status,
+      `$${customer.totalAmountRemaining.toFixed(2)}`,
+      `$${customer.totalGrandTotal.toFixed(2)}`,
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(',')),
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `customers_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+  };
 
   return (
     <main className={styles.mainContent}>
@@ -281,14 +321,24 @@ export default function CustomersList() {
         </div>
         {notifications.length > 0 && (
           <div className={styles.notificationsSection}>
-            <h3>Notifications</h3>
-            <ul>
-              {notifications.map((note, index) => (
-                <li key={index} className={note.overdue ? styles.overdue : styles.nearDue}>
-                  <FontAwesomeIcon icon={note.overdue ? faExclamationTriangle : faCheckCircle} /> {note.message}
-                </li>
-              ))}
-            </ul>
+            <div className={styles.notificationsHeader} onClick={toggleNotifications}>
+              <h3>
+                Notifications <span className={styles.notificationCount}>({notifications.length})</span>
+              </h3>
+              <FontAwesomeIcon
+                icon={isNotificationsOpen ? faChevronUp : faChevronDown}
+                className={styles.toggleIcon}
+              />
+            </div>
+            {isNotificationsOpen && (
+              <ul>
+                {notifications.map((note, index) => (
+                  <li key={index} className={note.overdue ? styles.overdue : styles.nearDue}>
+                    <FontAwesomeIcon icon={note.overdue ? faExclamationTriangle : faCheckCircle} /> {note.message}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         )}
         {error && <p className={styles.error}>{error}</p>}
@@ -298,6 +348,11 @@ export default function CustomersList() {
           </div>
         ) : paginatedCustomers.length > 0 ? (
           <div className={styles.tableWrapper}>
+            <div className={styles.tableHeaderActions}>
+              <button onClick={handleExportCSV} className={styles.exportButton} title="Export as CSV">
+                <FontAwesomeIcon icon={faDownload} /> Export
+              </button>
+            </div>
             <table className={styles.table}>
               <thead>
                 <tr>
