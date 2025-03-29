@@ -1,6 +1,4 @@
-/* Import font if not already in index.css */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
-
+/* Reverted to your original styling for consistency */
 .customerInfo {
   width: 100%;
   padding: var(--spacing-md);
@@ -121,6 +119,246 @@ textarea.input {
   cursor: not-allowed !important;
 }
 
+/* Date Picker Input Styles */
+.dateInput {
+  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) 2.5rem;
+  font-size: var(--font-size-base);
+  border: 1px solid rgba(209, 213, 219, 0.3);
+  border-radius: var(--radius-sm);
+  width: 100%;
+  box-sizing: border-box;
+  background-color: var(--surface);
+  color: var(--text);
+  transition: all 0.3s ease;
+}
+
+.dateInput:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--shadow);
+}
+
+.dateInput.error {
+  border-color: var(--error);
+  box-shadow: 0 0 4px var(--shadow);
+}
+
+/* Day Styling in Calendar */
+.dayWrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.busyDay {
+  color: #e94560;
+  font-weight: var(--font-weight-bold);
+  text-shadow: 0 0 5px rgba(233, 69, 96, 0.3);
+}
+
+.busyIndicator {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #e94560;
+  box-shadow: 0 0 8px #e94560;
+}
+
+.busyTooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%);
+  color: #fff;
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  font-size: var(--font-size-sm);
+  z-index: 1000;
+  white-space: nowrap;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.dayWrapper:hover .busyTooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.tooltipItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: var(--spacing-sm);
+}
+
+.tooltipItem:last-child {
+  margin-bottom: 0;
+}
+
+.tooltipCustomer {
+  font-weight: var(--font-weight-bold);
+  color: #00d4ff;
+}
+
+.tooltipProject {
+  font-style: italic;
+  color: #e94560;
+}
+
+.tooltipRange {
+  color: #fff;
+  font-size: 0.8rem;
+}
+
+/* Futuristic Calendar Design (Isolated) */
+.calendarPopper {
+  z-index: 1000;
+}
+
+.react-datepicker {
+  font-family: 'Orbitron', sans-serif; /* Futuristic font - add via Google Fonts */
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 0 25px rgba(0, 212, 255, 0.6);
+  padding: 15px;
+  width: 340px;
+  backdrop-filter: blur(5px);
+}
+
+.react-datepicker__header {
+  background: linear-gradient(135deg, #00d4ff 0%, #e94560 100%);
+  border-bottom: none;
+  padding: 12px 0;
+  border-radius: 10px 10px 0 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.react-datepicker__current-month {
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 700;
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
+}
+
+.react-datepicker__day-names {
+  margin-top: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 5px 0;
+  border-radius: 5px;
+}
+
+.react-datepicker__day-name {
+  color: #00d4ff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  width: 44px;
+  text-shadow: 0 0 4px rgba(0, 212, 255, 0.5);
+}
+
+.react-datepicker__month {
+  margin: 15px 0;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 5px;
+  border-radius: 8px;
+}
+
+.react-datepicker__day {
+  color: #fff;
+  width: 44px;
+  height: 44px;
+  line-height: 44px;
+  margin: 3px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  font-weight: 500;
+  box-shadow: inset 0 0 5px rgba(0, 212, 255, 0.2);
+}
+
+.react-datepicker__day:hover {
+  background: rgba(0, 212, 255, 0.3);
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.7);
+  transform: scale(1.05);
+}
+
+.react-datepicker__day--highlighted {
+  background: rgba(233, 69, 96, 0.4);
+  color: #e94560;
+  box-shadow: 0 0 12px rgba(233, 69, 96, 0.8);
+  font-weight: 700;
+}
+
+.react-datepicker__day--highlighted:hover {
+  background: rgba(233, 69, 96, 0.6);
+}
+
+.react-datepicker__day--selected {
+  background: #00d4ff;
+  color: #fff;
+  box-shadow: 0 0 18px rgba(0, 212, 255, 0.9);
+  font-weight: 700;
+  transform: scale(1.1);
+}
+
+.react-datepicker__day--selected:hover {
+  background: #00b4d8;
+}
+
+.react-datepicker__day--keyboard-selected {
+  background: #e94560;
+  color: #fff;
+  box-shadow: 0 0 18px rgba(233, 69, 96, 0.9);
+  transform: scale(1.1);
+}
+
+.react-datepicker__day--outside-month {
+  color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.react-datepicker__navigation {
+  top: 18px;
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.react-datepicker__navigation--previous,
+.react-datepicker__navigation--next {
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
+}
+
+.react-datepicker__navigation--previous:hover,
+.react-datepicker__navigation--next:hover {
+  background: rgba(0, 212, 255, 0.5);
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.8);
+  transform: scale(1.1);
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: #fff;
+  border-width: 3px 3px 0 0;
+  width: 12px;
+  height: 12px;
+}
+
 /* Busy Dates Section */
 .busyDatesSection {
   margin-top: var(--spacing-lg);
@@ -186,6 +424,7 @@ textarea.input {
   font-size: var(--font-size-sm);
 }
 
+/* Updated Busy Dates Note */
 .busyDatesNote {
   font-size: var(--font-size-sm);
   color: var(--text-light);
@@ -200,7 +439,8 @@ textarea.input {
   }
 
   .input,
-  .phoneInput {
+  .phoneInput,
+  .dateInput {
     font-size: var(--font-size-sm) !important;
   }
 
@@ -210,5 +450,22 @@ textarea.input {
 
   .busyDateItem {
     font-size: var(--font-size-sm);
+  }
+
+  .react-datepicker {
+    width: 280px;
+    font-size: var(--font-size-sm);
+  }
+
+  .react-datepicker__day {
+    width: 35px;
+    height: 35px;
+    line-height: 35px;
+  }
+
+  .busyTooltip {
+    white-space: normal;
+    width: 200px;
+    font-size: 0.75rem;
   }
 }

@@ -26,8 +26,8 @@ import { calculateTotal } from '../Calculator/calculations/costCalculations';
 import { formatPhoneNumber, formatDate } from '../Calculator/utils/customerhelper';
 import styles from './CustomersList.module.css';
 
-const DUE_SOON_DAYS = 7;
-const OVERDUE_THRESHOLD = -1;
+const DUE_SOON_DAYS = 7; // Threshold for "Starting Soon" and "Due Soon"
+const OVERDUE_THRESHOLD = -1; // Days past finish date to consider overdue
 const ITEMS_PER_PAGE = 10;
 
 export default function CustomersList() {
@@ -57,6 +57,44 @@ export default function CustomersList() {
     };
   }, []);
 
+  const determineStatus = useCallback((projects) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Normalize to start of day
+
+    // Aggregate project dates and payment status
+    let earliestStart = null;
+    let latestFinish = null;
+    let totalAmountRemaining = 0;
+
+    projects.forEach((project) => {
+      const startDate = project.customerInfo?.startDate ? new Date(project.customerInfo.startDate) : null;
+      const finishDate = project.customerInfo?.finishDate ? new Date(project.customerInfo.finishDate) : null;
+      const { amountRemaining } = projectTotals(project);
+
+      if (startDate) {
+        earliestStart = earliestStart ? new Date(Math.min(earliestStart, startDate)) : startDate;
+      }
+      if (finishDate) {
+        latestFinish = latestFinish ? new Date(Math.max(latestFinish, finishDate)) : finishDate;
+      }
+      totalAmountRemaining += amountRemaining;
+    });
+
+    if (!earliestStart && !latestFinish) return 'Not Started'; // No dates provided
+
+    const daysToStart = earliestStart ? (earliestStart - today) / (1000 * 60 * 60 * 24) : Infinity;
+    const daysToFinish = latestFinish ? (latestFinish - today) / (1000 * 60 * 60 * 24) : Infinity;
+
+    if (daysToStart > DUE_SOON_DAYS) return 'Not Started';
+    if (daysToStart <= DUE_SOON_DAYS && daysToStart > 0) return 'Starting Soon';
+    if (daysToStart <= 0 && (daysToFinish > DUE_SOON_DAYS || !latestFinish)) return 'In Progress';
+    if (daysToFinish <= DUE_SOON_DAYS && daysToFinish > OVERDUE_THRESHOLD) return 'Due Soon';
+    if (daysToFinish <= OVERDUE_THRESHOLD && totalAmountRemaining > 0) return 'Overdue';
+    if (daysToFinish <= OVERDUE_THRESHOLD && totalAmountRemaining === 0) return 'Completed';
+
+    return 'In Progress'; // Default fallback
+  }, [projectTotals]);
+
   const groupAndSetCustomers = useCallback(
     (projectsList) => {
       const customerMap = projectsList.reduce((acc, project) => {
@@ -69,7 +107,6 @@ export default function CustomersList() {
             totalAmountRemaining: 0,
             earliestStartDate: null,
             latestFinishDate: null,
-            status: 'In Progress',
           };
         }
         acc[key].projects.push(project);
@@ -82,19 +119,7 @@ export default function CustomersList() {
         if (startDate) acc[key].earliestStartDate = acc[key].earliestStartDate ? new Date(Math.min(acc[key].earliestStartDate, startDate)) : startDate;
         if (finishDate) acc[key].latestFinishDate = acc[key].latestFinishDate ? new Date(Math.max(acc[key].latestFinishDate, finishDate)) : finishDate;
 
-        const today = new Date();
-        acc[key].status = acc[key].projects.every((p) => {
-          const finish = new Date(p.customerInfo?.finishDate);
-          const { amountRemaining } = projectTotals(p);
-          return amountRemaining === 0 && finish < today;
-        })
-          ? 'Completed'
-          : acc[key].projects.some((p) => {
-              const finish = new Date(p.customerInfo?.finishDate);
-              return finish < today && projectTotals(p).amountRemaining > 0;
-            })
-          ? 'Overdue'
-          : 'In Progress';
+        acc[key].status = determineStatus(acc[key].projects);
 
         return acc;
       }, {});
@@ -125,7 +150,7 @@ export default function CustomersList() {
 
       return customers;
     },
-    [debouncedSearchQuery, sortConfig, projectTotals]
+    [debouncedSearchQuery, sortConfig, projectTotals, determineStatus]
   );
 
   useEffect(() => {
@@ -174,21 +199,38 @@ export default function CustomersList() {
 
   const notifications = useMemo(() => {
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
     return filteredCustomers.reduce((acc, customer) => {
       customer.projects.forEach((project) => {
+        const startDate = project.customerInfo?.startDate ? new Date(project.customerInfo.startDate) : null;
         const finishDate = project.customerInfo?.finishDate ? new Date(project.customerInfo.finishDate) : null;
-        if (!finishDate) return;
-        const daysUntilFinish = (finishDate - today) / (1000 * 60 * 60 * 24);
-        if (daysUntilFinish <= DUE_SOON_DAYS && daysUntilFinish >= OVERDUE_THRESHOLD) {
-          acc.push({
-            message: `${project.customerInfo.firstName} ${project.customerInfo.lastName}'s project is due on ${finishDate.toLocaleDateString()}.`,
-            overdue: finishDate < today,
-          });
+        if (startDate) {
+          const daysToStart = (startDate - today) / (1000 * 60 * 60 * 24);
+          if (daysToStart <= DUE_SOON_DAYS && daysToStart > 0) {
+            acc.push({
+              message: `${project.customerInfo.firstName} ${project.customerInfo.lastName}'s project is starting soon on ${startDate.toLocaleDateString()}.`,
+              overdue: false,
+            });
+          }
+        }
+        if (finishDate) {
+          const daysToFinish = (finishDate - today) / (1000 * 60 * 60 * 24);
+          if (daysToFinish <= DUE_SOON_DAYS && daysToFinish > OVERDUE_THRESHOLD) {
+            acc.push({
+              message: `${project.customerInfo.firstName} ${project.customerInfo.lastName}'s project is due soon on ${finishDate.toLocaleDateString()}.`,
+              overdue: false,
+            });
+          } else if (daysToFinish <= OVERDUE_THRESHOLD && projectTotals(project).amountRemaining > 0) {
+            acc.push({
+              message: `${project.customerInfo.firstName} ${project.customerInfo.lastName}'s project was due on ${finishDate.toLocaleDateString()} and is overdue.`,
+              overdue: true,
+            });
+          }
         }
       });
       return acc;
     }, []);
-  }, [filteredCustomers]);
+  }, [filteredCustomers, projectTotals]);
 
   const handleSort = (key) =>
     setSortConfig((prev) => ({
@@ -307,7 +349,7 @@ export default function CustomersList() {
                   const hasMultipleProjects = customer.projects.length > 1;
                   return (
                     <tr key={`${customer.customerInfo.lastName}-${customer.customerInfo.phone}`}>
-                      <td scope="row">{customer.customerInfo.firstName || 'N/A'}</td>
+                      <th scope="row">{customer.customerInfo.firstName || 'N/A'}</th>
                       <td className={styles.firstName}>{customer.customerInfo.lastName || 'N/A'}</td>
                       <td title={formatPhoneNumber(customer.customerInfo.phone)}>
                         {formatPhoneNumber(customer.customerInfo.phone)}
@@ -318,7 +360,9 @@ export default function CustomersList() {
                       <td>{customer.earliestStartDate ? new Date(customer.earliestStartDate).toLocaleDateString() : 'N/A'}</td>
                       <td>{customer.latestFinishDate ? new Date(customer.latestFinishDate).toLocaleDateString() : 'N/A'}</td>
                       <td>
-                        <span className={`${styles.status} ${styles[customer.status.toLowerCase()]}`}>{customer.status}</span>
+                        <span className={`${styles.status} ${styles[customer.status.toLowerCase().replace(' ', '')]}`}>
+                          {customer.status}
+                        </span>
                       </td>
                       <td
                         className={`${styles.currency} ${customer.totalAmountRemaining > 0 ? styles.amountDue : styles.amountPaid}`}

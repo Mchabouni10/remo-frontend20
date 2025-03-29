@@ -323,7 +323,7 @@ export default function WorkItem({
             className={styles.removeButton}
             title="Remove Work Item"
           >
-            <i className="fas fa-trash-alt"></i> Remove
+            <i className="fas fa-trash-alt"></i> 
           </button>
         )}
       </div>

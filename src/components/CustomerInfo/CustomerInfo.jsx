@@ -1,6 +1,8 @@
 import React from 'react';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faUser,
@@ -17,27 +19,43 @@ import {
 import styles from './CustomerInfo.module.css';
 import { getProjects } from '../../services/projectService';
 
+const safeParseDate = (date) => {
+  if (!date) return null;
+  if (date instanceof Date && !isNaN(date.getTime())) {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+  if (typeof date === 'string' || typeof date === 'number') {
+    const parsed = new Date(date);
+    if (!isNaN(parsed.getTime())) {
+      parsed.setHours(0, 0, 0, 0);
+      return parsed;
+    }
+  }
+  return null;
+};
+
 export default function CustomerInfo({ customer, setCustomer, disabled = false }) {
-  const today = new Date().toISOString().split('T')[0];
+  const today = safeParseDate(new Date()) || new Date();
   const [busyDatesDetails, setBusyDatesDetails] = React.useState([]);
   const [isBusyDatesOpen, setIsBusyDatesOpen] = React.useState(false);
 
-  // Fetch existing project dates with customer details
   React.useEffect(() => {
     const fetchBusyDates = async () => {
       try {
         const projects = await getProjects();
         const detailedBusyDates = projects
-          .filter((project) => project.customerInfo?.startDate && project.customerInfo?.finishDate)
+          .filter((project) => project.customerInfo?.startDate || project.customerInfo?.finishDate)
           .map((project) => {
-            const start = new Date(project.customerInfo.startDate);
-            const finish = new Date(project.customerInfo.finishDate);
-            if (!isNaN(start) && !isNaN(finish) && start <= finish) {
+            const start = safeParseDate(project.customerInfo.startDate);
+            const finish = safeParseDate(project.customerInfo.finishDate);
+            if (start && finish && start <= finish) {
               return {
-                customerName: `${project.customerInfo.firstName} ${project.customerInfo.lastName}`,
-                projectName: project.customerInfo.projectName,
-                startDate: start.toISOString().split('T')[0],
-                finishDate: finish.toISOString().split('T')[0],
+                customerName: `${project.customerInfo.firstName || ''} ${project.customerInfo.lastName || ''}`.trim(),
+                projectName: project.customerInfo.projectName || 'Unnamed Project',
+                startDate: start,
+                finishDate: finish,
               };
             }
             return null;
@@ -51,31 +69,52 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
     if (!disabled) fetchBusyDates();
   }, [disabled]);
 
-  const normalizeDate = (date) => {
-    if (!date) return '';
-    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) return date;
-    return new Date(date).toISOString().split('T')[0];
+  const isDateBusy = (date) => {
+    if (!date) return false;
+    const normalizedDate = safeParseDate(date);
+    if (!normalizedDate) return false;
+    return busyDatesDetails.some(
+      (busy) => normalizedDate >= busy.startDate && normalizedDate <= busy.finishDate
+    );
   };
 
-  const handleDateChange = (field, value) => {
-    if (disabled) return;
-    const isDateBusy = busyDatesDetails.some(
-      (busy) => value >= busy.startDate && value <= busy.finishDate
+  const getBusyDetailsForDate = (date) => {
+    const normalizedDate = safeParseDate(date);
+    if (!normalizedDate) return [];
+    return busyDatesDetails.filter(
+      (busy) => normalizedDate >= busy.startDate && normalizedDate <= busy.finishDate
     );
-    if (field === 'startDate' && value >= today) {
+  };
+
+  const getBusyDateRanges = () => {
+    return busyDatesDetails.map((busy) => ({
+      start: busy.startDate,
+      end: busy.finishDate,
+    }));
+  };
+
+  const handleDateChange = (field, date) => {
+    if (disabled) return;
+    const parsedDate = safeParseDate(date);
+    if (!parsedDate) {
+      setCustomer({ ...customer, [field]: null });
+      return;
+    }
+    if (isDateBusy(parsedDate)) {
+      const conflicts = getBusyDetailsForDate(parsedDate);
+      const conflictDetails = conflicts
+        .map((busy) => `${busy.customerName} - ${busy.projectName} (${busy.startDate.toLocaleDateString()} to ${busy.finishDate.toLocaleDateString()})`)
+        .join('\n');
+      alert(`Warning: ${parsedDate.toLocaleDateString()} overlaps with:\n${conflictDetails}`);
+    }
+    if (field === 'startDate') {
       setCustomer({
         ...customer,
-        startDate: value,
-        finishDate: customer.finishDate && value > customer.finishDate ? '' : customer.finishDate,
+        startDate: parsedDate,
+        finishDate: customer.finishDate && parsedDate > safeParseDate(customer.finishDate) ? null : customer.finishDate,
       });
-      if (isDateBusy) {
-        alert(`Warning: ${value} overlaps with an existing project. Check busy dates for details.`);
-      }
-    } else if (field === 'finishDate' && (!customer.startDate || value >= customer.startDate)) {
-      setCustomer({ ...customer, finishDate: value });
-      if (isDateBusy) {
-        alert(`Warning: ${value} overlaps with an existing project. Check busy dates for details.`);
-      }
+    } else {
+      setCustomer({ ...customer, [field]: parsedDate });
     }
   };
 
@@ -109,11 +148,40 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
 
   const toggleBusyDates = () => setIsBusyDatesOpen(!isBusyDatesOpen);
 
+  const renderDayContents = (day, date) => {
+    const isBusy = isDateBusy(date);
+    const busyDetails = getBusyDetailsForDate(date);
+    return (
+      <div className={`${styles.dayWrapper} ${isBusy ? styles.busyDay : ''}`}>
+        <span>{day}</span>
+        {isBusy && (
+          <>
+            <div className={styles.busyIndicator} />
+            <div className={styles.busyTooltip}>
+              {busyDetails.map((busy, index) => (
+                <div key={index} className={styles.tooltipItem}>
+                  <span className={styles.tooltipCustomer}>{busy.customerName}</span>
+                  <span className={styles.tooltipProject}>({busy.projectName})</span>
+                  <span className={styles.tooltipRange}>
+                    {busy.startDate.toLocaleDateString()} - {busy.finishDate.toLocaleDateString()}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    );
+  };
+
+  const getDateValue = (date) => {
+    return safeParseDate(date);
+  };
+
   return (
     <div className={styles.customerInfo}>
       <h2 className={styles.title}>Customer Information</h2>
       <div className={styles.form}>
-        {/* Existing form fields remain unchanged */}
         <div className={styles.field}>
           <label className={styles.label}>
             <FontAwesomeIcon icon={faUser} className={styles.icon} /> First Name{' '}
@@ -128,6 +196,7 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
             placeholder="Enter first name"
           />
         </div>
+
         <div className={styles.field}>
           <label className={styles.label}>
             <FontAwesomeIcon icon={faUser} className={styles.icon} /> Last Name{' '}
@@ -142,9 +211,10 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
             placeholder="Enter last name"
           />
         </div>
+
         <div className={styles.field}>
           <label className={styles.label}>
-            <FontAwesomeIcon icon={faMapMarkerAlt} className={styles.icon} /> Street{' '}
+            <FontAwesomeIcon icon={faMapMarkerAlt} className={styles.icon} /> Street, City{' '}
             <span className={styles.required}>*</span>
           </label>
           <input
@@ -156,6 +226,7 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
             placeholder="Enter street address"
           />
         </div>
+
         <div className={styles.field}>
           <label className={styles.label}>
             <FontAwesomeIcon icon={faHome} className={styles.icon} /> Unit
@@ -169,6 +240,7 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
             placeholder="Enter unit (if any)"
           />
         </div>
+
         <div className={styles.field}>
           <label className={styles.label}>
             <FontAwesomeIcon icon={faMapMarkerAlt} className={styles.icon} /> State
@@ -184,6 +256,7 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
             <option value="WI">Wisconsin</option>
           </select>
         </div>
+
         <div className={styles.field}>
           <label className={styles.label}>
             <FontAwesomeIcon icon={faMapMarkerAlt} className={styles.icon} /> ZIP Code{' '}
@@ -200,6 +273,7 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
             placeholder="Enter 5-digit ZIP"
           />
         </div>
+
         <div className={styles.field}>
           <label className={styles.label}>
             <FontAwesomeIcon icon={faPhone} className={styles.icon} /> Phone{' '}
@@ -220,6 +294,7 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
             placeholder="Enter phone number"
           />
         </div>
+
         <div className={styles.field}>
           <label className={styles.label}>
             <FontAwesomeIcon icon={faEnvelope} className={styles.icon} /> Email{' '}
@@ -238,6 +313,7 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
             placeholder="Enter email address"
           />
         </div>
+
         <div className={styles.field}>
           <label className={styles.label}>
             <FontAwesomeIcon icon={faHome} className={styles.icon} /> Project Name{' '}
@@ -252,6 +328,7 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
             placeholder="Enter project name"
           />
         </div>
+
         <div className={styles.field}>
           <label className={styles.label}>
             <FontAwesomeIcon icon={faHome} className={styles.icon} /> Customer Type
@@ -266,6 +343,7 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
             <option value="Commercial">Commercial</option>
           </select>
         </div>
+
         <div className={styles.field}>
           <label className={styles.label}>
             <FontAwesomeIcon icon={faCreditCard} className={styles.icon} /> Payment Type
@@ -283,33 +361,52 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
             <option value="Zelle">Zelle</option>
           </select>
         </div>
+
         <div className={styles.field}>
           <label className={styles.label}>
             <FontAwesomeIcon icon={faCalendarAlt} className={styles.icon} /> Start Date{' '}
             <span className={styles.required}>*</span>
           </label>
-          <input
-            type="date"
-            value={normalizeDate(customer.startDate)}
-            onChange={(e) => handleDateChange('startDate', e.target.value)}
-            min={today}
-            className={`${styles.input} ${!customer.startDate && !disabled && styles.error}`}
+          <DatePicker
+            selected={getDateValue(customer.startDate)}
+            onChange={(date) => handleDateChange('startDate', date)}
+            minDate={today}
+            filterDate={(date) => date >= today}
+            highlightDates={getBusyDateRanges()}
+            renderDayContents={renderDayContents}
+            className={`${styles.dateInput} ${!customer.startDate && !disabled && styles.error}`}
             disabled={disabled}
+            placeholderText="Select start date"
+            dateFormat="MM/dd/yyyy"
+            strictParsing
+            onFocus={(e) => e.target.blur()}
+            showPopperArrow={false}
+            popperClassName={styles.calendarPopper}
           />
         </div>
+
         <div className={styles.field}>
           <label className={styles.label}>
             <FontAwesomeIcon icon={faCalendarAlt} className={styles.icon} /> Finish Date
           </label>
-          <input
-            type="date"
-            value={normalizeDate(customer.finishDate)}
-            onChange={(e) => handleDateChange('finishDate', e.target.value)}
-            min={normalizeDate(customer.startDate) || today}
-            className={styles.input}
+          <DatePicker
+            selected={getDateValue(customer.finishDate)}
+            onChange={(date) => handleDateChange('finishDate', date)}
+            minDate={getDateValue(customer.startDate) || today}
+            filterDate={(date) => date >= (getDateValue(customer.startDate) || today)}
+            highlightDates={getBusyDateRanges()}
+            renderDayContents={renderDayContents}
+            className={styles.dateInput}
             disabled={!customer.startDate || disabled}
+            placeholderText="Select finish date"
+            dateFormat="MM/dd/yyyy"
+            strictParsing
+            onFocus={(e) => e.target.blur()}
+            showPopperArrow={false}
+            popperClassName={styles.calendarPopper}
           />
         </div>
+
         <div className={styles.field}>
           <label className={styles.label}>
             <FontAwesomeIcon icon={faStickyNote} className={styles.icon} /> Notes
@@ -324,6 +421,7 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
           />
         </div>
       </div>
+
       {busyDatesDetails.length > 0 && !disabled && (
         <div className={styles.busyDatesSection}>
           <div className={styles.busyDatesHeader} onClick={toggleBusyDates}>
@@ -340,15 +438,15 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
                   <span className={styles.busyCustomer}>{busy.customerName}</span>
                   <span className={styles.busyProject}>({busy.projectName})</span>
                   <span className={styles.busyRange}>
-                    {new Date(busy.startDate).toLocaleDateString()} -{' '}
-                    {new Date(busy.finishDate).toLocaleDateString()}
+                    {busy.startDate.toLocaleDateString()} -{' '}
+                    {busy.finishDate.toLocaleDateString()}
                   </span>
                 </li>
               ))}
             </ul>
           )}
           <p className={styles.busyDatesNote}>
-            Note: Selecting a date that overlaps with a busy period will trigger a warning.
+            Note: Hover over busy dates in the calendar for details.
           </p>
         </div>
       )}

@@ -117,24 +117,24 @@
 
 .table th,
 .table td {
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 0.5rem var(--spacing-sm);
   text-align: left;
   border-bottom: 1px solid #e2e8f0;
   font-size: var(--font-size-sm);
   color: var(--text);
 }
 
-.table th {
-  background: var(--primary);
+.table thead th {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   font-weight: var(--font-weight-bold);
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-sm);
   text-transform: capitalize;
   letter-spacing: 0.1px;
   color: var(--surface);
   position: sticky;
   top: 0;
   z-index: 10;
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 0.5rem var(--spacing-sm);
   border-bottom: 2px solid var(--primary-dark);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -142,15 +142,15 @@
 .sortable {
   cursor: pointer;
   user-select: none;
+  transition: all 0.2s ease;
 }
 
 .sortable:hover {
   background: linear-gradient(135deg, #3a506b 0%, var(--primary) 100%);
 }
 
-.firstName {
+.table td:nth-child(2) {
   font-weight: var(--font-weight-bold);
-  color: var(--primary-dark);
 }
 
 .table td:nth-child(4),
@@ -161,6 +161,12 @@
 .table td:nth-child(3),
 .table th:nth-child(3) {
   min-width: 170px;
+  text-align: center;
+}
+
+.table td:nth-child(7),
+.table th:nth-child(7) {
+  min-width: 140px;
   text-align: center;
 }
 
@@ -184,7 +190,7 @@
 
 .currency {
   text-align: right;
-  padding: var(--spacing-sm) var(--spacing-sm);
+  padding: 0.5rem var(--spacing-sm);
   font-size: var(--font-size-sm);
   min-width: 60px;
 }
@@ -193,7 +199,7 @@
   font-weight: var(--font-weight-bold);
   color: var(--primary-dark);
   text-align: right;
-  padding: var(--spacing-sm) var(--spacing-sm);
+  padding: 0.5rem var(--spacing-sm);
   font-size: var(--font-size-sm);
   min-width: 60px;
 }
@@ -202,7 +208,7 @@
   color: var(--error);
   font-weight: var(--font-weight-bold);
   text-align: right;
-  padding: var(--spacing-sm) var(--spacing-sm);
+  padding: 0.5rem var(--spacing-sm);
   font-size: var(--font-size-sm);
   min-width: 60px;
   background: rgba(var(--error), 0.1);
@@ -213,11 +219,51 @@
   color: var(--success);
   font-weight: var(--font-weight-bold);
   text-align: right;
-  padding: var(--spacing-sm) var(--spacing-sm);
+  padding: 0.5rem var(--spacing-sm);
   font-size: var(--font-size-sm);
   min-width: 60px;
   background: rgba(var(--success), 0.1);
   border-radius: var(--radius-sm);
+}
+
+/* Updated Status Styles */
+.status {
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-weight-medium);
+  text-transform: capitalize;
+  display: inline-block;
+  color: var(--text);
+}
+
+.notstarted {
+  background: linear-gradient(135deg, rgba(149, 165, 166, 0.2) 0%, rgba(149, 165, 166, 0.1) 100%);
+  color: var(--text-light);
+}
+
+.startingsoon {
+  background: linear-gradient(135deg, rgba(var(--secondary), 0.2) 0%, rgba(var(--secondary), 0.1) 100%);
+  color: var(--secondary);
+}
+
+.inprogress {
+  background: linear-gradient(135deg, rgba(var(--primary), 0.2) 0%, rgba(var(--primary-dark), 0.1) 100%);
+  color: var(--primary-dark);
+}
+
+.duesoon {
+  background: linear-gradient(135deg, rgba(241, 196, 15, 0.2) 0%, rgba(241, 196, 15, 0.1) 100%);
+  color: #d97706;
+}
+
+.overdue {
+  background: linear-gradient(135deg, rgba(var(--error), 0.2) 0%, rgba(var(--error), 0.1) 100%);
+  color: var(--error);
+}
+
+.completed {
+  background: linear-gradient(135deg, rgba(var(--success), 0.2) 0%, rgba(var(--success), 0.1) 100%);
+  color: var(--success);
 }
 
 .statusIndicator {
@@ -388,7 +434,7 @@
 }
 
 .nearDue {
-  color: #e67e22;
+  color: #d97706; /* Amber for consistency with duesoon */
 }
 
 .nearDue svg {
@@ -426,14 +472,14 @@
 
   .table th,
   .table td {
-    padding: var(--spacing-sm) var(--spacing-sm);
+    padding: 0.4rem var(--spacing-sm);
   }
 
   .currency,
   .grandTotal,
   .amountDue,
   .amountPaid {
-    padding: var(--spacing-sm) 0.3rem;
+    padding: 0.4rem 0.3rem;
     min-width: 50px;
   }
 
