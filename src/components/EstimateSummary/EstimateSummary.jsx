@@ -8,9 +8,7 @@ import { getUnits, getUnitLabel } from '../Calculator/utils/calculatorUtils';
 import { calculateTotal } from '../Calculator/calculations/costCalculations';
 import { getProject } from '../../services/projectService';
 import styles from './EstimateSummary.module.css';
-import logoImage from '../../assets/CompanyLogo.png'; 
-
-
+import logoImage from '../../assets/CompanyLogo.png';
 
 export default function EstimateSummary() {
   const componentRef = useRef(null);
@@ -31,7 +29,7 @@ export default function EstimateSummary() {
       try {
         const project = await getProject(id);
         if (!project || !project.customerInfo) throw new Error('Project data is incomplete');
-        
+
         const normalizedCustomer = {
           firstName: project.customerInfo.firstName || '',
           lastName: project.customerInfo.lastName || '',
@@ -88,27 +86,25 @@ export default function EstimateSummary() {
     try {
       const element = componentRef.current;
 
-      // Ensure the element is visible and fully rendered
+      // Ensure the element is fully visible and rendered
       element.style.display = 'block';
       element.style.visibility = 'visible';
+      element.style.width = '595px'; // A4 width in pixels at 72 DPI
+      element.style.padding = '10mm'; // Consistent padding
 
-      // Wait for rendering (optional, adjust delay if needed)
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Wait for rendering
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
-        width: element.scrollWidth,
+        width: element.offsetWidth,
         height: element.scrollHeight,
-        backgroundColor: '#ffffff', // Ensure white background
-        logging: true, // Enable logging for debugging
+        backgroundColor: '#ffffff',
+        logging: true,
       });
 
-      // Debugging: Log canvas to check if it’s capturing content
       console.log('Canvas width:', canvas.width, 'Canvas height:', canvas.height);
-      // Optionally, preview the canvas in a new window
-      // const imgDataDebug = canvas.toDataURL('image/png');
-      // window.open(imgDataDebug);
 
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
@@ -117,18 +113,16 @@ export default function EstimateSummary() {
         format: 'a4',
       });
 
-      const imgProps = pdf.getImageProperties(imgData);
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgProps = pdf.getImageProperties(imgData);
       const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
       let heightLeft = imgHeight;
       let position = 0;
 
-      // Add first page
       pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight, undefined, 'FAST');
       heightLeft -= pdfHeight;
 
-      // Add additional pages if content exceeds one page
       while (heightLeft > 0) {
         position = heightLeft - imgHeight;
         pdf.addPage();
@@ -138,29 +132,32 @@ export default function EstimateSummary() {
 
       pdf.autoPrint();
       pdf.output('dataurlnewwindow');
-      setIsPrinting(false);
     } catch (error) {
       console.error('Error during printing:', error);
       alert('Error: Unable to print. Check console for details.');
-      setIsPrinting(false);
     } finally {
-      // Reset styles using componentRef.current instead of element
+      setIsPrinting(false);
       componentRef.current.style.display = '';
       componentRef.current.style.visibility = '';
+      componentRef.current.style.width = '';
+      componentRef.current.style.padding = '';
     }
   };
 
   // Memoized totals
-  const totals = useMemo(() => calculateTotal(
-    categories,
-    settings?.taxRate || 0,
-    settings?.transportationFee || 0,
-    settings?.wasteFactor || 0,
-    settings?.miscFees || [],
-    settings?.markup || 0
-  ), [categories, settings]);
+  const totals = useMemo(() =>
+    calculateTotal(
+      categories,
+      settings?.taxRate || 0,
+      settings?.transportationFee || 0,
+      settings?.wasteFactor || 0,
+      settings?.miscFees || [],
+      settings?.markup || 0
+    ),
+    [categories, settings]
+  );
 
-  const miscFeesTotal = useMemo(() => 
+  const miscFeesTotal = useMemo(() =>
     (settings?.miscFees || []).reduce((sum, fee) => sum + (parseFloat(fee.amount) || 0), 0),
     [settings?.miscFees]
   );
@@ -185,13 +182,15 @@ export default function EstimateSummary() {
   return (
     <main className={styles.mainContent}>
       <div className={styles.container}>
-      <div className={styles.companyInfo}>
-              <h2 className={styles.companyName}>RAWDAH REMODELING COMPANY</h2>
-              <p>Lake in the Hills, IL | (224) 817-3264 | rawdahremodeling@gmail.com</p>
-              <img src={logoImage} alt="Rawdah Remodeling Logo" className={styles.logo} />
-            </div>
         <h1 className={styles.title}>Estimate Summary</h1>
         <div className={styles.summary} ref={componentRef}>
+          {/* Moved company info inside the summary div */}
+          <div className={styles.companyInfo}>
+            <h2 className={styles.companyName}>RAWDAH REMODELING COMPANY</h2>
+            <p>Lake in the Hills, IL | (224) 817-3264 | rawdahremodeling@gmail.com</p>
+            <img src={logoImage} alt="Rawdah Remodeling Logo" className={styles.logo} />
+          </div>
+
           <div className={styles.header}>
             <h3 className={styles.totalTitle}>Estimate Breakdown</h3>
             <div className={styles.customerInfo}>

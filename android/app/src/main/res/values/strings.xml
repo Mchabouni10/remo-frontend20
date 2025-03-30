@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Remo_app</string>
+    <string name="title_activity_main">Remo_app</string>
+    <string name="package_name">Rawdah.Company.remoapp</string>
+    <string name="custom_url_scheme">Rawdah.Company.remoapp</string>
+</resources>

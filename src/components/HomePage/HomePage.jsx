@@ -69,10 +69,10 @@ export default function HomePage() {
             type: project.customerInfo.type || 'Residential',
             paymentType: project.customerInfo.paymentType || 'Cash',
             startDate: project.customerInfo.startDate
-              ? new Date(project.customerInfo.startDate).toISOString().split('T')[0]
+              ? new Date(project.customerInfo.startDate)
               : '',
             finishDate: project.customerInfo.finishDate
-              ? new Date(project.customerInfo.finishDate).toISOString().split('T')[0]
+              ? new Date(project.customerInfo.finishDate)
               : '',
             notes: project.customerInfo.notes || '',
           };
@@ -101,21 +101,49 @@ export default function HomePage() {
 
   const saveOrUpdateProject = async () => {
     const requiredFields = ['firstName', 'lastName', 'street', 'phone', 'startDate', 'zipCode'];
-    const missing = requiredFields.filter((field) => !customer[field]?.trim());
+    // Log customer state for debugging
+    console.log('Customer before save:', customer);
+
+    const missing = requiredFields.filter((field) => {
+      console.log(`Field: ${field}, Value:`, customer[field], 'Type:', typeof customer[field]);
+      if (field === 'startDate') {
+        // Handle startDate as a Date object or check if it's missing/invalid
+        return !customer[field] || (customer[field] instanceof Date && isNaN(customer[field].getTime()));
+      }
+      // For string fields, check if they exist and are non-empty after trimming
+      return !customer[field]?.trim();
+    });
+
     if (missing.length > 0) {
       alert(`Please fill in all required fields: ${missing.join(', ')}`);
       return;
     }
+
     if (customer.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer.email)) {
       alert('Please enter a valid email address.');
       return;
     }
+
     if (!/^\d{5}$/.test(customer.zipCode)) {
       alert('ZIP Code must be exactly 5 digits.');
       return;
     }
 
-    const projectData = { customerInfo: customer, categories, settings };
+    // Normalize dates to ISO strings for backend consistency
+    const projectData = {
+      customerInfo: {
+        ...customer,
+        startDate: customer.startDate instanceof Date && !isNaN(customer.startDate.getTime())
+          ? customer.startDate.toISOString().split('T')[0]
+          : null,
+        finishDate: customer.finishDate instanceof Date && !isNaN(customer.finishDate.getTime())
+          ? customer.finishDate.toISOString().split('T')[0]
+          : null,
+      },
+      categories,
+      settings,
+    };
+
     setLoading(true);
     try {
       if (isEditMode && projectId) {

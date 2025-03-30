@@ -274,7 +274,7 @@ export default function CostBreakdown({ categories, settings }) {
                         <tbody>
                           {settings.miscFees.map((fee, i) => (
                             <tr key={i}>
-                              <td>{fee.description || 'Unnamed Fee'}</td>
+                              <td>{fee.name || 'Unnamed Fee'}</td> {/* Changed from fee.description to fee.name */}
                               <td>{formatCurrency(parseFloat(fee.amount) || 0)}</td>
                             </tr>
                           ))}

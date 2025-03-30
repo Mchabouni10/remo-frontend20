@@ -21,28 +21,24 @@
 
 .summary {
   padding: 10mm;
-  font-family: Arial, sans-serif; /* Keeping Arial for print compatibility */
+  font-family: Arial, sans-serif;
   font-size: 9px;
   line-height: 1.4;
-  width: 100%; /* Ensure full width for capture */
+  width: 100%;
+  background: #ffffff; /* Ensure white background for capture */
 }
 
 .header {
-  margin:0;
+  margin: 0;
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.logo {
-  width: 60px; /* Adjust size as needed */
-  height: auto;
-  margin: var(--spacing-sm) 0; /* Centered between title and company info */
-}
-
 .companyInfo {
   text-align: center;
+  margin-bottom: var(--spacing-sm);
 }
 
 .companyName {
@@ -58,6 +54,12 @@
   color: var(--text);
 }
 
+.logo {
+  width: 60px;
+  height: auto;
+  margin: var(--spacing-xs) 0;
+}
+
 .totalTitle {
   font-size: 11px;
   font-weight: var(--font-weight-bold);
@@ -66,6 +68,7 @@
   color: var(--primary);
 }
 
+/* Rest of your CSS remains the same... */
 .customerInfo {
   margin-top: var(--spacing-sm);
 }
@@ -229,40 +232,34 @@
   color: var(--text-light);
 }
 
-
-
 /* Print-specific adjustments */
 @media print {
-  /* Ensure the container and summary have a white background and no padding */
   .container {
     padding: 0;
-    background: #fff !important; /* Force white background */
+    background: #fff !important;
   }
 
   .summary {
-    padding: 0;
-    background: #fff !important; /* Force white background */
+    padding: 10mm; /* Keep padding for content spacing */
+    background: #fff !important;
   }
 
-  /* Reset dark mode variables to light mode equivalents for printing */
   :root,
   .dark {
-    --primary: #000 !important;      /* Black instead of dark mode's #4a6fa5 */
-    --primary-dark: #000 !important; /* Black instead of #2e4a7d */
-    --surface: #fff !important;      /* White background */
-    --text: #000 !important;         /* Black text */
-    --text-light: #000 !important;   /* Black for secondary text */
-    --shadow: rgba(0, 0, 0, 0.2) !important; /* Subtle shadow */
+    --primary: #000 !important;
+    --primary-dark: #000 !important;
+    --surface: #fff !important;
+    --text: #000 !important;
+    --text-light: #000 !important;
+    --shadow: rgba(0, 0, 0, 0.2) !important;
   }
 
-  /* Hide buttons */
   .buttonGroup,
   .printButton,
   .backButton {
     display: none !important;
   }
 
-  /* Force black text and white/light backgrounds for all elements */
   .title,
   .companyName,
   .totalTitle,
@@ -272,7 +269,7 @@
   .signatureSection h4,
   .notesSection h4,
   .categoryBreakdown h5 {
-    color: #000 !important; /* Black text */
+    color: #000 !important;
   }
 
   .companyInfo p,
@@ -284,28 +281,26 @@
   .signatureSection p,
   .signatureLine span,
   .footer {
-    color: #000 !important; /* Black text */
+    color: #000 !important;
   }
 
-  /* Ensure table backgrounds remain subtle but visible */
   .workTable th,
   .totalRow td {
-    background: #f0f0f0 !important; /* Light gray */
+    background: #f0f0f0 !important;
   }
 
   .categoryTotalRow td {
-    background: #f8f8f8 !important; /* Very light gray */
+    background: #f8f8f8 !important;
   }
 
   .grandTotalRow td,
   .remainingRow td {
-    background: #fff !important; /* White background for emphasis */
+    background: #fff !important;
     border-top: 1px solid #000 !important;
   }
 
-  /* Notes section adjustments */
   .notesSection p {
-    background: #fff !important; /* White background */
-    border: 1px dashed #000 !important; /* Black dashed border */
+    background: #fff !important;
+    border: 1px dashed #000 !important;
   }
 }
