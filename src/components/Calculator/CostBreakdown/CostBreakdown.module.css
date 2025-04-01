@@ -242,3 +242,14 @@
     padding: var(--spacing-sm) var(--spacing-sm);
   }
 }
+
+
+.paymentSection h5 {
+  font-size: var(--font-size-md);
+  color: var(--primary);
+  margin: var(--spacing-sm) 0;
+}
+
+.depositRow {
+  background: rgba(0, 255, 255, 0.1); /* Light cyan for deposit */
+}

@@ -1,3 +1,4 @@
+// src/components/Calculator/CostBreakdown/CostBreakdown.jsx
 import React, { useState, useMemo } from 'react';
 import { calculateTotal } from '../calculations/costCalculations';
 import { getUnits, getUnitLabel } from '../utils/calculatorUtils';
@@ -7,8 +8,9 @@ export default function CostBreakdown({ categories, settings }) {
   const [showMaterialDetails, setShowMaterialDetails] = useState(false);
   const [showLaborDetails, setShowLaborDetails] = useState(false);
   const [showMiscDetails, setShowMiscDetails] = useState(false);
+  const [showPaymentDetails, setShowPaymentDetails] = useState(false);
 
-  // Memoized calculations (moved before any returns)
+  // Memoized calculations (all hooks moved before any returns)
   const categoryBreakdowns = useMemo(() => {
     if (!categories || !Array.isArray(categories)) return [];
     return categories.map((cat) => {
@@ -71,17 +73,22 @@ export default function CostBreakdown({ categories, settings }) {
     return breakdown;
   }, [categories]);
 
-  // Calculate totals
-  const totals = calculateTotal(
-    categories || [],
-    settings?.taxRate || 0,
-    settings?.transportationFee || 0,
-    settings?.wasteFactor || 0,
-    settings?.miscFees || [],
-    settings?.markup || 0
-  );
+  const totals = useMemo(() => {
+    return calculateTotal(
+      categories || [],
+      settings?.taxRate || 0,
+      settings?.transportationFee || 0,
+      settings?.wasteFactor || 0,
+      settings?.miscFees || [],
+      settings?.markup || 0
+    );
+  }, [categories, settings]);
 
-  // Error handling (moved after hooks)
+  const totalPaid = useMemo(() => {
+    return (settings?.payments || []).reduce((sum, payment) => sum + (payment.isPaid ? payment.amount : 0), 0) + (settings?.deposit || 0);
+  }, [settings?.payments, settings?.deposit]);
+
+  // Error handling (moved after all hooks)
   if (!categories || !Array.isArray(categories)) {
     return <div className={styles.error}>No valid categories provided.</div>;
   }
@@ -97,10 +104,9 @@ export default function CostBreakdown({ categories, settings }) {
   const transportationFee = totals.transportationFee || 0;
   const grandTotal = baseSubtotal + wasteCost + taxAmount + markupAmount + miscFeesTotal + transportationFee;
   const deposit = settings?.deposit || 0;
-  const adjustedGrandTotal = Math.max(0, grandTotal - deposit);
-  const amountPaid = settings?.amountPaid || 0;
-  const remainingBalance = Math.max(0, adjustedGrandTotal - amountPaid);
-  const overpayment = amountPaid > adjustedGrandTotal ? amountPaid - adjustedGrandTotal : 0;
+  
+  const remainingBalance = Math.max(0, grandTotal - totalPaid);
+  const overpayment = totalPaid > grandTotal ? totalPaid - grandTotal : 0;
 
   // Currency formatter
   const formatCurrency = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
@@ -274,7 +280,7 @@ export default function CostBreakdown({ categories, settings }) {
                         <tbody>
                           {settings.miscFees.map((fee, i) => (
                             <tr key={i}>
-                              <td>{fee.name || 'Unnamed Fee'}</td> {/* Changed from fee.description to fee.name */}
+                              <td>{fee.name || 'Unnamed Fee'}</td>
                               <td>{formatCurrency(parseFloat(fee.amount) || 0)}</td>
                             </tr>
                           ))}
@@ -295,7 +301,16 @@ export default function CostBreakdown({ categories, settings }) {
 
       {/* Payment Summary Section */}
       <section className={styles.paymentSection}>
-        <h4 className={styles.subSectionTitle}>Payment Summary</h4>
+        <h4 className={styles.subSectionTitle}>
+          Payment Summary
+          <button
+            className={styles.toggleButton}
+            onClick={() => setShowPaymentDetails(!showPaymentDetails)}
+            aria-expanded={showPaymentDetails}
+          >
+            {showPaymentDetails ? 'Hide' : 'Show'} Details
+          </button>
+        </h4>
         <table className={styles.breakdownTable} aria-label="Payment Summary">
           <tbody>
             <tr>
@@ -306,13 +321,9 @@ export default function CostBreakdown({ categories, settings }) {
               <td>Deposit</td>
               <td>-{formatCurrency(deposit)}</td>
             </tr>
-            <tr className={styles.subtotalRow}>
-              <td>Adjusted Total</td>
-              <td>{formatCurrency(adjustedGrandTotal)}</td>
-            </tr>
             <tr>
-              <td>Amount Paid</td>
-              <td>-{formatCurrency(amountPaid)}</td>
+              <td>Total Paid (incl. Deposit)</td>
+              <td>-{formatCurrency(totalPaid)}</td>
             </tr>
             <tr className={styles.grandTotalRow}>
               <td>Remaining Balance</td>
@@ -328,6 +339,46 @@ export default function CostBreakdown({ categories, settings }) {
             )}
           </tbody>
         </table>
+        {showPaymentDetails && (
+          <div className={styles.detailBreakdown}>
+            <h5>Payment Details</h5>
+            {(settings.payments || []).length === 0 && deposit === 0 ? (
+              <p>No payments recorded yet.</p>
+            ) : (
+              <table className={styles.innerTable} aria-label="Payment Details">
+                <thead>
+                  <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Method</th>
+                    <th scope="col">Note</th>
+                    <th scope="col">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {deposit > 0 && (
+                    <tr className={styles.depositRow}>
+                      <td>{new Date().toLocaleDateString()}</td>
+                      <td>{formatCurrency(deposit)}</td>
+                      <td>Deposit</td>
+                      <td>Initial Deposit</td>
+                      <td>Paid</td>
+                    </tr>
+                  )}
+                  {(settings.payments || []).map((payment, index) => (
+                    <tr key={index}>
+                      <td>{new Date(payment.date).toLocaleDateString()}</td>
+                      <td>{formatCurrency(payment.amount)}</td>
+                      <td>{payment.method}</td>
+                      <td>{payment.note || '-'}</td>
+                      <td>{payment.isPaid ? 'Paid' : 'Due'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        )}
       </section>
     </div>
   );

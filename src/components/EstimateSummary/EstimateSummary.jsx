@@ -58,7 +58,7 @@ export default function EstimateSummary() {
           wasteFactor: 0,
           miscFees: [],
           deposit: 0,
-          amountPaid: 0,
+          payments: [], // Ensure payments array is initialized
           markup: 0,
         });
       } catch (err) {
@@ -86,13 +86,11 @@ export default function EstimateSummary() {
     try {
       const element = componentRef.current;
 
-      // Ensure the element is fully visible and rendered
       element.style.display = 'block';
       element.style.visibility = 'visible';
       element.style.width = '595px'; // A4 width in pixels at 72 DPI
-      element.style.padding = '10mm'; // Consistent padding
+      element.style.padding = '10mm';
 
-      // Wait for rendering
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       const canvas = await html2canvas(element, {
@@ -162,14 +160,22 @@ export default function EstimateSummary() {
     [settings?.miscFees]
   );
 
+  const paymentDetails = useMemo(() => {
+    const payments = settings?.payments || [];
+    const totalPaid = payments.reduce((sum, p) => sum + (p.isPaid ? parseFloat(p.amount) || 0 : 0), 0) + (settings?.deposit || 0);
+    const totalDue = payments.reduce((sum, p) => sum + (!p.isPaid ? parseFloat(p.amount) || 0 : 0), 0);
+    return { totalPaid, totalDue };
+  }, [settings?.payments, settings?.deposit]);
+
   const baseSubtotal = totals.materialCost + totals.laborCost;
   const grandTotal = baseSubtotal + totals.wasteCost + totals.tax + totals.markupCost + totals.transportationFee + miscFeesTotal;
   const adjustedGrandTotal = Math.max(0, grandTotal - (settings?.deposit || 0));
-  const remainingBalance = Math.max(0, adjustedGrandTotal - (settings?.amountPaid || 0));
-  const overpayment = (settings?.amountPaid || 0) > adjustedGrandTotal ? settings.amountPaid - adjustedGrandTotal : 0;
+  const remainingBalance = Math.max(0, adjustedGrandTotal - paymentDetails.totalPaid);
+  const overpayment = paymentDetails.totalPaid > adjustedGrandTotal ? paymentDetails.totalPaid - adjustedGrandTotal : 0;
 
-  // Currency formatter
+  // Currency and date formatters
   const formatCurrency = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+  const formatDate = (dateStr) => dateStr ? new Date(dateStr).toLocaleDateString() : 'N/A';
 
   if (loading) {
     return (
@@ -184,7 +190,6 @@ export default function EstimateSummary() {
       <div className={styles.container}>
         <h1 className={styles.title}>Estimate Summary</h1>
         <div className={styles.summary} ref={componentRef}>
-          {/* Moved company info inside the summary div */}
           <div className={styles.companyInfo}>
             <h2 className={styles.companyName}>RAWDAH REMODELING COMPANY</h2>
             <p>Lake in the Hills, IL | (224) 817-3264 | rawdahremodeling@gmail.com</p>
@@ -292,13 +297,65 @@ export default function EstimateSummary() {
               </tbody>
             </table>
 
+            {/* New Payment Tracking Section */}
+            {(settings?.payments?.length > 0 || settings?.deposit > 0) && (
+              <div>
+                <h4>Payment Tracking</h4>
+                <table className={styles.totalTable} aria-label="Payment Tracking">
+                  <thead>
+                    <tr>
+                      <th scope="col">Date</th>
+                      <th scope="col">Amount</th>
+                      <th scope="col">Method</th>
+                      <th scope="col">Status</th>
+                      <th scope="col">Note</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {settings.deposit > 0 && (
+                      <tr>
+                        <td>{customer.startDate || 'N/A'}</td>
+                        <td>{formatCurrency(settings.deposit)}</td>
+                        <td>{customer.paymentType}</td>
+                        <td>Paid</td>
+                        <td>Initial Deposit</td>
+                      </tr>
+                    )}
+                    {settings.payments.map((payment, index) => (
+                      <tr key={index}>
+                        <td>{formatDate(payment.date)}</td>
+                        <td>{formatCurrency(payment.amount)}</td>
+                        <td>{payment.method || 'N/A'}</td>
+                        <td>{payment.isPaid ? 'Paid' : 'Pending'}</td>
+                        <td>{payment.note || 'N/A'}</td>
+                      </tr>
+                    ))}
+                    {settings.payments.length > 0 && (
+                      <tr className={styles.totalRow}>
+                        <td><strong>Total Paid</strong></td>
+                        <td><strong>{formatCurrency(paymentDetails.totalPaid)}</strong></td>
+                        <td colSpan={3}></td>
+                      </tr>
+                    )}
+                    {paymentDetails.totalDue > 0 && (
+                      <tr className={styles.totalRow}>
+                        <td><strong>Total Due</strong></td>
+                        <td><strong>{formatCurrency(paymentDetails.totalDue)}</strong></td>
+                        <td colSpan={3}></td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
             <h4>Payment Summary</h4>
             <table className={styles.totalTable} aria-label="Payment Summary">
               <tbody>
                 <tr><td>Grand Total</td><td>{formatCurrency(grandTotal)}</td></tr>
                 <tr><td>Deposit</td><td>-{formatCurrency(settings?.deposit || 0)}</td></tr>
                 <tr><td>Adjusted Total</td><td>{formatCurrency(adjustedGrandTotal)}</td></tr>
-                <tr><td>Amount Paid</td><td>-{formatCurrency(settings?.amountPaid || 0)}</td></tr>
+                <tr><td>Total Paid</td><td>-{formatCurrency(paymentDetails.totalPaid)}</td></tr>
                 <tr className={styles.remainingRow}>
                   <td><strong>Remaining Balance</strong></td>
                   <td><strong>{formatCurrency(remainingBalance)}</strong></td>

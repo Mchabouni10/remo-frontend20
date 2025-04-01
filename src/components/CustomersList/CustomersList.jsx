@@ -29,8 +29,8 @@ import { calculateTotal } from '../Calculator/calculations/costCalculations';
 import { formatPhoneNumber, formatDate } from '../Calculator/utils/customerhelper';
 import styles from './CustomersList.module.css';
 
-const DUE_SOON_DAYS = 7; // Threshold for "Starting Soon" and "Due Soon"
-const OVERDUE_THRESHOLD = -1; // Days past finish date to consider overdue
+const DUE_SOON_DAYS = 7;
+const OVERDUE_THRESHOLD = -1;
 const ITEMS_PER_PAGE = 10;
 
 export default function CustomersList() {
@@ -42,7 +42,7 @@ export default function CustomersList() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [error, setError] = useState(null);
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(true); // New state for toggle
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(true);
   const navigate = useNavigate();
 
   const projectTotals = useCallback((project) => {
@@ -55,16 +55,19 @@ export default function CustomersList() {
       project.settings?.markup || 0
     );
     const grandTotal = totals.total || 0;
+    const totalPaid = (project.settings?.payments || []).reduce(
+      (sum, payment) => sum + (payment.isPaid ? payment.amount : 0),
+      0
+    ) + (project.settings?.deposit || 0);
     return {
       grandTotal,
-      amountRemaining: Math.max(0, Math.max(0, grandTotal - (project.settings?.deposit || 0)) - (project.settings?.amountPaid || 0)),
+      amountRemaining: Math.max(0, grandTotal - totalPaid),
     };
   }, []);
 
   const determineStatus = useCallback((projects) => {
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Normalize to start of day
-
+    today.setHours(0, 0, 0, 0);
     let earliestStart = null;
     let latestFinish = null;
     let totalAmountRemaining = 0;
@@ -74,17 +77,12 @@ export default function CustomersList() {
       const finishDate = project.customerInfo?.finishDate ? new Date(project.customerInfo.finishDate) : null;
       const { amountRemaining } = projectTotals(project);
 
-      if (startDate) {
-        earliestStart = earliestStart ? new Date(Math.min(earliestStart, startDate)) : startDate;
-      }
-      if (finishDate) {
-        latestFinish = latestFinish ? new Date(Math.max(latestFinish, finishDate)) : finishDate;
-      }
+      if (startDate) earliestStart = earliestStart ? new Date(Math.min(earliestStart, startDate)) : startDate;
+      if (finishDate) latestFinish = latestFinish ? new Date(Math.max(latestFinish, finishDate)) : finishDate;
       totalAmountRemaining += amountRemaining;
     });
 
     if (!earliestStart && !latestFinish) return 'Not Started';
-
     const daysToStart = earliestStart ? (earliestStart - today) / (1000 * 60 * 60 * 24) : Infinity;
     const daysToFinish = latestFinish ? (latestFinish - today) / (1000 * 60 * 60 * 24) : Infinity;
 
@@ -94,7 +92,6 @@ export default function CustomersList() {
     if (daysToFinish <= DUE_SOON_DAYS && daysToFinish > OVERDUE_THRESHOLD) return 'Due Soon';
     if (daysToFinish <= OVERDUE_THRESHOLD && totalAmountRemaining > 0) return 'Overdue';
     if (daysToFinish <= OVERDUE_THRESHOLD && totalAmountRemaining === 0) return 'Completed';
-
     return 'In Progress';
   }, [projectTotals]);
 
@@ -123,7 +120,6 @@ export default function CustomersList() {
         if (finishDate) acc[key].latestFinishDate = acc[key].latestFinishDate ? new Date(Math.max(acc[key].latestFinishDate, finishDate)) : finishDate;
 
         acc[key].status = determineStatus(acc[key].projects);
-
         return acc;
       }, {});
 
@@ -162,6 +158,7 @@ export default function CustomersList() {
       setError(null);
       try {
         const fetchedProjects = await getProjects();
+        console.log('Fetched projects:', fetchedProjects);
         setProjects(fetchedProjects);
         setLastUpdated(new Date());
       } catch (err) {
@@ -203,7 +200,8 @@ export default function CustomersList() {
   const notifications = useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    return filteredCustomers.reduce((acc, customer) => {
+    const AMOUNT_REMAINING_THRESHOLD = 5000; // Configurable threshold
+    const notificationList = filteredCustomers.reduce((acc, customer) => {
       customer.projects.forEach((project) => {
         const startDate = project.customerInfo?.startDate ? new Date(project.customerInfo.startDate) : null;
         const finishDate = project.customerInfo?.finishDate ? new Date(project.customerInfo.finishDate) : null;
@@ -233,7 +231,16 @@ export default function CustomersList() {
       });
       return acc;
     }, []);
-  }, [filteredCustomers, projectTotals]);
+
+    if (totals.amountRemaining > AMOUNT_REMAINING_THRESHOLD) {
+      notificationList.push({
+        message: `Total Amount Remaining across all projects exceeds $${AMOUNT_REMAINING_THRESHOLD.toLocaleString()}: $${totals.amountRemaining.toFixed(2)}.`,
+        overdue: true,
+      });
+    }
+
+    return notificationList;
+  }, [filteredCustomers, projectTotals, totals.amountRemaining]);
 
   const handleSort = (key) =>
     setSortConfig((prev) => ({
@@ -260,7 +267,7 @@ export default function CustomersList() {
   const handleSearchChange = (e) => setSearchQuery(e.target.value);
   const handleClearSearch = () => setSearchQuery('');
   const getSortIcon = (key) => (sortConfig.key === key ? (sortConfig.direction === 'asc' ? faSortUp : faSortDown) : faSort);
-  const toggleNotifications = () => setIsNotificationsOpen((prev) => !prev); // New toggle function
+  const toggleNotifications = () => setIsNotificationsOpen((prev) => !prev);
 
   const handleExportCSV = () => {
     const headers = [
@@ -424,15 +431,21 @@ export default function CustomersList() {
                         title={`Deposit: $${customer.projects
                           .reduce((sum, p) => sum + (p.settings?.deposit || 0), 0)
                           .toFixed(2)}, Paid: $${customer.projects
-                          .reduce((sum, p) => sum + (p.settings?.amountPaid || 0), 0)
+                          .reduce((sum, p) => sum + (p.settings?.payments || []).reduce((acc, pay) => acc + (pay.isPaid ? pay.amount : 0), 0), 0)
                           .toFixed(2)}`}
                       >
                         ${customer.totalAmountRemaining.toFixed(2)}
-                        {customer.totalAmountRemaining > 0 ? (
-                          <span className={styles.statusIndicator}> (Due)</span>
-                        ) : (
-                          <span className={styles.statusIndicator}> (Paid)</span>
-                        )}
+                        <div className={styles.amountDetails}>
+                          <span className={styles.dueDetail}>
+                            Due: ${customer.totalAmountRemaining.toFixed(2)}
+                          </span>
+                          <span className={styles.paidDetail}>
+                            Paid: $
+                            {customer.projects
+                              .reduce((sum, p) => sum + (p.settings?.deposit || 0) + (p.settings?.payments || []).reduce((acc, pay) => acc + (pay.isPaid ? pay.amount : 0), 0), 0)
+                              .toFixed(2)}
+                          </span>
+                        </div>
                       </td>
                       <td className={styles.grandTotal}>${customer.totalGrandTotal.toFixed(2)}</td>
                       <td className={styles.actions}>

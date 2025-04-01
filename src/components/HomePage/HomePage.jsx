@@ -1,4 +1,3 @@
-// src/components/HomePage/HomePage.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -32,16 +31,16 @@ export default function HomePage() {
     notes: '',
   });
 
-  const [categories, setCategories] = useState([]); // Always empty for new projects
+  const [categories, setCategories] = useState([]);
   const [settings, setSettings] = useState({
     taxRate: 0,
     transportationFee: 0,
     wasteFactor: 0,
     miscFees: [],
     deposit: 0,
-    amountPaid: 0,
+    payments: [],
     markup: 0,
-  }); // Always empty for new projects
+  });
   const [projectId, setProjectId] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -55,6 +54,7 @@ export default function HomePage() {
         setLoading(true);
         try {
           const project = await getProject(id);
+          console.log('Loaded project from server:', JSON.stringify(project, null, 2));
           setProjectId(project._id);
           const normalizedCustomer = {
             firstName: project.customerInfo.firstName || '',
@@ -68,24 +68,20 @@ export default function HomePage() {
             projectName: project.customerInfo.projectName || '',
             type: project.customerInfo.type || 'Residential',
             paymentType: project.customerInfo.paymentType || 'Cash',
-            startDate: project.customerInfo.startDate
-              ? new Date(project.customerInfo.startDate)
-              : '',
-            finishDate: project.customerInfo.finishDate
-              ? new Date(project.customerInfo.finishDate)
-              : '',
+            startDate: project.customerInfo.startDate ? new Date(project.customerInfo.startDate) : '',
+            finishDate: project.customerInfo.finishDate ? new Date(project.customerInfo.finishDate) : '',
             notes: project.customerInfo.notes || '',
           };
           setCustomer(normalizedCustomer);
           setCategories(project.categories || []);
-          setSettings(project.settings || {
-            taxRate: 0,
-            transportationFee: 0,
-            wasteFactor: 0,
-            miscFees: [],
-            deposit: 0,
-            amountPaid: 0,
-            markup: 0,
+          setSettings({
+            taxRate: project.settings?.taxRate || 0,
+            transportationFee: project.settings?.transportationFee || 0,
+            wasteFactor: project.settings?.wasteFactor || 0,
+            miscFees: project.settings?.miscFees || [],
+            deposit: project.settings?.deposit || 0,
+            payments: project.settings?.payments || [], // Ensure payments is always an array
+            markup: project.settings?.markup || 0,
           });
         } catch (err) {
           console.error('Error loading project:', err);
@@ -101,16 +97,10 @@ export default function HomePage() {
 
   const saveOrUpdateProject = async () => {
     const requiredFields = ['firstName', 'lastName', 'street', 'phone', 'startDate', 'zipCode'];
-    // Log customer state for debugging
-    console.log('Customer before save:', customer);
-
     const missing = requiredFields.filter((field) => {
-      console.log(`Field: ${field}, Value:`, customer[field], 'Type:', typeof customer[field]);
       if (field === 'startDate') {
-        // Handle startDate as a Date object or check if it's missing/invalid
         return !customer[field] || (customer[field] instanceof Date && isNaN(customer[field].getTime()));
       }
-      // For string fields, check if they exist and are non-empty after trimming
       return !customer[field]?.trim();
     });
 
@@ -129,38 +119,48 @@ export default function HomePage() {
       return;
     }
 
-    // Normalize dates to ISO strings for backend consistency
     const projectData = {
       customerInfo: {
         ...customer,
         startDate: customer.startDate instanceof Date && !isNaN(customer.startDate.getTime())
           ? customer.startDate.toISOString().split('T')[0]
-          : null,
+          : customer.startDate,
         finishDate: customer.finishDate instanceof Date && !isNaN(customer.finishDate.getTime())
           ? customer.finishDate.toISOString().split('T')[0]
-          : null,
+          : customer.finishDate,
       },
       categories,
-      settings,
+      settings: {
+        ...settings,
+        payments: (settings.payments || []).map(payment => ({
+          ...payment,
+          date: payment.date instanceof Date ? payment.date.toISOString().split('T')[0] : payment.date,
+          amount: Number(payment.amount),
+          method: payment.method || 'Cash',
+          note: payment.note || '',
+          isPaid: Boolean(payment.isPaid),
+        })),
+      },
     };
 
+    console.log('Project data to save:', JSON.stringify(projectData, null, 2));
     setLoading(true);
     try {
       if (isEditMode && projectId) {
         const updatedProject = await updateProject(projectId, projectData);
-        console.log('Project updated:', updatedProject);
+        console.log('Updated project from server:', JSON.stringify(updatedProject, null, 2));
         alert('Project updated successfully!');
         navigate('/home/customers');
       } else if (isNewMode) {
         const newProject = await saveProject(projectData);
+        console.log('New project saved:', JSON.stringify(newProject, null, 2));
         setProjectId(newProject._id);
-        console.log('Project saved:', newProject);
         alert('Project saved successfully!');
         navigate('/home/customers');
       }
     } catch (err) {
       console.error('Error saving/updating project:', err);
-      alert('Failed to save/update project.');
+      alert('Failed to save/update project. Check console for details.');
     } finally {
       setLoading(false);
     }
@@ -191,7 +191,7 @@ export default function HomePage() {
         wasteFactor: 0,
         miscFees: [],
         deposit: 0,
-        amountPaid: 0,
+        payments: [],
         markup: 0,
       });
       setProjectId(null);

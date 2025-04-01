@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+// src/components/Calculator/Calculator.jsx
+import React from 'react';
 import CategoryList from './Category/CategoryList';
 import styles from './Calculator.module.css';
 
 export default function Calculator({ categories, setCategories, settings, setSettings, disabled = false }) {
-  const [newWorkName, setNewWorkName] = useState('');
-
   const addCategory = () => {
     if (disabled) return;
     setCategories((prev) => [
@@ -31,8 +30,6 @@ export default function Calculator({ categories, setCategories, settings, setSet
       <CategoryList
         categories={categories}
         setCategories={setCategories}
-        newWorkName={newWorkName}
-        setNewWorkName={setNewWorkName}
         settings={settings}
         setSettings={setSettings}
         disabled={disabled}

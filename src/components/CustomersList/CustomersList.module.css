@@ -190,7 +190,7 @@
 
 .currency {
   text-align: right;
-  padding: 0.5rem var(--spacing-sm);
+  padding: 0.4rem var(--spacing-sm);
   font-size: var(--font-size-sm);
   min-width: 60px;
 }
@@ -208,7 +208,7 @@
   color: var(--error);
   font-weight: var(--font-weight-bold);
   text-align: right;
-  padding: 0.5rem var(--spacing-sm);
+  padding: 0.4rem var(--spacing-sm);
   font-size: var(--font-size-sm);
   min-width: 60px;
   background: rgba(var(--error), 0.1);
@@ -219,11 +219,42 @@
   color: var(--success);
   font-weight: var(--font-weight-bold);
   text-align: right;
-  padding: 0.5rem var(--spacing-sm);
+  padding: 0.4rem var(--spacing-sm);
   font-size: var(--font-size-sm);
   min-width: 60px;
   background: rgba(var(--success), 0.1);
   border-radius: var(--radius-sm);
+}
+
+.amountDetails {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.6rem;
+  line-height: 1.1;
+  margin-top: 2px;
+  opacity: 0.85;
+  color: inherit;
+}
+
+.dueDetail,
+.paidDetail {
+  white-space: nowrap;
+}
+
+.amountDue .dueDetail {
+  color: var(--error);
+}
+
+.amountDue .paidDetail {
+  color: var(--success);
+}
+
+.amountPaid .dueDetail {
+  color: var(--error);
+}
+
+.amountPaid .paidDetail {
+  color: var(--success);
 }
 
 /* Updated Status Styles */
@@ -583,9 +614,12 @@
   .grandTotal,
   .amountDue,
   .amountPaid {
-    font-size: 0.7rem;
     padding: 0.3rem 0.2rem;
     min-width: 45px;
+  }
+
+  .amountDetails {
+    font-size: 0.55rem;
   }
 
   .totalsSection {

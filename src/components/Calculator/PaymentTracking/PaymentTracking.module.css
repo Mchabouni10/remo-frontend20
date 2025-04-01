@@ -1,0 +1,293 @@
+/* src/components/Calculator/PaymentTracking/PaymentTracking.module.css */
+.section {
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 6px var(--shadow);
+  overflow: hidden;
+  transition: background-color 0.3s ease;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: var(--background);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.2);
+  transition: background-color 0.3s ease;
+}
+
+.sectionTitle {
+  font-size: var(--font-size-lg);
+  margin: 0;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.settingsContent {
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.field label {
+  flex: 0 0 120px;
+  font-weight: var(--font-weight-medium);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.field input,
+.field select {
+  flex: 1;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid rgba(209, 213, 219, 0.3);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  max-width: 200px;
+  background: var(--surface);
+  color: var(--text);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
+}
+
+.field input:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--secondary);
+  box-shadow: 0 0 4px var(--shadow);
+}
+
+.field input:disabled,
+.field select:disabled {
+  background: rgba(233, 236, 239, 0.1);
+  border-color: rgba(226, 232, 240, 0.2);
+}
+
+.summary {
+  background: rgba(226, 232, 240, 0.1);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-sm);
+}
+
+.summary p {
+  margin: var(--spacing-sm) 0;
+  color: var(--text);
+}
+
+.summary .overdue {
+  color: var(--error);
+  font-weight: var(--font-weight-bold);
+}
+
+.paymentList {
+  margin-top: var(--spacing-md);
+}
+
+.subSectionHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.subSectionHeader h4 {
+  font-size: var(--font-size-md);
+  color: var(--primary);
+  margin: 0;
+}
+
+.toggleButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--primary);
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.toggleButton:hover {
+  color: var(--secondary);
+}
+
+.paymentTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.paymentTable th,
+.paymentTable td {
+  padding: var(--spacing-sm);
+  text-align: left;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.2);
+}
+
+.paymentTable th {
+  background: var(--background);
+  color: var(--text-light);
+  font-weight: var(--font-weight-medium);
+}
+
+.paymentTable td {
+  color: var(--text);
+}
+
+.paymentTable tr.paid {
+  background: rgba(0, 255, 0, 0.1);
+}
+
+.paymentTable tr.overdue {
+  background: rgba(255, 0, 0, 0.1);
+}
+
+.paymentTable td input[type="checkbox"] {
+  margin-right: var(--spacing-xs);
+}
+
+.paymentTable td input[type="date"],
+.paymentTable td input[type="number"],
+.paymentTable td input[type="text"],
+.paymentTable td select {
+  width: 100%;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  border: 1px solid rgba(209, 213, 219, 0.5);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.actionsCell {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+}
+
+.editButton,
+.saveButton,
+.cancelButton,
+.removeButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.editButton {
+  color: var(--secondary);
+}
+
+.editButton:hover {
+  background: rgba(0, 123, 255, 0.2);
+}
+
+.saveButton {
+  color: #28a745;
+}
+
+.saveButton:hover {
+  background: rgba(40, 167, 69, 0.2);
+}
+
+.cancelButton {
+  color: var(--error);
+}
+
+.cancelButton:hover {
+  background: rgba(220, 53, 69, 0.2);
+}
+
+.removeButton {
+  color: var(--error);
+}
+
+.removeButton:hover {
+  background: rgba(220, 53, 69, 0.2);
+}
+
+.newPayment {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: rgba(226, 232, 240, 0.1);
+  border-radius: var(--radius-sm);
+}
+
+.newPayment .subSectionHeader h4 {
+  font-size: var(--font-size-md);
+  color: var(--primary);
+  margin: 0;
+}
+
+.addButton {
+  margin-top: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: linear-gradient(135deg, var(--secondary) 0%, #0056b3 100%);
+  color: var(--surface);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  transition: background 0.3s ease;
+}
+
+.addButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0056b3 0%, var(--secondary) 100%);
+}
+
+.addButton:disabled {
+  background: var(--text-light);
+  cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .field {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .field label {
+    flex: none;
+    width: 100%;
+  }
+
+  .field input,
+  .field select {
+    max-width: none;
+    width: 100%;
+  }
+
+  .paymentTable {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .subSectionHeader {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .actionsCell {
+    flex-wrap: nowrap;
+  }
+}

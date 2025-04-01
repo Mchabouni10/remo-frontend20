@@ -1,4 +1,3 @@
-// models/project.js
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -17,8 +16,8 @@ const workItemSchema = new Schema({
   linearFt: { type: String, default: '' },
   units: { type: String, default: '' },
   basePrice: { type: String, default: '0.00' },
-  materialCost: { type: Number },
-  laborCost: { type: Number },
+  materialCost: { type: Number, default: 0 },
+  laborCost: { type: Number, default: 0 },
   notes: { type: String, default: '' },
 });
 
@@ -32,25 +31,16 @@ const miscFeeSchema = new Schema({
   amount: { type: Number, default: 0 },
 });
 
-const customerInfoSchema = new Schema({
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
-  street: { type: String, required: true },
-  unit: { type: String },
-  state: { type: String, default: 'IL' },
-  zipCode: { type: String, match: /^\d{5}$/, required: true },
-  phone: { type: String, required: true },
-  email: { type: String },
-  projectName: { type: String },
-  type: { type: String, enum: ['Residential', 'Commercial'], default: 'Residential' },
-  paymentType: { 
-    type: String, 
-    enum: ['Credit', 'Debit', 'Check', 'Cash', 'Zelle'], 
-    default: 'Cash' 
+const paymentSchema = new Schema({
+  date: { type: Date, default: Date.now },
+  amount: { type: Number, required: true },
+  method: {
+    type: String,
+    enum: ['Credit', 'Debit', 'Check', 'Cash', 'Zelle'],
+    default: 'Cash',
   },
-  startDate: { type: Date, required: true },
-  finishDate: { type: Date },
-  notes: { type: String },
+  note: { type: String, default: '' },
+  isPaid: { type: Boolean, default: false },
 });
 
 const settingsSchema = new Schema({
@@ -58,9 +48,30 @@ const settingsSchema = new Schema({
   transportationFee: { type: Number, default: 0 },
   wasteFactor: { type: Number, default: 0 },
   miscFees: [miscFeeSchema],
-  deposit: { type: Number, default: 0 },      // Added
-  amountPaid: { type: Number, default: 0 },  // Added
-  markup: { type: Number, default: 0 },      // Added
+  deposit: { type: Number, default: 0 },
+  payments: [paymentSchema],
+  markup: { type: Number, default: 0 },
+});
+
+const customerInfoSchema = new Schema({
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
+  street: { type: String, required: true },
+  unit: { type: String, default: '' },
+  state: { type: String, default: 'IL' },
+  zipCode: { type: String, match: /^\d{5}$/, required: true },
+  phone: { type: String, required: true },
+  email: { type: String, default: '' },
+  projectName: { type: String, default: '' },
+  type: { type: String, enum: ['Residential', 'Commercial'], default: 'Residential' },
+  paymentType: {
+    type: String,
+    enum: ['Credit', 'Debit', 'Check', 'Cash', 'Zelle'],
+    default: 'Cash',
+  },
+  startDate: { type: Date, required: true },
+  finishDate: { type: Date },
+  notes: { type: String, default: '' },
 });
 
 const projectSchema = new Schema({

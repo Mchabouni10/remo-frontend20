@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import styles from './CategoryList.module.css';
 import WorkItem from '../WorkItem/WorkItem';
+import PaymentTracking from '../PaymentTracking/PaymentTracking';
 import { calculateTotal } from '../calculations/costCalculations';
 
 export default function CategoryList({
@@ -9,6 +10,7 @@ export default function CategoryList({
   settings = {},
   setSettings,
   disabled = false,
+  removeCategory,
 }) {
   const [newWorkName, setNewWorkName] = useState('');
   const [useManualMarkup, setUseManualMarkup] = useState(false);
@@ -28,19 +30,19 @@ export default function CategoryList({
     [settings, categories]
   );
 
-  const adjustedGrandTotal = Math.max(0, totals.total - (settings.deposit || 0));
-  const overpayment = settings.amountPaid > adjustedGrandTotal ? settings.amountPaid - adjustedGrandTotal : 0;
+  const totalPaid = useMemo(() => {
+    return (settings.payments || []).reduce((sum, payment) => sum + (payment.isPaid ? payment.amount : 0), 0) + (settings.deposit || 0);
+  }, [settings.payments, settings.deposit]);
+
+  // Use grandTotal directly, not adjusted
+  const grandTotal = totals.total;
+  const overpayment = totalPaid > grandTotal ? totalPaid - grandTotal : 0;
 
   const updateCategoryName = (catIndex, value) => {
     if (disabled) return;
     setCategories((prev) =>
       prev.map((cat, i) => (i === catIndex ? { ...cat, name: value } : cat))
     );
-  };
-
-  const removeCategory = (catIndex) => {
-    if (disabled) return;
-    setCategories((prev) => prev.filter((_, i) => i !== catIndex));
   };
 
   const toggleSection = (section) => {
@@ -370,52 +372,12 @@ export default function CategoryList({
       </div>
 
       {/* Payment Tracking Section */}
-      <div className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <button
-            className={styles.toggleButton}
-            onClick={() => toggleSection('paymentTracking')}
-            title={expandedSections.has('paymentTracking') ? 'Collapse' : 'Expand'}
-          >
-            <i
-              className={`fas ${
-                expandedSections.has('paymentTracking') ? 'fa-chevron-down' : 'fa-chevron-right'
-              }`}
-            ></i>
-          </button>
-          <h3 className={styles.sectionTitle}>
-            <i className="fas fa-wallet"></i> Payment Tracking
-          </h3>
-        </div>
-        {expandedSections.has('paymentTracking') && (
-          <div className={styles.settingsContent}>
-            <div className={styles.field}>
-              <label>
-                <i className="fas fa-hand-holding-usd"></i> Deposit ($):
-              </label>
-              <input
-                type="number"
-                value={settings.deposit || 0}
-                onChange={(e) => handleSettingsChange('deposit', e.target.value)}
-                min="0"
-                disabled={disabled}
-              />
-            </div>
-            <div className={styles.field}>
-              <label>
-                <i className="fas fa-money-check-alt"></i> Amount Paid ($):
-              </label>
-              <input
-                type="number"
-                value={settings.amountPaid || 0}
-                onChange={(e) => handleSettingsChange('amountPaid', e.target.value)}
-                min="0"
-                disabled={disabled}
-              />
-            </div>
-          </div>
-        )}
-      </div>
+      <PaymentTracking
+        settings={settings}
+        setSettings={setSettings}
+        categories={categories}
+        disabled={disabled}
+      />
 
       {/* Summary Section */}
       <div className={styles.totals}>
