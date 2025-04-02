@@ -1,6 +1,7 @@
 import sendRequest from '../utilities/send-request';
 
-const BASE_URL = '/api/projects/';
+// Use the environment variable for the base URL, falling back to relative URL for development
+const BASE_URL = `${process.env.REACT_APP_API_URL || ''}/api/projects/`;
 
 // Create a new project
 export function saveProject(projectData) {

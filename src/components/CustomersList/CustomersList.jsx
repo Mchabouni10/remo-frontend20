@@ -158,7 +158,6 @@ export default function CustomersList() {
       setError(null);
       try {
         const fetchedProjects = await getProjects();
-        console.log('Fetched projects:', fetchedProjects);
         setProjects(fetchedProjects);
         setLastUpdated(new Date());
       } catch (err) {

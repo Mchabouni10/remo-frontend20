@@ -1,5 +1,5 @@
 {
-  "name": "Remo_app",
+  "name": "remo-frontend",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -14,14 +14,8 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/react-datepicker": "^7.0.0",
-    "bcrypt": "^5.1.1",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2",
     "html2canvas": "^1.4.1",
-    "jsonwebtoken": "^9.0.2",
     "jspdf": "^3.0.1",
-    "mongoose": "^8.0.3",
-    "morgan": "^1.10.0",
     "print-js": "^1.6.0",
     "react": "^18.2.0",
     "react-date-range": "^2.0.1",
@@ -32,7 +26,6 @@
     "react-router-dom": "^6.21.1",
     "react-scripts": "5.0.1",
     "react-to-print": "^3.0.5",
-    "serve-favicon": "^2.5.0",
     "web-vitals": "^2.1.4",
     "zipcodes": "^8.0.0"
   },
@@ -43,22 +36,11 @@
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "extends": ["react-app", "react-app/jest"]
   },
   "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "production": [">0.2%", "not dead", "not op_mini all"],
+    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
   },
   "proxy": "http://localhost:3001",
   "devDependencies": {
