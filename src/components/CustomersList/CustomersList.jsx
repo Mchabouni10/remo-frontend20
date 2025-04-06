@@ -158,11 +158,12 @@ export default function CustomersList() {
       setError(null);
       try {
         const fetchedProjects = await getProjects();
-        setProjects(fetchedProjects);
+        setProjects(fetchedProjects || []); // Default to empty array if null
         setLastUpdated(new Date());
       } catch (err) {
-        console.error('Error fetching projects:', err);
-        setError('Failed to load customers. Please try again later.');
+        console.error('Error fetching projects:', err.message);
+        setError(`Failed to load customers: ${err.message}. Please try again later.`);
+        setProjects([]); // Reset projects to avoid breaking the UI
       } finally {
         setIsLoading(false);
       }
