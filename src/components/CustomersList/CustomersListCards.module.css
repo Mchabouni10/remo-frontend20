@@ -1,0 +1,418 @@
+/* src/components/CustomersList/CustomersListCards.module.css */
+.title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-extrabold);
+    color: var(--primary);
+    letter-spacing: 1.2px;
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 10px rgba(var(--primary), 0.3);
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+  
+  .searchSection {
+    margin-bottom: var(--spacing-lg);
+    display: flex;
+    justify-content: center;
+  }
+  
+  .searchWrapper {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    align-items: center;
+    background: rgba(var(--surface), 0.9);
+    border-radius: var(--radius-md);
+    box-shadow: 0 0 15px rgba(var(--primary), 0.3);
+    transition: transform 0.3s ease;
+  }
+  
+  .searchWrapper:hover {
+    transform: scale(1.02);
+  }
+  
+  .searchIcon {
+    position: absolute;
+    top: 50%;
+    left: var(--spacing-sm);
+    transform: translateY(-50%);
+    color: var(--primary);
+    font-size: var(--font-size-md);
+  }
+  
+  .searchInput {
+    padding: var(--spacing-md) var(--spacing-md) var(--spacing-md) 2.5rem;
+    width: 100%;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-md);
+    background: transparent;
+    color: var(--text);
+    transition: all 0.3s ease;
+    box-shadow: inset 0 0 5px rgba(var(--primary), 0.2);
+  }
+  
+  .searchInput:focus {
+    outline: none;
+    box-shadow: 0 0 10px rgba(var(--primary), 0.5);
+  }
+  
+  .searchInput::placeholder {
+    color: rgba(var(--text-light), 0.7);
+  }
+  
+  .clearButton {
+    position: absolute;
+    top: 50%;
+    right: var(--spacing-sm);
+    transform: translateY(-50%);
+    padding: 0.3rem;
+    border: none;
+    border-radius: 50%;
+    background: var(--error);
+    color: var(--surface);
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+  }
+  
+  .clearButton:hover {
+    background: #c53030;
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 0 10px rgba(var(--error), 0.5);
+  }
+  
+  .cardsWrapper {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--spacing-lg);
+    padding: var(--spacing-md);
+  }
+  
+  .customerCard {
+    background: linear-gradient(135deg, var(--surface) 0%, rgba(249, 250, 251, 0.95) 100%);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(var(--primary), 0.2);
+  }
+  
+  .customerCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(var(--primary), 0.4);
+  }
+  
+  .customerCard::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(var(--primary), 0.2) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .customerCard:hover::after {
+    opacity: 0.3;
+  }
+  
+  .cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .cardTitle {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--primary);
+    text-shadow: 0 0 5px rgba(var(--primary), 0.3);
+  }
+  
+  .statusBadge {
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    text-transform: capitalize;
+    color: var(--surface);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  }
+  
+  .notstarted { background: linear-gradient(135deg, #95a5a6 0%, #d1d5db 100%); }
+  .startingsoon { background: linear-gradient(135deg, var(--secondary) 0%, #2980b9 100%); }
+  .inprogress { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); }
+  .duesoon { background: linear-gradient(135deg, #f1c40f 0%, #d97706 100%); }
+  .overdue { background: linear-gradient(135deg, var(--error) 0%, #c53030 100%); }
+  .completed { background: linear-gradient(135deg, var(--success) 0%, #2e8b57 100%); }
+  
+  .cardContent {
+    font-size: var(--font-size-sm);
+    color: var(--text);
+  }
+  
+  .projectCount span {
+    display: inline-block;
+    background: var(--primary-dark);
+    color: var(--surface);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    line-height: 30px;
+    font-weight: var(--font-weight-extrabold);
+    font-size: var(--font-size-md);
+    margin-left: 8px;
+    box-shadow: 0 0 8px rgba(var(--primary), 0.5);
+    animation: pulse 1.5s infinite;
+  }
+  
+  .progressBar {
+    margin: var(--spacing-sm) 0;
+    position: relative;
+    background: #e2e8f0;
+    border-radius: var(--radius-sm);
+    height: 8px;
+    overflow: hidden;
+  }
+  
+  .progressBar span {
+    position: absolute;
+    top: -20px;
+    left: 0;
+    font-size: var(--font-size-xs);
+    color: var(--primary-dark);
+  }
+  
+  .progressFill {
+    height: 100%;
+    background: linear-gradient(135deg, var(--success) 0%, var(--primary) 100%);
+    transition: width 0.3s ease;
+  }
+  
+  .moneyDetails {
+    font-weight: var(--font-weight-medium);
+  }
+  
+  .paidDetail {
+    font-size: var(--font-size-xs);
+    color: var(--success);
+    margin-left: 4px;
+  }
+  
+  .cardActions {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: var(--spacing-md);
+    justify-content: flex-end;
+  }
+  
+  .actionButton {
+    padding: 0.6rem;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: var(--surface);
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+  }
+  
+  .actionButton:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(var(--primary), 0.5);
+  }
+  
+  .actionButton:disabled {
+    background: #95a5a6;
+    color: #d1d5db;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    opacity: 0.8;
+  }
+  
+  .editButton { background: linear-gradient(135deg, var(--success) 0%, #2e8b57 100%); }
+  .deleteButton { background: linear-gradient(135deg, var(--error) 0%, #c53030 100%); }
+  .newProjectButton { background: linear-gradient(135deg, var(--secondary) 0%, #2980b9 100%); }
+  
+  .totalsSection {
+    text-align: right;
+    padding: var(--spacing-md);
+    font-size: var(--font-size-sm);
+    color: var(--text);
+    background: rgba(var(--surface), 0.9);
+    border-radius: var(--radius-md);
+    margin-top: var(--spacing-lg);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .totalsSection .grandTotal {
+    font-weight: var(--font-weight-bold);
+    color: var(--primary-dark);
+  }
+  
+  .totalsSection .remaining {
+    font-weight: var(--font-weight-medium);
+    color: var(--error);
+  }
+  
+  .lastUpdated {
+    font-size: 0.7rem;
+    color: #666;
+    font-style: italic;
+  }
+  
+  .noResults {
+    text-align: center;
+    color: var(--text-light);
+    font-size: var(--font-size-base);
+    padding: var(--spacing-md);
+    background: rgba(var(--surface), 0.9);
+    border-radius: var(--radius-md);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .inlineButton {
+    background: none;
+    border: none;
+    color: var(--primary);
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: var(--font-weight-medium);
+  }
+  
+  .notificationsSection {
+    margin: var(--spacing-sm) 0;
+    padding: var(--spacing-md);
+    background: rgba(var(--surface), 0.95);
+    border-radius: var(--radius-md);
+    box-shadow: 0 0 10px rgba(var(--primary), 0.2);
+  }
+  
+  .notificationsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+  }
+  
+  .notificationsSection h3 {
+    font-size: var(--font-size-base);
+    margin: 0;
+    color: var(--primary);
+  }
+  
+  .notificationCount {
+    font-size: var(--font-size-sm);
+    color: var(--secondary);
+    margin-left: var(--spacing-sm);
+  }
+  
+  .toggleIcon {
+    color: var(--primary);
+    font-size: var(--font-size-base);
+  }
+  
+  .notificationsSection ul {
+    list-style: none;
+    padding: 0;
+    margin-top: var(--spacing-sm);
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  
+  .nearDue {
+    color: #d97706;
+    background: rgba(241, 196, 15, 0.2);
+    padding: 0.3rem 0.6rem;
+    border-radius: var(--radius-sm);
+    margin: 0.2rem 0;
+  }
+  
+  .nearDue svg {
+    margin-right: 6px;
+  }
+  
+  .overdue {
+    color: #ffffff;
+    background: #e53e3e; /* Darker red for better contrast */
+    padding: 0.3rem 0.6rem;
+    border-radius: var(--radius-sm);
+    margin: 0.2rem 0;
+  }
+  
+  .overdue svg {
+    margin-right: 6px;
+  }
+  
+  .loading {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    justify-content: center;
+    padding: var(--spacing-lg);
+    color: var(--text-light);
+  }
+  
+  .error {
+    color: var(--error);
+    text-align: center;
+    margin: var(--spacing-md) 0;
+    font-weight: var(--font-weight-medium);
+  }
+
+  .actionButton:disabled {
+    background: #95a5a6;
+    color: #d1d5db;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    opacity: 0.8;
+  }
+  
+  @keyframes glow {
+    0% { text-shadow: 0 0 5px rgba(var(--primary), 0.3); }
+    100% { text-shadow: 0 0 15px rgba(var(--primary), 0.7); }
+  }
+  
+  @keyframes pulse {
+    0% { box-shadow: 0 0 8px rgba(var(--primary), 0.5); }
+    50% { box-shadow: 0 0 15px rgba(var(--primary), 0.8); }
+    100% { box-shadow: 0 0 8px rgba(var(--primary), 0.5); }
+  }
+  
+  @media (max-width: 768px) {
+    .cardsWrapper {
+      grid-template-columns: 1fr;
+    }
+    .searchWrapper {
+      max-width: 100%;
+    }
+    .customerCard {
+      padding: var(--spacing-md);
+    }
+    .actionButton {
+      width: 36px;
+      height: 36px;
+    }
+  }

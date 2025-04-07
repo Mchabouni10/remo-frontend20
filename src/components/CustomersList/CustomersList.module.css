@@ -215,49 +215,7 @@
   border-radius: var(--radius-sm);
 }
 
-.amountPaid {
-  color: var(--success);
-  font-weight: var(--font-weight-bold);
-  text-align: right;
-  padding: 0.4rem var(--spacing-sm);
-  font-size: var(--font-size-sm);
-  min-width: 60px;
-  background: rgba(var(--success), 0.1);
-  border-radius: var(--radius-sm);
-}
 
-.amountDetails {
-  display: flex;
-  flex-direction: column;
-  font-size: 0.6rem;
-  line-height: 1.1;
-  margin-top: 2px;
-  opacity: 0.85;
-  color: inherit;
-}
-
-.dueDetail,
-.paidDetail {
-  white-space: nowrap;
-}
-
-.amountDue .dueDetail {
-  color: var(--error);
-}
-
-.amountDue .paidDetail {
-  color: var(--success);
-}
-
-.amountPaid .dueDetail {
-  color: var(--error);
-}
-
-.amountPaid .paidDetail {
-  color: var(--success);
-}
-
-/* Updated Status Styles */
 .status {
   padding: 4px 8px;
   border-radius: var(--radius-sm);
@@ -295,14 +253,6 @@
 .completed {
   background: linear-gradient(135deg, rgba(var(--success), 0.2) 0%, rgba(var(--success), 0.1) 100%);
   color: var(--success);
-}
-
-.statusIndicator {
-  font-size: 0.65rem;
-  font-style: italic;
-  margin-left: var(--spacing-sm);
-  color: inherit;
-  opacity: 0.8;
 }
 
 .actions {
@@ -491,7 +441,7 @@
 }
 
 .nearDue {
-  color: #d97706; /* Amber for consistency with duesoon */
+  color: #d97706;
 }
 
 .nearDue svg {
@@ -547,29 +497,61 @@
   box-shadow: 0 2px 6px var(--shadow);
 }
 
-/* Responsive Adjustments */
+.viewToggle {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.toggleButton {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: var(--surface);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  transition: all 0.2s ease;
+}
+
+.toggleButton:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 6px var(--shadow);
+}
+
+.toggleButton.active {
+  background: linear-gradient(135deg, var(--success) 0%, #2e8b57 100%);
+}
+
+.actionWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown li:hover {
+  background: linear-gradient(135deg, rgba(var(--primary), 0.1) 0%, rgba(var(--primary-dark), 0.05) 100%);
+}
+
+.dropdown li:last-child {
+  border-top: 1px solid #e2e8f0;
+  color: var(--text-light);
+}
+
 @media (max-width: 1024px) {
   .tableWrapper {
     margin: 0 -0.2rem;
   }
-
-  .table th,
-  .table td {
+  .table th, .table td {
     padding: 0.4rem var(--spacing-sm);
   }
-
-  .currency,
-  .grandTotal,
-  .amountDue,
-  .amountPaid {
+  .currency, .grandTotal, .amountDue, .amountPaid {
     padding: 0.4rem 0.3rem;
     min-width: 50px;
   }
-
   .actions {
     gap: 0.15rem;
   }
-
   .table td:nth-child(4) span {
     width: 1.2rem;
     height: 1.2rem;
@@ -580,71 +562,55 @@
   .mainContent {
     padding: var(--spacing-sm) 0.3rem;
   }
-
   .container {
     padding: var(--spacing-sm);
   }
-
   .title {
     font-size: var(--font-size-lg);
   }
-
   .searchWrapper {
     max-width: 100%;
   }
-
   .searchInput {
     padding: var(--spacing-sm) var(--spacing-sm) var(--spacing-sm) 1.8rem;
     font-size: 0.8rem;
   }
-
   .actionButton {
     width: 24px;
     height: 24px;
     font-size: 0.75rem;
   }
-
-  .table th,
-  .table td {
+  .table th, .table td {
     font-size: 0.75rem;
     padding: 0.3rem var(--spacing-sm);
   }
-
-  .currency,
-  .grandTotal,
-  .amountDue,
-  .amountPaid {
+  .currency, .grandTotal, .amountDue, .amountPaid {
     padding: 0.3rem 0.2rem;
     min-width: 45px;
   }
-
   .amountDetails {
     font-size: 0.55rem;
   }
-
   .totalsSection {
     font-size: 0.75rem;
   }
-
   .table td:nth-child(4) span {
     width: 1.1rem;
     height: 1.1rem;
   }
-
   .notificationsSection h3 {
     font-size: 0.9rem;
   }
-
   .notificationCount {
     font-size: 0.75rem;
   }
-
   .toggleIcon {
     font-size: 0.8rem;
   }
-
   .exportButton {
     font-size: 0.75rem;
     padding: var(--spacing-sm);
   }
 }
+
+
