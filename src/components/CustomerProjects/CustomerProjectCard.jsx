@@ -1,15 +1,26 @@
-// src/components/CustomerProjects/CustomerProjectCard.jsx
-import React, { useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React, { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faEye, faEdit, faTrashAlt, faDollarSign, faCalendarAlt, faChevronDown, faChevronUp, faDownload,
-} from '@fortawesome/free-solid-svg-icons';
-import CostBreakdown from '../Calculator/CostBreakdown/CostBreakdown';
-import { calculateTotal } from '../Calculator/calculations/costCalculations';
-import styles from './CustomerProjectCard.module.css';
+  faEye,
+  faEdit,
+  faTrashAlt,
+  faDollarSign,
+  faCalendarAlt,
+  faChevronDown,
+  faChevronUp,
+  faDownload,
+} from "@fortawesome/free-solid-svg-icons";
+import CostBreakdown from "../Calculator/CostBreakdown/CostBreakdown";
+import { calculateTotal } from "../Calculator/calculations/costCalculations";
+import styles from "./CustomerProjectCard.module.css";
 
 export default function CustomerProjectCard({
-  project, formatDate, handleDetails, handleEdit, handleDelete, exportProjectSummary,
+  project,
+  formatDate,
+  handleDetails,
+  handleEdit,
+  handleDelete,
+  exportProjectSummary,
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -24,17 +35,18 @@ export default function CustomerProjectCard({
   const grandTotal = totals.total || 0;
   const deposit = project.settings?.deposit || 0;
   const amountPaid = project.settings?.amountPaid || 0;
-  const amountRemaining = Math.max(0, Math.max(0, grandTotal - deposit) - amountPaid);
+  const amountRemaining = Math.max(0, grandTotal - (deposit + amountPaid));
+  const progress = grandTotal > 0 ? (((deposit + amountPaid) / grandTotal) * 100).toFixed(0) : 0;
 
   const getStatus = () => {
     const today = new Date();
     const startDate = new Date(project.customerInfo?.startDate);
     const finishDate = new Date(project.customerInfo?.finishDate);
-    if (amountRemaining === 0 && finishDate < today) return 'Completed';
-    if (finishDate < today && amountRemaining > 0) return 'Overdue';
-    if (startDate > today) return 'Pending';
-    if (startDate <= today && finishDate >= today) return 'In Progress';
-    return 'Unknown';
+    if (amountRemaining === 0 && finishDate < today) return "Completed";
+    if (finishDate < today && amountRemaining > 0) return "Overdue";
+    if (startDate > today) return "Pending";
+    if (startDate <= today && finishDate >= today) return "In Progress";
+    return "Unknown";
   };
 
   const status = getStatus();
@@ -51,7 +63,7 @@ export default function CustomerProjectCard({
             <FontAwesomeIcon icon={isExpanded ? faChevronUp : faChevronDown} />
           </button>
           <span className={styles.projectName}>
-            {project.customerInfo?.projectName || 'Unnamed Project'}
+            {project.customerInfo?.projectName || "Unnamed Project"}
           </span>
           <span className={`${styles.statusBadge} ${styles[status.toLowerCase()]}`}>
             {status}
@@ -59,13 +71,25 @@ export default function CustomerProjectCard({
         </div>
       </div>
       <div className={styles.cardContent}>
-        <p><FontAwesomeIcon icon={faCalendarAlt} /> Start: {formatDate(project.customerInfo?.startDate)}</p>
-        <p><FontAwesomeIcon icon={faCalendarAlt} /> End: {formatDate(project.customerInfo?.finishDate)}</p>
+        <p>
+          <FontAwesomeIcon icon={faCalendarAlt} /> Start:{" "}
+          {formatDate(project.customerInfo?.startDate) || "N/A"}
+        </p>
+        <p>
+          <FontAwesomeIcon icon={faCalendarAlt} /> End:{" "}
+          {formatDate(project.customerInfo?.finishDate) || "N/A"}
+        </p>
+        <div className={styles.progressBar}>
+          <span>Paid: {progress}%</span>
+          <div className={styles.progressFill} style={{ width: `${progress}%` }} />
+        </div>
         <p className={styles.moneyDetails}>
           <FontAwesomeIcon icon={faDollarSign} /> Due: ${amountRemaining.toFixed(2)}
-          <span className={styles.paidDetail}> (Paid: ${(deposit + amountPaid).toFixed(2)})</span>
+          <span className={styles.amountDisplay}>${amountRemaining.toFixed(2)}</span>
         </p>
-        <p><FontAwesomeIcon icon={faDollarSign} /> Total: ${grandTotal.toFixed(2)}</p>
+        <p>
+          <FontAwesomeIcon icon={faDollarSign} /> Total: ${grandTotal.toFixed(2)}
+        </p>
       </div>
       <div className={styles.cardActions}>
         <button
@@ -101,9 +125,18 @@ export default function CustomerProjectCard({
         <div className={styles.detailsSection}>
           <h4>Project Details</h4>
           <div className={styles.detailContent}>
-            <p><strong>Address:</strong> {project.customerInfo.street || 'N/A'} {project.customerInfo.unit ? `, ${project.customerInfo.unit}` : ''}, {project.customerInfo.state || 'N/A'} {project.customerInfo.zipCode || 'N/A'}</p>
-            <p><strong>Email:</strong> {project.customerInfo.email || 'N/A'}</p>
-            <p><strong>Notes:</strong> {project.customerInfo.notes || 'None'}</p>
+            <p>
+              <strong>Address:</strong>{" "}
+              {project.customerInfo.street || "N/A"}{" "}
+              {project.customerInfo.unit ? `, ${project.customerInfo.unit}` : ""},{" "}
+              {project.customerInfo.state || "N/A"} {project.customerInfo.zipCode || "N/A"}
+            </p>
+            <p>
+              <strong>Email:</strong> {project.customerInfo.email || "N/A"}
+            </p>
+            <p>
+              <strong>Notes:</strong> {project.customerInfo.notes || "None"}
+            </p>
           </div>
           <CostBreakdown categories={project.categories} settings={project.settings} />
         </div>

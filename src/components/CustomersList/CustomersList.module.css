@@ -11,7 +11,7 @@
 .container {
   max-width: 1400px;
   width: 100%;
-  margin: 0 auto;
+  margin: 0 .5rem;
   padding: var(--spacing-sm);
   background: linear-gradient(135deg, var(--surface) 0%, #f9fafb 100%);
   border-radius: var(--radius-md);
@@ -135,8 +135,9 @@
   top: 0;
   z-index: 10;
   padding: 0.5rem var(--spacing-sm);
-  border-bottom: 2px solid var(--primary-dark);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-sm);
+  text-align: center;
 }
 
 .sortable {
@@ -156,6 +157,7 @@
 .table td:nth-child(4),
 .table th:nth-child(4) {
   text-align: center;
+  max-width: 80px;
 }
 
 .table td:nth-child(3),
@@ -166,7 +168,36 @@
 
 .table td:nth-child(7),
 .table th:nth-child(7) {
-  min-width: 140px;
+  max-width: 100px;
+  text-align: center;
+}
+
+.table td:nth-child(8),
+.table th:nth-child(8) span{
+  max-width: 140px;
+  text-align: center;
+}
+
+.table td:nth-child(9),
+.table th:nth-child(9) {
+  max-width: 140px;
+  text-align: center;
+}
+
+.table td:nth-child(10) span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+
+
+.table th:nth-child(10) span {
+  display: inline-flex;
+  max-width: 140px;
+  justify-content: center; /* Centers the text horizontally */
+  align-items: center; /* Centers the text vertically (optional) */
   text-align: center;
 }
 
@@ -537,6 +568,100 @@
   border-top: 1px solid #e2e8f0;
   color: var(--text-light);
 }
+
+/* Add these styles to your existing CustomersList.module.css */
+
+/* Container for the progress bar in the Remaining column */
+.progressBarContainer {
+  position: relative;
+  width: 100px; /* Fixed width for consistency */
+  height: 12px;
+  background: linear-gradient(135deg, rgba(44, 62, 80, 0.1) 0%, rgba(44, 62, 80, 0.05) 100%);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--primary-dark);
+}
+
+/* The actual progress bar */
+.progressBar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--success) 0%, var(--primary) 100%);
+  border-radius: 8px;
+  position: relative;
+  transition: width 0.5s ease-in-out;
+  overflow: hidden;
+}
+
+/* Futuristic glow effect */
+.progressBar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%
+  );
+  animation: glow 2s infinite ease-in-out;
+}
+
+/* Animation for the glow effect */
+@keyframes glow {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Style adjustments for overdue/remaining amounts */
+.amountDue .progressBar {
+  background: linear-gradient(90deg, var(--error) 0%, #c53030 100%);
+}
+
+/* Text overlay for percentage */
+.progressText {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: var(--font-size-sm);
+  color: var(--surface);
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+  font-weight: var(--font-weight-bold);
+  z-index: 1;
+}
+
+/* Adjust the table cell containing the progress bar */
+.table td:nth-child(8) {
+  padding: 0.4rem var(--spacing-sm);
+  position: relative;
+  min-width: 120px; /* Ensure enough space for the bar */
+  text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .progressBarContainer {
+    width: 80px;
+    height: 10px;
+  }
+  
+  .progressText {
+    font-size: 0.65rem;
+  }
+  
+  .table td:nth-child(8) {
+    min-width: 90px;
+  }
+}
+
 
 @media (max-width: 1024px) {
   .tableWrapper {
