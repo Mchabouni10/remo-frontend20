@@ -1,7 +1,7 @@
 // src/components/Navbar/Navbar.jsx
 import { Link, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSignOutAlt, faUsers, faPlusCircle, faFileAlt, faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
+import { faSignOutAlt, faUsers, faPlusCircle, faFileAlt, faMoon, faSun, faChartPie } from '@fortawesome/free-solid-svg-icons';
 import styles from './Navbar.module.css';
 
 export default function Navbar({ user, setUser, toggleDarkMode, isDarkMode }) {
@@ -32,10 +32,16 @@ export default function Navbar({ user, setUser, toggleDarkMode, isDarkMode }) {
           <li>
             <Link to={`/home/estimate/${projectId}`} className={styles.navLink}>
               <FontAwesomeIcon icon={faFileAlt} className={styles.navIcon} />
-              <span>Estimate</span>
+              <span>Print</span>
             </Link>
           </li>
         )}
+        <li>
+          <Link to="/home/finance" className={styles.navLink}>
+            <FontAwesomeIcon icon={faChartPie} className={styles.navIcon} />
+            <span>Finance Data</span>
+          </Link>
+        </li>
         <li>
           <button onClick={toggleDarkMode} className={styles.toggleButton}>
             <FontAwesomeIcon

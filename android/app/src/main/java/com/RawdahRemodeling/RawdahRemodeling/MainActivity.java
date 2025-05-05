@@ -1,4 +1,4 @@
-package Rawdah.Company.remoapp;
+package com.RawdahRemodeling.RawdahRemodeling;
 
 import com.getcapacitor.BridgeActivity;
 

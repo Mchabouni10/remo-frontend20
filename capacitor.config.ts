@@ -1,18 +1,38 @@
-
-// capacitor.config.ts
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'Rawdah.Company.remoapp', // Unique ID, looks good
-  appName: 'Remo App',             // Updated for consistency and readability
-  webDir: 'build',                 // Matches your React build directory
-  server: {
-    url: 'https://remo-backend-91sw.onrender.com', // Your deployed backend URL
-    cleartext: false                     // HTTPS, so no need for cleartext
-  },
-  android: {
-    allowMixedContent: false            // Enforce HTTPS-only for security
-  }
+    appId: 'com.RawdahRemodeling.RawdahRemodeling',
+    appName: 'Remo App',
+    webDir: 'build',
+    server: {
+        androidScheme: 'https',
+        allowNavigation: ['localhost'],
+    },
+    android: {
+        allowMixedContent: false,
+        minSdk: 23,  // Aligned with Gradle
+        targetSdkVersion: 35,  // Aligned with Gradle
+        arch: {
+            arm64: true,
+            x86: false,
+            x86_64: false,  // Disabled for smaller APK
+        },
+    },
+    plugins: {
+        SplashScreen: {
+            launchShowDuration: 3000,
+            launchAutoHide: true,
+            backgroundColor: '#ffffffff',
+            androidScaleType: 'CENTER_CROP',
+            showSpinner: false,
+            splashFullScreen: true,
+            splashImmersive: true,
+        },
+        StatusBar: {
+            visible: true,
+            style: 'light',
+        },
+    },
 };
 
 export default config;
