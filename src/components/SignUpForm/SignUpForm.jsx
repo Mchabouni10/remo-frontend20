@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { signUp } from '../../utilities/users-service';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faEnvelope, faLock, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import styles from './SignUpForm.module.css';
 
 export default function SignUpForm({ setUser }) {
@@ -13,6 +13,8 @@ export default function SignUpForm({ setUser }) {
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleChange = (evt) => {
     setFormData({
@@ -36,6 +38,14 @@ export default function SignUpForm({ setUser }) {
   };
 
   const disable = formData.password !== formData.confirm || !formData.name || !formData.email;
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
 
   return (
     <div className={styles.formContainer}>
@@ -73,7 +83,7 @@ export default function SignUpForm({ setUser }) {
         <div className={styles.inputGroup}>
           <FontAwesomeIcon icon={faLock} className={styles.inputIcon} />
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             id="password"
             name="password"
             value={formData.password}
@@ -82,12 +92,17 @@ export default function SignUpForm({ setUser }) {
             required
             className={styles.input}
           />
+          <FontAwesomeIcon
+            icon={showPassword ? faEyeSlash : faEye}
+            className={styles.passwordToggleIcon}
+            onClick={togglePasswordVisibility}
+          />
         </div>
 
         <div className={styles.inputGroup}>
           <FontAwesomeIcon icon={faLock} className={styles.inputIcon} />
           <input
-            type="password"
+            type={showConfirmPassword ? "text" : "password"}
             id="confirm"
             name="confirm"
             value={formData.confirm}
@@ -95,6 +110,11 @@ export default function SignUpForm({ setUser }) {
             placeholder="Confirm security key"
             required
             className={styles.input}
+          />
+          <FontAwesomeIcon
+            icon={showConfirmPassword ? faEyeSlash : faEye}
+            className={styles.passwordToggleIcon}
+            onClick={toggleConfirmPasswordVisibility}
           />
         </div>
 

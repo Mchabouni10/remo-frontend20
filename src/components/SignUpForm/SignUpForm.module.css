@@ -68,6 +68,14 @@
   transition: all 0.3s ease;
 }
 
+.passwordToggleIcon {
+  position: absolute;
+  right: 12px;
+  color: var(--text-light); /* #6b7280 in light mode, #94a3b8 in dark mode */
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
 .submitButton:hover:not(:disabled) {
   background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%); /* Reversed gradient */
   transform: translateY(-2px);

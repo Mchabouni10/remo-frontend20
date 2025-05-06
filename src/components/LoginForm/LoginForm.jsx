@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { login } from '../../utilities/users-service';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
+import { faEnvelope, faLock, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import styles from './LoginForm.module.css';
 
 export default function LoginForm({ setUser }) {
@@ -11,6 +11,7 @@ export default function LoginForm({ setUser }) {
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (evt) => {
     setCredentials({
@@ -31,6 +32,10 @@ export default function LoginForm({ setUser }) {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -55,7 +60,7 @@ export default function LoginForm({ setUser }) {
         <div className={styles.inputGroup}>
           <FontAwesomeIcon icon={faLock} className={styles.inputIcon} />
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             id="password"
             name="password"
             value={credentials.password}
@@ -63,6 +68,11 @@ export default function LoginForm({ setUser }) {
             placeholder="Enter security key"
             required
             className={styles.input}
+          />
+          <FontAwesomeIcon
+            icon={showPassword ? faEyeSlash : faEye}
+            className={styles.passwordToggleIcon}
+            onClick={togglePasswordVisibility}
           />
         </div>
 
