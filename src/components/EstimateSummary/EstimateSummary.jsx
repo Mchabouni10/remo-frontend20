@@ -1,6 +1,8 @@
+//src/components/EstimateSummary/EstimateSummary.jsx
+
 import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPrint, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faPrint, faArrowLeft, faEnvelope } from '@fortawesome/free-solid-svg-icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
@@ -13,6 +15,7 @@ import logoImage from '../../assets/CompanyLogo.png';
 export default function EstimateSummary() {
   const componentRef = useRef(null);
   const [isPrinting, setIsPrinting] = useState(false);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [customer, setCustomer] = useState(null);
   const [categories, setCategories] = useState([]);
   const [settings, setSettings] = useState(null);
@@ -58,7 +61,7 @@ export default function EstimateSummary() {
           wasteFactor: 0,
           miscFees: [],
           deposit: 0,
-          payments: [], // Ensure payments array is initialized
+          payments: [],
           markup: 0,
         });
       } catch (err) {
@@ -72,62 +75,67 @@ export default function EstimateSummary() {
     loadProject();
   }, [id, navigate]);
 
+  const generatePDF = async () => {
+    if (!componentRef.current) throw new Error('Component not ready for PDF generation.');
+
+    const element = componentRef.current;
+    element.style.display = 'block';
+    element.style.visibility = 'visible';
+    element.style.width = '595px'; // A4 width in pixels at 72 DPI
+    element.style.padding = '10mm';
+
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      width: element.offsetWidth,
+      height: element.scrollHeight,
+      backgroundColor: '#ffffff',
+      logging: true,
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4',
+    });
+
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const imgProps = pdf.getImageProperties(imgData);
+    const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight, undefined, 'FAST');
+    heightLeft -= pdfHeight;
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight, undefined, 'FAST');
+      heightLeft -= pdfHeight;
+    }
+
+    element.style.display = '';
+    element.style.visibility = '';
+    element.style.width = '';
+    element.style.padding = '';
+
+    return pdf;
+  };
+
   const handlePrintClick = async () => {
     if (!customer && categories.length === 0) {
       alert('Nothing to print. Please add customer info or work items.');
       return;
     }
-    if (!componentRef.current) {
-      alert('Component not ready for printing.');
-      return;
-    }
 
     setIsPrinting(true);
     try {
-      const element = componentRef.current;
-
-      element.style.display = 'block';
-      element.style.visibility = 'visible';
-      element.style.width = '595px'; // A4 width in pixels at 72 DPI
-      element.style.padding = '10mm';
-
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        width: element.offsetWidth,
-        height: element.scrollHeight,
-        backgroundColor: '#ffffff',
-        logging: true,
-      });
-
-      console.log('Canvas width:', canvas.width, 'Canvas height:', canvas.height);
-
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-      });
-
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const imgProps = pdf.getImageProperties(imgData);
-      const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight, undefined, 'FAST');
-      heightLeft -= pdfHeight;
-
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight, undefined, 'FAST');
-        heightLeft -= pdfHeight;
-      }
-
+      const pdf = await generatePDF();
       pdf.autoPrint();
       pdf.output('dataurlnewwindow');
     } catch (error) {
@@ -135,10 +143,33 @@ export default function EstimateSummary() {
       alert('Error: Unable to print. Check console for details.');
     } finally {
       setIsPrinting(false);
-      componentRef.current.style.display = '';
-      componentRef.current.style.visibility = '';
-      componentRef.current.style.width = '';
-      componentRef.current.style.padding = '';
+    }
+  };
+
+  const handleSendEmail = async () => {
+    if (!customer?.email) {
+      alert('Customer email is required to send the estimate.');
+      return;
+    }
+
+    setIsSendingEmail(true);
+    try {
+      // Generate and download the PDF
+      const pdf = await generatePDF();
+      const pdfName = `Estimate_${customer.projectName || 'Summary'}_${new Date().toISOString().split('T')[0]}.pdf`;
+      pdf.save(pdfName);
+
+      // Open Gmail compose window
+      const subject = encodeURIComponent('Project Estimate');
+      const gmailUrl = `https://mail.google.com/mail/u/0/?view=cm&fs=1&to=${encodeURIComponent(customer.email)}&su=${subject}`;
+      window.open(gmailUrl, '_blank');
+
+      alert('PDF downloaded. Please attach the downloaded PDF to the Gmail compose window.');
+    } catch (error) {
+      console.error('Error preparing email:', error);
+      alert('Error: Unable to prepare email. Check console for details.');
+    } finally {
+      setIsSendingEmail(false);
     }
   };
 
@@ -297,7 +328,6 @@ export default function EstimateSummary() {
               </tbody>
             </table>
 
-            {/* New Payment Tracking Section */}
             {(settings?.payments?.length > 0 || settings?.deposit > 0) && (
               <div>
                 <h4>Payment Tracking</h4>
@@ -396,6 +426,9 @@ export default function EstimateSummary() {
         <div className={styles.buttonGroup}>
           <button onClick={handlePrintClick} className={styles.printButton} disabled={isPrinting}>
             <FontAwesomeIcon icon={faPrint} /> {isPrinting ? 'Printing...' : 'Print'}
+          </button>
+          <button onClick={handleSendEmail} className={styles.printButton} disabled={isSendingEmail || !customer?.email}>
+            <FontAwesomeIcon icon={faEnvelope} /> {isSendingEmail ? 'Preparing Email...' : 'Send by Email'}
           </button>
           <button onClick={() => navigate('/home/customers')} className={styles.backButton}>
             <FontAwesomeIcon icon={faArrowLeft} /> Back

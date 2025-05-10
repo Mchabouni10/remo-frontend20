@@ -88,9 +88,43 @@
   margin-bottom: var(--spacing-md);
 }
 
-.categoryInput {
+.categoryInputWrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.categorySelect {
   flex: 1;
   padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid rgba(209, 213, 219, 0.3);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-base);
+  background: var(--surface);
+  color: var(--text);
+  appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%23333" d="M6 9l4-4H2z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right var(--spacing-sm) center;
+  background-size: 12px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
+}
+
+.categorySelect:focus {
+  outline: none;
+  border-color: var(--secondary);
+  box-shadow: 0 0 4px var(--shadow);
+}
+
+.categorySelect:disabled {
+  background: rgba(233, 236, 239, 0.1);
+  border-color: rgba(226, 232, 240, 0.2);
+}
+
+.categoryInput {
+  flex: 1;
+  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) 2rem;
   font-size: var(--font-size-base);
   border: 1px solid rgba(209, 213, 219, 0.3);
   border-radius: var(--radius-sm);
@@ -308,14 +342,17 @@
   .categoryHeader,
   .workControls,
   .field,
-  .miscFeeRow {
+  .miscFeeRow,
+  .categoryInputWrapper {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-sm);
   }
 
   .field label,
-  .miscFeeRow input {
+  .miscFeeRow input,
+  .categorySelect,
+  .categoryInput {
     flex: none;
     width: 100%;
   }
@@ -323,7 +360,9 @@
   .field input,
   .field select,
   .workInput,
-  .miscFeeRow input {
+  .miscFeeRow input,
+  .categorySelect,
+  .categoryInput {
     max-width: none;
     width: 100%;
   }

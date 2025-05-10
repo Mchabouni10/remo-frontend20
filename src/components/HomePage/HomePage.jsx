@@ -1,3 +1,5 @@
+//src/components/HomePage/HomePage.jsx
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

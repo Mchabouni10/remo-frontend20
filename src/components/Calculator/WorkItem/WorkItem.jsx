@@ -18,6 +18,38 @@ export default function WorkItem({
     !Array.from({ length: 21 }, (_, i) => i.toString()).includes((parseFloat(workItem.laborCost) || 0).toString())
   );
 
+  // Normalize category name to match WORK_TYPES keys (e.g., "Kitchen" → "kitchen")
+  const categoryKey = workItem.category
+    ? workItem.category
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '') // Remove spaces and special characters
+    : '';
+
+  // Validate WORK_TYPES
+  if (!WORK_TYPES || Object.keys(WORK_TYPES).length === 0) {
+    console.error('WORK_TYPES is empty or not loaded. Check import path or data structure.');
+  } else {
+    console.debug('WORK_TYPES keys:', Object.keys(WORK_TYPES));
+  }
+
+  // Populate available types, empty if categoryKey is invalid or undefined
+  const availableTypes = categoryKey && categoryKey in WORK_TYPES
+    ? [
+        ...WORK_TYPES[categoryKey].surfaceBased,
+        ...WORK_TYPES[categoryKey].linearFtBased,
+        ...WORK_TYPES[categoryKey].unitBased,
+      ]
+    : [];
+
+  // Log warning for debugging if categoryKey is invalid or undefined
+  if (!workItem.category || !categoryKey || !(categoryKey in WORK_TYPES)) {
+    console.warn(
+      `Invalid or missing category for workItem: category="${workItem.category}", categoryKey="${categoryKey}", catIndex=${catIndex}, workIndex=${workIndex}, workItem=`,
+      workItem
+    );
+  }
+
   const updateWorkItem = useCallback(
     (field, value) => {
       if (disabled) return;
@@ -32,13 +64,17 @@ export default function WorkItem({
         } else if (field === 'type') {
           item[field] = value;
           item.subtype = DEFAULT_SUBTYPES[value] || '';
-          item.surfaces = Object.values(WORK_TYPES).some(cat => cat.surfaceBased.includes(value))
+          item.surfaces = (categoryKey in WORK_TYPES && WORK_TYPES[categoryKey]?.surfaceBased.includes(value))
             ? item.surfaces?.length > 0
               ? item.surfaces
               : [{ width: '10', height: '10', sqft: 100, manualSqft: false }]
             : [];
-          item.linearFt = Object.values(WORK_TYPES).some(cat => cat.linearFtBased.includes(value)) ? item.linearFt || '10' : '';
-          item.units = Object.values(WORK_TYPES).some(cat => cat.unitBased.includes(value)) ? item.units || '1' : '';
+          item.linearFt = (categoryKey in WORK_TYPES && WORK_TYPES[categoryKey]?.linearFtBased.includes(value))
+            ? item.linearFt || '10'
+            : '';
+          item.units = (categoryKey in WORK_TYPES && WORK_TYPES[categoryKey]?.unitBased.includes(value))
+            ? item.units || '1'
+            : '';
           item.materialCost = item.materialCost ?? '0.00';
           item.laborCost = item.laborCost ?? '0.00';
         } else {
@@ -51,7 +87,7 @@ export default function WorkItem({
         return newCategories;
       });
     },
-    [disabled, catIndex, workIndex, setCategories]
+    [disabled, catIndex, workIndex, setCategories, categoryKey]
   );
 
   const removeWorkItem = useCallback(() => {
@@ -79,9 +115,9 @@ export default function WorkItem({
     });
   }, [disabled, catIndex, workIndex, setCategories]);
 
-  const isSurfaceBased = Object.values(WORK_TYPES).some(cat => cat.surfaceBased.includes(workItem.type));
-  const isLinearFtBased = Object.values(WORK_TYPES).some(cat => cat.linearFtBased.includes(workItem.type));
-  const isUnitBased = Object.values(WORK_TYPES).some(cat => cat.unitBased.includes(workItem.type));
+  const isSurfaceBased = (categoryKey in WORK_TYPES && WORK_TYPES[categoryKey]?.surfaceBased.includes(workItem.type)) || false;
+  const isLinearFtBased = (categoryKey in WORK_TYPES && WORK_TYPES[categoryKey]?.linearFtBased.includes(workItem.type)) || false;
+  const isUnitBased = (categoryKey in WORK_TYPES && WORK_TYPES[categoryKey]?.unitBased.includes(workItem.type)) || false;
   const materialCost = parseFloat(workItem.materialCost) || 0;
   const laborCost = parseFloat(workItem.laborCost) || 0;
   const costOptions = Array.from({ length: 21 }, (_, i) => i.toString()).concat('Custom');
@@ -135,27 +171,22 @@ export default function WorkItem({
             value={workItem.type || ''}
             onChange={(e) => updateWorkItem('type', e.target.value)}
             className={styles.select}
-            disabled={disabled}
+            disabled={disabled || !workItem.category || !categoryKey || !(categoryKey in WORK_TYPES)}
           >
-            <option value="">Select Type</option>
-            {Object.entries(WORK_TYPES).map(([category, types]) => (
-              <optgroup
-                key={category}
-                label={category.charAt(0).toUpperCase() + category.slice(1)}
-              >
-                {[
-                  ...types.surfaceBased,
-                  ...types.linearFtBased,
-                  ...types.unitBased,
-                ].map((type) => (
-                  <option key={type} value={type}>
-                    {type
-                      .replace(/-/g, ' ')
-                      .replace(category, category.toUpperCase())
-                      .replace(/\b\w/g, (c) => c.toUpperCase())}
-                  </option>
-                ))}
-              </optgroup>
+            <option value="">
+              {workItem.category && categoryKey && categoryKey in WORK_TYPES
+                ? 'Select Type'
+                : workItem.category
+                ? 'Invalid Category'
+                : 'Select a Category'}
+            </option>
+            {availableTypes.map((type) => (
+              <option key={type} value={type}>
+                {type
+                  .replace(/-/g, ' ')
+                  .replace(categoryKey, categoryKey.charAt(0).toUpperCase() + categoryKey.slice(1))
+                  .replace(/\b\w/g, (c) => c.toUpperCase())}
+              </option>
             ))}
           </select>
         </div>
@@ -323,7 +354,7 @@ export default function WorkItem({
             className={styles.removeButton}
             title="Remove Work Item"
           >
-            <i className="fas fa-trash-alt"></i> 
+            <i className="fas fa-trash-alt"></i>
           </button>
         )}
       </div>

@@ -8,8 +8,8 @@ import CustomersListCards from './CustomersListCards';
 import styles from './CustomersList.module.css';
 
 export default function CustomersList() {
-  const [viewMode, setViewMode] = useState('table'); // 'table' or 'cards'
-  const customerData = useCustomers({ viewMode }); // Pass viewMode to useCustomers
+  const [viewMode, setViewMode] = useState('table');
+  const customerData = useCustomers({ viewMode });
 
   return (
     <main className={styles.mainContent}>
@@ -29,7 +29,10 @@ export default function CustomersList() {
           </button>
         </div>
         {viewMode === 'table' ? (
-          <CustomersListTable {...customerData} />
+          <CustomersListTable
+            {...customerData}
+            setIsLoading={customerData.setIsLoading}
+          />
         ) : (
           <CustomersListCards {...customerData} />
         )}

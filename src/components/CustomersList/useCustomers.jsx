@@ -1,3 +1,5 @@
+//src/components/CustomersList/useCustomers.jsx
+
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getProjects, deleteProject } from '../../services/projectService';
@@ -8,7 +10,7 @@ const DUE_SOON_DAYS = 7;
 const OVERDUE_THRESHOLD = -1;
 const ITEMS_PER_PAGE = 10;
 
-export const useCustomers = () => {
+export const useCustomers = ({ viewMode = 'table' } = {}) => {
   const [projects, setProjects] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
@@ -18,6 +20,7 @@ export const useCustomers = () => {
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(true);
+  const [statusFilter, setStatusFilter] = useState('');
   const navigate = useNavigate();
 
   const projectTotals = useCallback((project) => {
@@ -106,6 +109,9 @@ export const useCustomers = () => {
             c.status.toLowerCase().includes(queryLower)
         );
       }
+      if (statusFilter) {
+        customers = customers.filter((c) => c.status === statusFilter);
+      }
 
       if (sortConfig.key) {
         customers.sort((a, b) => {
@@ -121,7 +127,7 @@ export const useCustomers = () => {
 
       return customers;
     },
-    [debouncedSearchQuery, sortConfig, projectTotals, determineStatus]
+    [debouncedSearchQuery, sortConfig, projectTotals, determineStatus, statusFilter]
   );
 
   const refreshProjects = useCallback(async () => {
@@ -287,7 +293,7 @@ export const useCustomers = () => {
     link.href = URL.createObjectURL(blob);
     link.download = `customers_${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
-  }, [filteredCustomers]); // Removed formatPhoneNumber, formatDate from dependencies
+  }, [filteredCustomers]);
 
   return {
     projects,
@@ -299,6 +305,7 @@ export const useCustomers = () => {
     currentPage,
     setCurrentPage,
     isLoading,
+    setIsLoading,
     error,
     lastUpdated,
     totals,
@@ -316,5 +323,7 @@ export const useCustomers = () => {
     formatDate,
     navigate,
     refreshProjects,
+    statusFilter,
+    setStatusFilter,
   };
 };

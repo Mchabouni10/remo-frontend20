@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Remo App</string>
-    <string name="title_activity_main">Remo App</string>
-    <string name="package_name">com.RawdahRemodeling.RawdahRemodeling</string>
-    <string name="custom_url_scheme">com.RawdahRemodeling.RawdahRemodeling</string>
+    <string name="app_name">Your App Name</string>
+    <string name="title_activity_main">Your App Name</string>
+    <string name="package_name">com.example.app</string>
+    <string name="custom_url_scheme">com.example.app</string>
 </resources>

@@ -1,8 +1,11 @@
+//src/components/Calculator/Category/CategoryList.jsx
+
 import React, { useState, useMemo } from 'react';
 import styles from './CategoryList.module.css';
 import WorkItem from '../WorkItem/WorkItem';
 import PaymentTracking from '../PaymentTracking/PaymentTracking';
 import { calculateTotal } from '../calculations/costCalculations';
+import { WORK_TYPES } from '../data/workTypes';
 
 export default function CategoryList({
   categories = [],
@@ -16,6 +19,13 @@ export default function CategoryList({
   const [useManualMarkup, setUseManualMarkup] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState(new Set());
   const [expandedSections, setExpandedSections] = useState(new Set(['categories']));
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [customCategory, setCustomCategory] = useState('');
+
+  const categoryOptions = Object.keys(WORK_TYPES).map((key) => ({
+    value: key,
+    label: key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1').trim(),
+  }));
 
   const totals = useMemo(
     () =>
@@ -34,7 +44,6 @@ export default function CategoryList({
     return (settings.payments || []).reduce((sum, payment) => sum + (payment.isPaid ? payment.amount : 0), 0) + (settings.deposit || 0);
   }, [settings.payments, settings.deposit]);
 
-  // Use grandTotal directly, not adjusted
   const grandTotal = totals.total;
   const overpayment = totalPaid > grandTotal ? totalPaid - grandTotal : 0;
 
@@ -63,8 +72,14 @@ export default function CategoryList({
 
   const addWorkItem = (catIndex) => {
     if (disabled || !newWorkName.trim()) return;
+    const categoryName = categories[catIndex]?.name;
+    if (!categoryName) {
+      console.error(`Cannot add work item: category name is undefined at catIndex=${catIndex}`);
+      return;
+    }
     const newWorkItem = {
       name: newWorkName.trim(),
+      category: categoryName, // Set category to match the category name (e.g., 'Kitchen')
       type: '',
       subtype: '',
       surfaces: [],
@@ -129,6 +144,24 @@ export default function CategoryList({
     }));
   };
 
+  const addCategory = () => {
+    if (disabled) return;
+    let categoryName = '';
+    if (selectedCategory === 'custom' && customCategory.trim()) {
+      categoryName = customCategory.trim();
+    } else if (selectedCategory && selectedCategory !== 'custom') {
+      categoryName = categoryOptions.find((opt) => opt.value === selectedCategory)?.label || selectedCategory;
+    }
+    if (!categoryName) return;
+
+    setCategories((prev) => [
+      ...prev,
+      { name: categoryName, workItems: [] },
+    ]);
+    setSelectedCategory('');
+    setCustomCategory('');
+  };
+
   return (
     <div className={styles.container}>
       {/* Categories Section */}
@@ -151,6 +184,43 @@ export default function CategoryList({
         </div>
         {expandedSections.has('categories') && (
           <div className={styles.categories}>
+            {!disabled && (
+              <div className={styles.categoryInputWrapper}>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className={styles.categorySelect}
+                >
+                  <option value="">Select Category</option>
+                  {categoryOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                  <option value="custom">Custom</option>
+                </select>
+                {selectedCategory === 'custom' && (
+                  <div className={styles.inputWrapper}>
+                    <i className={`fas fa-tag ${styles.inputIcon}`}></i>
+                    <input
+                      type="text"
+                      value={customCategory}
+                      onChange={(e) => setCustomCategory(e.target.value)}
+                      placeholder="Enter custom category"
+                      className={styles.categoryInput}
+                    />
+                  </div>
+                )}
+                <button
+                  onClick={addCategory}
+                  className={styles.addButton}
+                  disabled={!selectedCategory || (selectedCategory === 'custom' && !customCategory.trim())}
+                  title="Add Category"
+                >
+                  <i className="fas fa-plus"></i> Add Category
+                </button>
+              </div>
+            )}
             {categories.map((cat, catIndex) => (
               <div key={catIndex} className={styles.category}>
                 <div className={styles.categoryHeader}>
@@ -194,7 +264,6 @@ export default function CategoryList({
                           workIndex={workIndex}
                           workItem={item}
                           setCategories={setCategories}
-                          removeWorkItem={() => removeWorkItem(catIndex, workIndex)}
                           disabled={disabled}
                         />
                       ))}

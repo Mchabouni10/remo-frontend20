@@ -1,4 +1,4 @@
-package com.RawdahRemodeling.RawdahRemodeling;
+package com.example.app;
 
 import com.getcapacitor.BridgeActivity;
 
