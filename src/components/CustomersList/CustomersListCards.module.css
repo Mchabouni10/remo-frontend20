@@ -182,15 +182,16 @@
 }
 
 .progressContainer {
-  display: inline;
+  display: flex;
   align-items: center;
   gap: var(--spacing-sm);
   margin: var(--spacing-sm) 0;
+  width: 100%;
 }
 
 .progressBar {
   position: relative;
-  width: 370px;
+  width: 100%;
   height: 14px;
   background: linear-gradient(135deg, rgba(44, 62, 80, 0.1) 0%, rgba(44, 62, 80, 0.05) 100%);
   border-radius: 10px;
@@ -426,7 +427,7 @@
   font-size: var(--font-size-sm);
 }
 
-.notificationItem.warning F {
+.notificationItem.warning {
   background: rgba(241, 196, 15, 0.15);
   color: #d97706;
 }
@@ -530,7 +531,7 @@
     font-size: var(--font-size-md);
   }
   .progressBar {
-    width: 80px;
+    width: 100%;
     height: 10px;
   }
   .progressText {
