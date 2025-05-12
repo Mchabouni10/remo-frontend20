@@ -101,6 +101,17 @@
   border-top: 0.5px solid var(--primary);
 }
 
+.discountRow td {
+  font-weight: var(--font-weight-medium);
+  color: var(--error); /* Red color for labor discount */
+  background: rgba(255, 0, 0, 0.05); /* Light red background for emphasis */
+  transition: background-color 0.3s ease;
+}
+
+.discountRow:hover td {
+  background: rgba(255, 0, 0, 0.1);
+}
+
 .grandTotalRow td {
   font-weight: var(--font-weight-extrabold);
   font-size: var(--font-size-base);
@@ -237,12 +248,15 @@
     font-size: var(--font-size-sm);
   }
 
+  .discountRow td {
+    font-size: 0.7rem;
+  }
+
   .toggleButton {
     font-size: 0.65rem;
     padding: var(--spacing-sm) var(--spacing-sm);
   }
 }
-
 
 .paymentSection h5 {
   font-size: var(--font-size-md);

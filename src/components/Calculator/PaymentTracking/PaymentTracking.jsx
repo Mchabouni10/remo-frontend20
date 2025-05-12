@@ -1,3 +1,5 @@
+//src/components/Calculator/PaymentTracking/PaymentTracking.jsx
+
 import React, { useState, useMemo } from 'react';
 import styles from './PaymentTracking.module.css';
 import { calculateTotal } from '../calculations/costCalculations';
@@ -12,7 +14,7 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
   });
   const [editingIndex, setEditingIndex] = useState(null);
   const [editedPayment, setEditedPayment] = useState(null);
-  const [expandedSections, setExpandedSections] = useState(new Set(['paymentTracking', 'paymentEntries'])); // Default: "Payment Tracking" and "Payment Entries" expanded
+  const [expandedSections, setExpandedSections] = useState(new Set(['paymentTracking', 'paymentEntries']));
 
   const grandTotal = useMemo(() => {
     return calculateTotal(
@@ -21,7 +23,8 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
       settings.transportationFee || 0,
       settings.wasteFactor || 0,
       settings.miscFees || [],
-      settings.markup || 0
+      settings.markup || 0,
+      settings.laborDiscount || 0
     ).total;
   }, [categories, settings]);
 

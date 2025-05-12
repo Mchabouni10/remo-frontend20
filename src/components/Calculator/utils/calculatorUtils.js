@@ -1,3 +1,5 @@
+//src/components/Calculator/utils/calculatorUtils.js
+
 import { WORK_TYPES } from '../data/workTypes';
 
 // Helper function to get all work types as a flat array

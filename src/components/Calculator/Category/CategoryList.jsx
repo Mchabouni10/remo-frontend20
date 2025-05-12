@@ -17,6 +17,7 @@ export default function CategoryList({
 }) {
   const [newWorkName, setNewWorkName] = useState('');
   const [useManualMarkup, setUseManualMarkup] = useState(false);
+  const [useManualLaborDiscount, setUseManualLaborDiscount] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState(new Set());
   const [expandedSections, setExpandedSections] = useState(new Set(['categories']));
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -35,7 +36,8 @@ export default function CategoryList({
         settings.transportationFee || 0,
         settings.wasteFactor || 0,
         settings.miscFees || [],
-        settings.markup || 0
+        settings.markup || 0,
+        settings.laborDiscount || 0
       ),
     [settings, categories]
   );
@@ -393,6 +395,44 @@ export default function CategoryList({
                 </label>
               )}
             </div>
+            <div className={styles.field}>
+              <label>
+                <i className="fas fa-cut"></i> Labor Discount (%):
+              </label>
+              {useManualLaborDiscount ? (
+                <input
+                  type="number"
+                  value={settings.laborDiscount * 100 || 0}
+                  onChange={(e) => handleSettingsChange('laborDiscount', e.target.value / 100)}
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  disabled={disabled}
+                />
+              ) : (
+                <select
+                  value={settings.laborDiscount * 100 || 0}
+                  onChange={(e) => handleSettingsChange('laborDiscount', e.target.value / 100)}
+                  disabled={disabled}
+                >
+                  {Array.from({ length: 31 }, (_, i) => i).map((val) => (
+                    <option key={val} value={val}>
+                      {val}%
+                    </option>
+                  ))}
+                </select>
+              )}
+              {!disabled && (
+                <label className={styles.checkbox}>
+                  <input
+                    type="checkbox"
+                    checked={useManualLaborDiscount}
+                    onChange={() => setUseManualLaborDiscount(!useManualLaborDiscount)}
+                  />
+                  <i className="fas fa-edit"></i> Manual
+                </label>
+              )}
+            </div>
             <div className={styles.miscFees}>
               <label>
                 <i className="fas fa-money-bill-wave"></i> Miscellaneous Fees:
@@ -450,6 +490,17 @@ export default function CategoryList({
 
       {/* Summary Section */}
       <div className={styles.totals}>
+        <p><strong>Material Cost:</strong> ${totals.materialCost.toFixed(2)}</p>
+        <p><strong>Labor Cost (after discount):</strong> ${totals.laborCost.toFixed(2)}</p>
+        {totals.laborDiscount > 0 && (
+          <p><strong>Labor Discount:</strong> -${totals.laborDiscount.toFixed(2)}</p>
+        )}
+        <p><strong>Waste Cost:</strong> ${totals.wasteCost.toFixed(2)}</p>
+        <p><strong>Transportation Fee:</strong> ${totals.transportationFee.toFixed(2)}</p>
+        <p><strong>Tax:</strong> ${totals.tax.toFixed(2)}</p>
+        <p><strong>Markup:</strong> ${totals.markupCost.toFixed(2)}</p>
+        <p><strong>Miscellaneous Fees:</strong> ${(settings.miscFees || []).reduce((sum, fee) => sum + (parseFloat(fee.amount) || 0), 0).toFixed(2)}</p>
+        <p><strong>Grand Total:</strong> ${totals.total.toFixed(2)}</p>
         {overpayment > 0 && (
           <div className={styles.overpaymentNotice}>
             <i className="fas fa-exclamation-circle"></i>

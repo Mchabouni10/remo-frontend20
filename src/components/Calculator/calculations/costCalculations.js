@@ -1,3 +1,5 @@
+//src/components/calculator/calculations/costCalculations.js
+
 import { getUnits } from '../utils/calculatorUtils';
 
 // Calculate cost for a single work item
@@ -9,7 +11,7 @@ export function calculateWorkCost(item) {
 }
 
 // Calculate total cost for all categories
-export function calculateTotal(categories = [], taxRate = 0, transportationFee = 0, wasteFactor = 0, miscFees = [], markup = 0) {
+export function calculateTotal(categories = [], taxRate = 0, transportationFee = 0, wasteFactor = 0, miscFees = [], markup = 0, laborDiscount = 0) {
   let materialCost = 0;
   let laborCost = 0;
 
@@ -21,7 +23,10 @@ export function calculateTotal(categories = [], taxRate = 0, transportationFee =
     });
   });
 
-  const subtotal = materialCost + laborCost;
+  // Apply labor discount
+  const discountedLaborCost = laborCost * (1 - (laborDiscount || 0));
+
+  const subtotal = materialCost + discountedLaborCost;
   const wasteCost = subtotal * (wasteFactor || 0);
   const transportationFeeTotal = parseFloat(transportationFee) || 0;
   const tax = subtotal * (taxRate || 0);
@@ -30,11 +35,12 @@ export function calculateTotal(categories = [], taxRate = 0, transportationFee =
 
   return {
     materialCost,
-    laborCost,
+    laborCost: discountedLaborCost, // Reflect discounted labor cost
     wasteCost,
     transportationFee: transportationFeeTotal,
     tax,
     markupCost,
+    laborDiscount: laborCost - discountedLaborCost, // Amount discounted
     total: subtotal + wasteCost + transportationFeeTotal + tax + miscTotal + markupCost,
   };
 }

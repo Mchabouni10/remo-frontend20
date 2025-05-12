@@ -68,7 +68,6 @@
   color: var(--primary);
 }
 
-/* Rest of your CSS remains the same... */
 .customerInfo {
   margin-top: var(--spacing-sm);
 }
@@ -148,6 +147,12 @@
 .totalRow td {
   font-weight: var(--font-weight-bold);
   background: #f0f0f0;
+}
+
+.discountRow td {
+  font-weight: var(--font-weight-medium);
+  color: #ff0000; /* Red color for labor discount */
+  background: rgba(255, 0, 0, 0.05); /* Light red background */
 }
 
 .grandTotalRow td,
@@ -282,6 +287,11 @@
   .signatureLine span,
   .footer {
     color: #000 !important;
+  }
+
+  .discountRow td {
+    color: #000 !important; /* Black text for printing */
+    background: #fff !important;
   }
 
   .workTable th,

@@ -1,3 +1,5 @@
+//src/components/Calculator/utils/helpers.js
+
 import { calculateTotal } from '../calculations/costCalculations';
 export const projectTotals = (project) => {
     const totals = calculateTotal(

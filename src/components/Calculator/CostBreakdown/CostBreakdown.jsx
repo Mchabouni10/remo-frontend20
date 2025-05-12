@@ -80,7 +80,8 @@ export default function CostBreakdown({ categories, settings }) {
       settings?.transportationFee || 0,
       settings?.wasteFactor || 0,
       settings?.miscFees || [],
-      settings?.markup || 0
+      settings?.markup || 0,
+      settings?.laborDiscount || 0
     );
   }, [categories, settings]);
 
@@ -95,7 +96,8 @@ export default function CostBreakdown({ categories, settings }) {
 
   // Detailed total calculations
   const baseMaterialCost = totals.materialCost || 0;
-  const baseLaborCost = totals.laborCost || 0;
+  const baseLaborCost = totals.laborCost || 0; // Post-discount labor cost
+  const laborDiscount = totals.laborDiscount || 0; // Dollar amount of labor discount
   const baseSubtotal = baseMaterialCost + baseLaborCost;
   const wasteCost = baseSubtotal * (settings?.wasteFactor || 0);
   const taxAmount = baseSubtotal * (settings?.taxRate || 0);
@@ -104,7 +106,7 @@ export default function CostBreakdown({ categories, settings }) {
   const transportationFee = totals.transportationFee || 0;
   const grandTotal = baseSubtotal + wasteCost + taxAmount + markupAmount + miscFeesTotal + transportationFee;
   const deposit = settings?.deposit || 0;
-  
+
   const remainingBalance = Math.max(0, grandTotal - totalPaid);
   const overpayment = totalPaid > grandTotal ? totalPaid - grandTotal : 0;
 
@@ -197,7 +199,7 @@ export default function CostBreakdown({ categories, settings }) {
             </tr>
             <tr className={styles.detailRow}>
               <td>
-                Base Labor Cost
+                Base Labor Cost (after discount)
                 <button
                   className={styles.toggleButton}
                   onClick={() => setShowLaborDetails(!showLaborDetails)}
@@ -234,6 +236,12 @@ export default function CostBreakdown({ categories, settings }) {
                 )}
               </td>
             </tr>
+            {laborDiscount > 0 && (
+              <tr className={styles.discountRow}>
+                <td>Labor Discount ({((settings?.laborDiscount || 0) * 100).toFixed(1)}%)</td>
+                <td>-{formatCurrency(laborDiscount)}</td>
+              </tr>
+            )}
             <tr className={styles.subtotalRow}>
               <td>Base Subtotal</td>
               <td>{formatCurrency(baseSubtotal)}</td>

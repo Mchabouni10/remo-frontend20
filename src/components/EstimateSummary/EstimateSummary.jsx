@@ -63,6 +63,7 @@ export default function EstimateSummary() {
           deposit: 0,
           payments: [],
           markup: 0,
+          laborDiscount: 0,
         });
       } catch (err) {
         console.error('Error loading project:', err);
@@ -154,12 +155,10 @@ export default function EstimateSummary() {
 
     setIsSendingEmail(true);
     try {
-      // Generate and download the PDF
       const pdf = await generatePDF();
       const pdfName = `Estimate_${customer.projectName || 'Summary'}_${new Date().toISOString().split('T')[0]}.pdf`;
       pdf.save(pdfName);
 
-      // Open Gmail compose window
       const subject = encodeURIComponent('Project Estimate');
       const gmailUrl = `https://mail.google.com/mail/u/0/?view=cm&fs=1&to=${encodeURIComponent(customer.email)}&su=${subject}`;
       window.open(gmailUrl, '_blank');
@@ -173,7 +172,6 @@ export default function EstimateSummary() {
     }
   };
 
-  // Memoized totals
   const totals = useMemo(() =>
     calculateTotal(
       categories,
@@ -181,7 +179,8 @@ export default function EstimateSummary() {
       settings?.transportationFee || 0,
       settings?.wasteFactor || 0,
       settings?.miscFees || [],
-      settings?.markup || 0
+      settings?.markup || 0,
+      settings?.laborDiscount || 0
     ),
     [categories, settings]
   );
@@ -204,7 +203,6 @@ export default function EstimateSummary() {
   const remainingBalance = Math.max(0, adjustedGrandTotal - paymentDetails.totalPaid);
   const overpayment = paymentDetails.totalPaid > adjustedGrandTotal ? paymentDetails.totalPaid - adjustedGrandTotal : 0;
 
-  // Currency and date formatters
   const formatCurrency = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
   const formatDate = (dateStr) => dateStr ? new Date(dateStr).toLocaleDateString() : 'N/A';
 
@@ -308,6 +306,14 @@ export default function EstimateSummary() {
             <h4>Cost Calculation</h4>
             <table className={styles.totalTable} aria-label="Cost Calculation">
               <tbody>
+                <tr><td>Base Material Cost</td><td>{formatCurrency(totals.materialCost)}</td></tr>
+                <tr><td>Base Labor Cost (after discount)</td><td>{formatCurrency(totals.laborCost)}</td></tr>
+                {totals.laborDiscount > 0 && (
+                  <tr className={styles.discountRow}>
+                    <td>Labor Discount ({((settings?.laborDiscount || 0) * 100).toFixed(1)}%)</td>
+                    <td>-{formatCurrency(totals.laborDiscount)}</td>
+                  </tr>
+                )}
                 <tr><td>Base Subtotal</td><td>{formatCurrency(baseSubtotal)}</td></tr>
                 <tr><td>Waste ({(settings?.wasteFactor * 100 || 0).toFixed(1)}%)</td><td>{formatCurrency(totals.wasteCost)}</td></tr>
                 <tr><td>Tax ({(settings?.taxRate * 100 || 0).toFixed(1)}%)</td><td>{formatCurrency(totals.tax)}</td></tr>
