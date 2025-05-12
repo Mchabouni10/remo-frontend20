@@ -184,6 +184,24 @@
   box-shadow: none;
 }
 
+.workLabel {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: #ff0000; /* Red color for visibility */
+  margin-bottom: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.workLabel::before {
+  content: '\f0ae'; /* FontAwesome tasks icon */
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  font-size: var(--font-size-sm);
+  color: #ff0000;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .workCard {
@@ -226,5 +244,10 @@
     width: 100%;
     padding: var(--spacing-sm);
     justify-content: center;
+  }
+
+  .workLabel {
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-sm);
   }
 }

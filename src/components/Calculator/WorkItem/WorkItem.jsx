@@ -1,8 +1,14 @@
-// src/components/WorkItem/WorkItem.js
+// src/components/Calculator/WorkItem/WorkItem.jsx
 import React, { useCallback, useState } from 'react';
 import SurfaceInput from '../SurfaceInput/SurfaceInput';
-import { WORK_TYPES, SUBTYPE_OPTIONS, DEFAULT_SUBTYPES } from '../data/workTypes';
+import { WORK_TYPES as WORK_TYPES1, SUBTYPE_OPTIONS as SUBTYPE_OPTIONS1, DEFAULT_SUBTYPES as DEFAULT_SUBTYPES1 } from '../data/workTypes';
+import { WORK_TYPES as WORK_TYPES2, SUBTYPE_OPTIONS as SUBTYPE_OPTIONS2, DEFAULT_SUBTYPES as DEFAULT_SUBTYPES2 } from '../data/workTypes2';
 import styles from './WorkItem.module.css';
+
+// Merge WORK_TYPES, SUBTYPE_OPTIONS, and DEFAULT_SUBTYPES from both files
+const WORK_TYPES = { ...WORK_TYPES1, ...WORK_TYPES2 };
+const SUBTYPE_OPTIONS = { ...SUBTYPE_OPTIONS1, ...SUBTYPE_OPTIONS2 };
+const DEFAULT_SUBTYPES = { ...DEFAULT_SUBTYPES1, ...DEFAULT_SUBTYPES2 };
 
 export default function WorkItem({
   catIndex,
@@ -18,7 +24,7 @@ export default function WorkItem({
     !Array.from({ length: 21 }, (_, i) => i.toString()).includes((parseFloat(workItem.laborCost) || 0).toString())
   );
 
-  // Normalize category name to match WORK_TYPES keys (e.g., "Kitchen" → "kitchen")
+  // Normalize category name to match WORK_TYPES keys (e.g., "Electrical" → "electrical")
   const categoryKey = workItem.category
     ? workItem.category
         .trim()
@@ -153,6 +159,7 @@ export default function WorkItem({
 
   return (
     <div className={styles.workCard}>
+      <div className={styles.workLabel}>Work {workIndex + 1}</div>
       <div className={styles.workItemRow}>
         <div className={styles.inputWrapper}>
           <i className={`fas fa-tools ${styles.inputIcon}`}></i>

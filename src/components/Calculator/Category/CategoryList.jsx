@@ -5,7 +5,11 @@ import styles from './CategoryList.module.css';
 import WorkItem from '../WorkItem/WorkItem';
 import PaymentTracking from '../PaymentTracking/PaymentTracking';
 import { calculateTotal } from '../calculations/costCalculations';
-import { WORK_TYPES } from '../data/workTypes';
+import { WORK_TYPES as WORK_TYPES1 } from '../data/workTypes';
+import { WORK_TYPES as WORK_TYPES2 } from '../data/workTypes2';
+
+// Merge WORK_TYPES from both files
+const WORK_TYPES = { ...WORK_TYPES1, ...WORK_TYPES2 };
 
 export default function CategoryList({
   categories = [],
@@ -81,7 +85,7 @@ export default function CategoryList({
     }
     const newWorkItem = {
       name: newWorkName.trim(),
-      category: categoryName, // Set category to match the category name (e.g., 'Kitchen')
+      category: categoryName,
       type: '',
       subtype: '',
       surfaces: [],
@@ -278,7 +282,7 @@ export default function CategoryList({
                             type="text"
                             value={newWorkName}
                             onChange={(e) => setNewWorkName(e.target.value)}
-                            placeholder="e.g., Kitchen Floor"
+                            placeholder="e.g., Outlet Installation"
                             className={styles.workInput}
                           />
                         </div>
