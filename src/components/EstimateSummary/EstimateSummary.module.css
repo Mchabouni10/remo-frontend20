@@ -20,12 +20,13 @@
 }
 
 .summary {
-  padding: 10mm;
+  padding: 15mm; /* Increased for A4 margins */
   font-family: Arial, sans-serif;
   font-size: 9px;
   line-height: 1.4;
   width: 100%;
   background: #ffffff; /* Ensure white background for capture */
+  box-sizing: border-box;
 }
 
 .header {
@@ -85,6 +86,18 @@
   color: var(--text);
 }
 
+.section {
+  margin-bottom: 10mm;
+  page-break-inside: avoid;
+}
+
+.sectionTitle {
+  font-size: 10px;
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-sm);
+  color: var(--primary);
+}
+
 .categorySection,
 .totalSection,
 .signatureSection,
@@ -114,7 +127,8 @@
 }
 
 .workTable,
-.totalTable {
+.totalTable,
+.breakdownTable {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: var(--spacing-sm);
@@ -123,20 +137,28 @@
 
 .workTable th,
 .workTable td,
-.totalTable td {
+.totalTable td,
+.breakdownTable th,
+.breakdownTable td {
   border: 0.5px solid #ccc;
   padding: 3px 4px;
   text-align: left;
   color: var(--text);
 }
 
-.workTable th {
+.workTable th,
+.breakdownTable th {
   background: #f0f0f0;
   font-weight: var(--font-weight-bold);
 }
 
-.totalTable td:last-child {
+.totalTable td:last-child,
+.breakdownTable td:last-child {
   text-align: right;
+}
+
+.categoryRow {
+  background-color: #fafafa;
 }
 
 .categoryTotalRow td {
@@ -149,6 +171,11 @@
   background: #f0f0f0;
 }
 
+.subtotalRow td {
+  font-weight: var(--font-weight-bold);
+  background: #e8e8e8;
+}
+
 .discountRow td {
   font-weight: var(--font-weight-medium);
   color: #ff0000; /* Red color for labor discount */
@@ -159,6 +186,7 @@
 .remainingRow td {
   font-weight: var(--font-weight-bold);
   border-top: 1px solid #000;
+  background: #fff;
 }
 
 .notesSection p {
@@ -245,7 +273,7 @@
   }
 
   .summary {
-    padding: 10mm; /* Keep padding for content spacing */
+    padding: 15mm; /* Consistent with A4 margins */
     background: #fff !important;
   }
 
@@ -265,10 +293,16 @@
     display: none !important;
   }
 
+  .section {
+    page-break-inside: avoid;
+    margin-bottom: 10mm;
+  }
+
   .title,
   .companyName,
   .totalTitle,
   .customerInfo h4,
+  .sectionTitle,
   .categorySection h4,
   .totalSection h4,
   .signatureSection h4,
@@ -282,6 +316,8 @@
   .workTable th,
   .workTable td,
   .totalTable td,
+  .breakdownTable th,
+  .breakdownTable td,
   .notesSection p,
   .signatureSection p,
   .signatureLine span,
@@ -295,12 +331,21 @@
   }
 
   .workTable th,
+  .breakdownTable th,
   .totalRow td {
     background: #f0f0f0 !important;
   }
 
+  .categoryRow {
+    background: #fafafa !important;
+  }
+
   .categoryTotalRow td {
     background: #f8f8f8 !important;
+  }
+
+  .subtotalRow td {
+    background: #e8e8e8 !important;
   }
 
   .grandTotalRow td,

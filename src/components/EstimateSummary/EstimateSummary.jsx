@@ -76,6 +76,123 @@ export default function EstimateSummary() {
     loadProject();
   }, [id, navigate]);
 
+  // Memoized calculations for category breakdowns
+  const categoryBreakdowns = useMemo(() => {
+    if (!categories || !Array.isArray(categories)) return [];
+    return categories.map((cat) => {
+      if (!cat.workItems || !Array.isArray(cat.workItems)) {
+        return { name: cat.name || 'Unnamed', materialCost: 0, laborCost: 0, subtotal: 0, itemCount: 0 };
+      }
+      const materialCost = cat.workItems.reduce((sum, item) => {
+        return sum + (parseFloat(item.materialCost) || 0) * getUnits(item);
+      }, 0);
+      const laborCost = cat.workItems.reduce((sum, item) => {
+        return sum + (parseFloat(item.laborCost) || 0) * getUnits(item);
+      }, 0);
+      return {
+        name: cat.name,
+        materialCost,
+        laborCost,
+        subtotal: materialCost + laborCost,
+        itemCount: cat.workItems.length,
+      };
+    });
+  }, [categories]);
+
+  // Memoized material breakdown
+  const materialBreakdown = useMemo(() => {
+    if (!categories || !Array.isArray(categories)) return [];
+    const breakdown = [];
+    categories.forEach((cat) => {
+      (cat.workItems || []).forEach((item) => {
+        const quantity = getUnits(item);
+        const unitType = getUnitLabel(item);
+        const materialCost = (parseFloat(item.materialCost) || 0) * quantity;
+        breakdown.push({
+          category: cat.name,
+          name: item.name || 'Unnamed Item',
+          type: item.type || '',
+          subtype: item.subtype || '',
+          quantity,
+          unitType,
+          costPerUnit: parseFloat(item.materialCost) || 0,
+          total: materialCost,
+        });
+      });
+    });
+    return breakdown;
+  }, [categories]);
+
+  // Memoized labor breakdown
+  const laborBreakdown = useMemo(() => {
+    if (!categories || !Array.isArray(categories)) return [];
+    const breakdown = [];
+    categories.forEach((cat) => {
+      (cat.workItems || []).forEach((item) => {
+        const quantity = getUnits(item);
+        const unitType = getUnitLabel(item);
+        const laborCost = (parseFloat(item.laborCost) || 0) * quantity;
+        breakdown.push({
+          category: cat.name,
+          name: item.name || 'Unnamed Item',
+          type: item.type || '',
+          subtype: item.subtype || '',
+          quantity,
+          unitType,
+          costPerUnit: parseFloat(item.laborCost) || 0,
+          total: laborCost,
+        });
+      });
+    });
+    return breakdown;
+  }, [categories]);
+
+  // Memoized totals
+  const totals = useMemo(() =>
+    calculateTotal(
+      categories,
+      settings?.taxRate || 0,
+      settings?.transportationFee || 0,
+      settings?.wasteFactor || 0,
+      settings?.miscFees || [],
+      settings?.markup || 0,
+      settings?.laborDiscount || 0
+    ),
+    [categories, settings]
+  );
+
+  // Memoized misc fees total
+  const miscFeesTotal = useMemo(() =>
+    (settings?.miscFees || []).reduce((sum, fee) => sum + (parseFloat(fee.amount) || 0), 0),
+    [settings?.miscFees]
+  );
+
+  // Memoized payment details
+  const paymentDetails = useMemo(() => {
+    const payments = settings?.payments || [];
+    const totalPaid = payments.reduce((sum, p) => sum + (p.isPaid ? parseFloat(p.amount) || 0 : 0), 0) + (settings?.deposit || 0);
+    const totalDue = payments.reduce((sum, p) => sum + (!p.isPaid ? parseFloat(p.amount) || 0 : 0), 0);
+    return { totalPaid, totalDue };
+  }, [settings?.payments, settings?.deposit]);
+
+  // Detailed total calculations
+  const baseMaterialCost = totals.materialCost || 0;
+  const baseLaborCost = totals.laborCost || 0; // Post-discount labor cost
+  const laborDiscount = totals.laborDiscount || 0; // Dollar amount of labor discount
+  const baseSubtotal = baseMaterialCost + baseLaborCost;
+  const wasteCost = baseSubtotal * (settings?.wasteFactor || 0);
+  const taxAmount = baseSubtotal * (settings?.taxRate || 0);
+  const markupAmount = baseSubtotal * (settings?.markup || 0);
+  const transportationFee = totals.transportationFee || 0;
+  const grandTotal = baseSubtotal + wasteCost + taxAmount + markupAmount + miscFeesTotal + transportationFee;
+  const adjustedGrandTotal = Math.max(0, grandTotal - (settings?.deposit || 0));
+  const remainingBalance = Math.max(0, adjustedGrandTotal - paymentDetails.totalPaid);
+  const overpayment = paymentDetails.totalPaid > adjustedGrandTotal ? paymentDetails.totalPaid - adjustedGrandTotal : 0;
+
+  // Formatters
+  const formatCurrency = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+  const formatDate = (dateStr) => dateStr ? new Date(dateStr).toLocaleDateString() : 'N/A';
+
   const generatePDF = async () => {
     if (!componentRef.current) throw new Error('Component not ready for PDF generation.');
 
@@ -83,7 +200,15 @@ export default function EstimateSummary() {
     element.style.display = 'block';
     element.style.visibility = 'visible';
     element.style.width = '595px'; // A4 width in pixels at 72 DPI
-    element.style.padding = '10mm';
+    element.style.padding = '15mm'; // Increased margin for better printing
+    element.style.boxSizing = 'border-box';
+
+    // Ensure content fits within A4 height with margins
+    const sections = element.querySelectorAll(`.${styles.section}`);
+    sections.forEach((section) => {
+      section.style.pageBreakInside = 'avoid';
+      section.style.marginBottom = '10mm';
+    });
 
     await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -172,40 +297,6 @@ export default function EstimateSummary() {
     }
   };
 
-  const totals = useMemo(() =>
-    calculateTotal(
-      categories,
-      settings?.taxRate || 0,
-      settings?.transportationFee || 0,
-      settings?.wasteFactor || 0,
-      settings?.miscFees || [],
-      settings?.markup || 0,
-      settings?.laborDiscount || 0
-    ),
-    [categories, settings]
-  );
-
-  const miscFeesTotal = useMemo(() =>
-    (settings?.miscFees || []).reduce((sum, fee) => sum + (parseFloat(fee.amount) || 0), 0),
-    [settings?.miscFees]
-  );
-
-  const paymentDetails = useMemo(() => {
-    const payments = settings?.payments || [];
-    const totalPaid = payments.reduce((sum, p) => sum + (p.isPaid ? parseFloat(p.amount) || 0 : 0), 0) + (settings?.deposit || 0);
-    const totalDue = payments.reduce((sum, p) => sum + (!p.isPaid ? parseFloat(p.amount) || 0 : 0), 0);
-    return { totalPaid, totalDue };
-  }, [settings?.payments, settings?.deposit]);
-
-  const baseSubtotal = totals.materialCost + totals.laborCost;
-  const grandTotal = baseSubtotal + totals.wasteCost + totals.tax + totals.markupCost + totals.transportationFee + miscFeesTotal;
-  const adjustedGrandTotal = Math.max(0, grandTotal - (settings?.deposit || 0));
-  const remainingBalance = Math.max(0, adjustedGrandTotal - paymentDetails.totalPaid);
-  const overpayment = paymentDetails.totalPaid > adjustedGrandTotal ? paymentDetails.totalPaid - adjustedGrandTotal : 0;
-
-  const formatCurrency = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
-  const formatDate = (dateStr) => dateStr ? new Date(dateStr).toLocaleDateString() : 'N/A';
-
   if (loading) {
     return (
       <main className={styles.mainContent}>
@@ -226,7 +317,7 @@ export default function EstimateSummary() {
           </div>
 
           <div className={styles.header}>
-            <h3 className={styles.totalTitle}>Estimate Breakdown</h3>
+            <h3 className={styles.totalTitle}>Comprehensive Estimate Breakdown</h3>
             <div className={styles.customerInfo}>
               <h4>Customer Information</h4>
               <p><strong>{customer.firstName} {customer.lastName}</strong></p>
@@ -237,91 +328,130 @@ export default function EstimateSummary() {
               {customer.projectName && <p>Project: {customer.projectName}</p>}
               <p>Type: {customer.type}</p>
               <p>Payment: {customer.paymentType}</p>
-              <p>Start: {customer.startDate || 'N/A'}</p>
-              <p>Finish: {customer.finishDate || 'N/A'}</p>
+              <p>Start: {formatDate(customer.startDate)}</p>
+              <p>Finish: {formatDate(customer.finishDate)}</p>
             </div>
           </div>
 
-          {categories.length > 0 && (
-            <section className={styles.categorySection}>
-              <h4>Category Breakdown</h4>
-              {categories.map((cat, index) => {
-                const materialCost = cat.workItems.reduce((sum, item) => sum + (parseFloat(item.materialCost) || 0) * getUnits(item), 0);
-                const laborCost = cat.workItems.reduce((sum, item) => sum + (parseFloat(item.laborCost) || 0) * getUnits(item), 0);
-                return (
-                  <div key={index} className={styles.categoryBreakdown}>
-                    <h5>{cat.name}</h5>
-                    <table className={styles.workTable} aria-label={`Breakdown for ${cat.name}`}>
-                      <thead>
-                        <tr>
-                          <th scope="col">Item</th>
-                          <th scope="col">Qty</th>
-                          <th scope="col">Mat. Cost</th>
-                          <th scope="col">Labor Cost</th>
-                          <th scope="col">Total</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {cat.workItems.map((item, i) => {
-                          const units = getUnits(item);
-                          const unitLabel = getUnitLabel(item);
-                          const matCost = (parseFloat(item.materialCost) || 0) * units;
-                          const labCost = (parseFloat(item.laborCost) || 0) * units;
-                          return (
-                            <tr key={i}>
-                              <td>{item.name} ({item.type}) {item.subtype && `- ${item.subtype}`}</td>
-                              <td>{units.toFixed(1)} {unitLabel}</td>
-                              <td>{formatCurrency(matCost)}</td>
-                              <td>{formatCurrency(labCost)}</td>
-                              <td>{formatCurrency(matCost + labCost)}</td>
-                            </tr>
-                          );
-                        })}
-                        <tr className={styles.categoryTotalRow}>
-                          <td colSpan={2}>Subtotal</td>
-                          <td>{formatCurrency(materialCost)}</td>
-                          <td>{formatCurrency(laborCost)}</td>
-                          <td>{formatCurrency(materialCost + laborCost)}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                );
-              })}
-              <table className={styles.totalTable} aria-label="Category Totals">
+          {categoryBreakdowns.length > 0 && (
+            <section className={styles.section}>
+              <h4 className={styles.sectionTitle}>Category Breakdown</h4>
+              <table className={styles.breakdownTable} aria-label="Category Cost Breakdown">
+                <thead>
+                  <tr>
+                    <th scope="col">Category</th>
+                    <th scope="col">Items</th>
+                    <th scope="col">Material Cost</th>
+                    <th scope="col">Labor Cost</th>
+                    <th scope="col">Subtotal</th>
+                  </tr>
+                </thead>
                 <tbody>
+                  {categoryBreakdowns.map((cat, index) => (
+                    <tr key={index} className={styles.categoryRow}>
+                      <td>{cat.name}</td>
+                      <td>{cat.itemCount}</td>
+                      <td>{formatCurrency(cat.materialCost)}</td>
+                      <td>{formatCurrency(cat.laborCost)}</td>
+                      <td className={styles.subtotal}>{formatCurrency(cat.subtotal)}</td>
+                    </tr>
+                  ))}
                   <tr className={styles.totalRow}>
                     <td>Total</td>
-                    <td>{categories.reduce((sum, cat) => sum + cat.workItems.length, 0)}</td>
-                    <td>{formatCurrency(totals.materialCost)}</td>
-                    <td>{formatCurrency(totals.laborCost)}</td>
-                    <td>{formatCurrency(baseSubtotal)}</td>
+                    <td>{categoryBreakdowns.reduce((sum, cat) => sum + cat.itemCount, 0)}</td>
+                    <td>{formatCurrency(baseMaterialCost)}</td>
+                    <td>{formatCurrency(baseLaborCost)}</td>
+                    <td className={styles.subtotal}>{formatCurrency(baseSubtotal)}</td>
                   </tr>
                 </tbody>
               </table>
             </section>
           )}
 
-          <section className={styles.totalSection}>
-            <h4>Cost Calculation</h4>
-            <table className={styles.totalTable} aria-label="Cost Calculation">
+          {materialBreakdown.length > 0 && (
+            <section className={styles.section}>
+              <h4 className={styles.sectionTitle}>Material Cost Breakdown</h4>
+              <table className={styles.breakdownTable} aria-label="Material Cost Breakdown">
+                <thead>
+                  <tr>
+                    <th scope="col">Category</th>
+                    <th scope="col">Item</th>
+                    <th scope="col">Qty</th>
+                    <th scope="col">Unit Cost</th>
+                    <th scope="col">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {materialBreakdown.map((item, index) => (
+                    <tr key={index}>
+                      <td>{item.category}</td>
+                      <td>{item.name} ({item.type}) {item.subtype && `- ${item.subtype}`}</td>
+                      <td>{item.quantity.toFixed(2)} {item.unitType}</td>
+                      <td>{formatCurrency(item.costPerUnit)}</td>
+                      <td>{formatCurrency(item.total)}</td>
+                    </tr>
+                  ))}
+                  <tr className={styles.totalRow}>
+                    <td colSpan={4}>Total Material Cost</td>
+                    <td>{formatCurrency(baseMaterialCost)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </section>
+          )}
+
+          {laborBreakdown.length > 0 && (
+            <section className={styles.section}>
+              <h4 className={styles.sectionTitle}>Labor Cost Breakdown</h4>
+              <table className={styles.breakdownTable} aria-label="Labor Cost Breakdown">
+                <thead>
+                  <tr>
+                    <th scope="col">Category</th>
+                    <th scope="col">Item</th>
+                    <th scope="col">Qty</th>
+                    <th scope="col">Unit Cost</th>
+                    <th scope="col">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {laborBreakdown.map((item, index) => (
+                    <tr key={index}>
+                      <td>{item.category}</td>
+                      <td>{item.name} ({item.type}) {item.subtype && `- ${item.subtype}`}</td>
+                      <td>{item.quantity.toFixed(2)} {item.unitType}</td>
+                      <td>{formatCurrency(item.costPerUnit)}</td>
+                      <td>{formatCurrency(item.total)}</td>
+                    </tr>
+                  ))}
+                  <tr className={styles.totalRow}>
+                    <td colSpan={4}>Total Labor Cost</td>
+                    <td>{formatCurrency(baseLaborCost)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </section>
+          )}
+
+          <section className={styles.section}>
+            <h4 className={styles.sectionTitle}>Cost Calculation</h4>
+            <table className={styles.breakdownTable} aria-label="Cost Calculation">
               <tbody>
-                <tr><td>Base Material Cost</td><td>{formatCurrency(totals.materialCost)}</td></tr>
-                <tr><td>Base Labor Cost (after discount)</td><td>{formatCurrency(totals.laborCost)}</td></tr>
-                {totals.laborDiscount > 0 && (
+                <tr><td>Base Material Cost</td><td>{formatCurrency(baseMaterialCost)}</td></tr>
+                <tr><td>Base Labor Cost (after discount)</td><td>{formatCurrency(baseLaborCost)}</td></tr>
+                {laborDiscount > 0 && (
                   <tr className={styles.discountRow}>
                     <td>Labor Discount ({((settings?.laborDiscount || 0) * 100).toFixed(1)}%)</td>
-                    <td>-{formatCurrency(totals.laborDiscount)}</td>
+                    <td>-{formatCurrency(laborDiscount)}</td>
                   </tr>
                 )}
-                <tr><td>Base Subtotal</td><td>{formatCurrency(baseSubtotal)}</td></tr>
-                <tr><td>Waste ({(settings?.wasteFactor * 100 || 0).toFixed(1)}%)</td><td>{formatCurrency(totals.wasteCost)}</td></tr>
-                <tr><td>Tax ({(settings?.taxRate * 100 || 0).toFixed(1)}%)</td><td>{formatCurrency(totals.tax)}</td></tr>
-                <tr><td>Markup ({(settings?.markup * 100 || 0).toFixed(1)}%)</td><td>{formatCurrency(totals.markupCost)}</td></tr>
-                <tr><td>Transportation</td><td>{formatCurrency(totals.transportationFee)}</td></tr>
+                <tr className={styles.subtotalRow}><td>Base Subtotal</td><td>{formatCurrency(baseSubtotal)}</td></tr>
+                <tr><td>Waste ({(settings?.wasteFactor * 100 || 0).toFixed(1)}%)</td><td>{formatCurrency(wasteCost)}</td></tr>
+                <tr><td>Tax ({(settings?.taxRate * 100 || 0).toFixed(1)}%)</td><td>{formatCurrency(taxAmount)}</td></tr>
+                <tr><td>Markup ({(settings?.markup * 100 || 0).toFixed(1)}%)</td><td>{formatCurrency(markupAmount)}</td></tr>
+                <tr><td>Transportation Fee</td><td>{formatCurrency(transportationFee)}</td></tr>
                 {miscFeesTotal > 0 && (
                   <tr>
-                    <td>Misc Fees</td>
+                    <td>Miscellaneous Fees</td>
                     <td>
                       {settings.miscFees.map((fee, i) => (
                         <div key={i}>{fee.name}: {formatCurrency(parseFloat(fee.amount))}</div>
@@ -330,63 +460,68 @@ export default function EstimateSummary() {
                     </td>
                   </tr>
                 )}
-                <tr className={styles.grandTotalRow}><td><strong>Grand Total</strong></td><td><strong>{formatCurrency(grandTotal)}</strong></td></tr>
+                <tr className={styles.grandTotalRow}>
+                  <td><strong>Grand Total</strong></td>
+                  <td><strong>{formatCurrency(grandTotal)}</strong></td>
+                </tr>
               </tbody>
             </table>
+          </section>
 
-            {(settings?.payments?.length > 0 || settings?.deposit > 0) && (
-              <div>
-                <h4>Payment Tracking</h4>
-                <table className={styles.totalTable} aria-label="Payment Tracking">
-                  <thead>
+          {(settings?.payments?.length > 0 || settings?.deposit > 0) && (
+            <section className={styles.section}>
+              <h4 className={styles.sectionTitle}>Payment Tracking</h4>
+              <table className={styles.breakdownTable} aria-label="Payment Tracking">
+                <thead>
+                  <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Method</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Note</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {settings.deposit > 0 && (
                     <tr>
-                      <th scope="col">Date</th>
-                      <th scope="col">Amount</th>
-                      <th scope="col">Method</th>
-                      <th scope="col">Status</th>
-                      <th scope="col">Note</th>
+                      <td>{formatDate(customer.startDate)}</td>
+                      <td>{formatCurrency(settings.deposit)}</td>
+                      <td>{customer.paymentType}</td>
+                      <td>Paid</td>
+                      <td>Initial Deposit</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {settings.deposit > 0 && (
-                      <tr>
-                        <td>{customer.startDate || 'N/A'}</td>
-                        <td>{formatCurrency(settings.deposit)}</td>
-                        <td>{customer.paymentType}</td>
-                        <td>Paid</td>
-                        <td>Initial Deposit</td>
-                      </tr>
-                    )}
-                    {settings.payments.map((payment, index) => (
-                      <tr key={index}>
-                        <td>{formatDate(payment.date)}</td>
-                        <td>{formatCurrency(payment.amount)}</td>
-                        <td>{payment.method || 'N/A'}</td>
-                        <td>{payment.isPaid ? 'Paid' : 'Pending'}</td>
-                        <td>{payment.note || 'N/A'}</td>
-                      </tr>
-                    ))}
-                    {settings.payments.length > 0 && (
-                      <tr className={styles.totalRow}>
-                        <td><strong>Total Paid</strong></td>
-                        <td><strong>{formatCurrency(paymentDetails.totalPaid)}</strong></td>
-                        <td colSpan={3}></td>
-                      </tr>
-                    )}
-                    {paymentDetails.totalDue > 0 && (
-                      <tr className={styles.totalRow}>
-                        <td><strong>Total Due</strong></td>
-                        <td><strong>{formatCurrency(paymentDetails.totalDue)}</strong></td>
-                        <td colSpan={3}></td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                  )}
+                  {settings.payments.map((payment, index) => (
+                    <tr key={index}>
+                      <td>{formatDate(payment.date)}</td>
+                      <td>{formatCurrency(payment.amount)}</td>
+                      <td>{payment.method || 'N/A'}</td>
+                      <td>{payment.isPaid ? 'Paid' : 'Pending'}</td>
+                      <td>{payment.note || 'N/A'}</td>
+                    </tr>
+                  ))}
+                  {settings.payments.length > 0 && (
+                    <tr className={styles.totalRow}>
+                      <td><strong>Total Paid</strong></td>
+                      <td><strong>{formatCurrency(paymentDetails.totalPaid)}</strong></td>
+                      <td colSpan={3}></td>
+                    </tr>
+                  )}
+                  {paymentDetails.totalDue > 0 && (
+                    <tr className={styles.totalRow}>
+                      <td><strong>Total Due</strong></td>
+                      <td><strong>{formatCurrency(paymentDetails.totalDue)}</strong></td>
+                      <td colSpan={3}></td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </section>
+          )}
 
-            <h4>Payment Summary</h4>
-            <table className={styles.totalTable} aria-label="Payment Summary">
+          <section className={styles.section}>
+            <h4 className={styles.sectionTitle}>Payment Summary</h4>
+            <table className={styles.breakdownTable} aria-label="Payment Summary">
               <tbody>
                 <tr><td>Grand Total</td><td>{formatCurrency(grandTotal)}</td></tr>
                 <tr><td>Deposit</td><td>-{formatCurrency(settings?.deposit || 0)}</td></tr>
@@ -404,14 +539,14 @@ export default function EstimateSummary() {
           </section>
 
           {customer.notes && (
-            <section className={styles.notesSection}>
-              <h4>Project Notes</h4>
+            <section className={styles.section}>
+              <h4 className={styles.sectionTitle}>Project Notes</h4>
               <p>{customer.notes}</p>
             </section>
           )}
 
-          <section className={styles.signatureSection}>
-            <h4>Customer Approval</h4>
+          <section className={styles.section}>
+            <h4 className={styles.sectionTitle}>Customer Approval</h4>
             <p>By signing below, I, {customer.firstName} {customer.lastName}, acknowledge that I have reviewed and agree to the terms and costs outlined in this estimate provided by Rawdah Remodeling Company.</p>
             <div className={styles.signatureLine}>
               <span>Customer Signature: _______________________________</span>

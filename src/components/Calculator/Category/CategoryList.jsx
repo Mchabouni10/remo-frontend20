@@ -29,7 +29,10 @@ export default function CategoryList({
 
   const categoryOptions = Object.keys(WORK_TYPES).map((key) => ({
     value: key,
-    label: key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1').trim(),
+    label: key
+      .replace(/([A-Z])/g, ' $1')
+      .trim()
+      .replace(/^\w/, (c) => c.toUpperCase()), // e.g., 'livingRoom' -> 'Living Room'
   }));
 
   const totals = useMemo(
@@ -56,7 +59,17 @@ export default function CategoryList({
   const updateCategoryName = (catIndex, value) => {
     if (disabled) return;
     setCategories((prev) =>
-      prev.map((cat, i) => (i === catIndex ? { ...cat, name: value } : cat))
+      prev.map((cat, i) =>
+        i === catIndex
+          ? {
+              ...cat,
+              name: value,
+              key: cat.key.startsWith('custom_')
+                ? `custom_${value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '')}`
+                : cat.key,
+            }
+          : cat
+      )
     );
   };
 
@@ -153,16 +166,28 @@ export default function CategoryList({
   const addCategory = () => {
     if (disabled) return;
     let categoryName = '';
+    let categoryKey = '';
+
     if (selectedCategory === 'custom' && customCategory.trim()) {
       categoryName = customCategory.trim();
+      categoryKey = `custom_${customCategory
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '')}`;
+      if (categoryKey in WORK_TYPES || categories.some((cat) => cat.key === categoryKey)) {
+        alert('Category name already exists or conflicts with an existing category.');
+        return;
+      }
     } else if (selectedCategory && selectedCategory !== 'custom') {
+      categoryKey = selectedCategory;
       categoryName = categoryOptions.find((opt) => opt.value === selectedCategory)?.label || selectedCategory;
     }
-    if (!categoryName) return;
+
+    if (!categoryName || !categoryKey) return;
 
     setCategories((prev) => [
       ...prev,
-      { name: categoryName, workItems: [] },
+      { name: categoryName, key: categoryKey, workItems: [] },
     ]);
     setSelectedCategory('');
     setCustomCategory('');

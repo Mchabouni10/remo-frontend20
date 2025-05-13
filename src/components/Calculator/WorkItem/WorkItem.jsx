@@ -24,13 +24,15 @@ export default function WorkItem({
     !Array.from({ length: 21 }, (_, i) => i.toString()).includes((parseFloat(workItem.laborCost) || 0).toString())
   );
 
-  // Normalize category name to match WORK_TYPES keys (e.g., "Electrical" → "electrical")
-  const categoryKey = workItem.category
-    ? workItem.category
-        .trim()
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '') // Remove spaces and special characters
-    : '';
+  // Use key if available, otherwise normalize category name
+  const categoryKey = workItem.key
+    ? workItem.key
+    : workItem.category
+      ? workItem.category
+          .trim()
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '')
+      : '';
 
   // Validate WORK_TYPES
   if (!WORK_TYPES || Object.keys(WORK_TYPES).length === 0) {
@@ -39,22 +41,56 @@ export default function WorkItem({
     console.debug('WORK_TYPES keys:', Object.keys(WORK_TYPES));
   }
 
-  // Populate available types, empty if categoryKey is invalid or undefined
-  const availableTypes = categoryKey && categoryKey in WORK_TYPES
-    ? [
+  // Compute available types, including general types for non-general categories and all types for custom
+  const availableTypes = (() => {
+    if (categoryKey && categoryKey in WORK_TYPES) {
+      return [
         ...WORK_TYPES[categoryKey].surfaceBased,
         ...WORK_TYPES[categoryKey].linearFtBased,
         ...WORK_TYPES[categoryKey].unitBased,
-      ]
-    : [];
+        ...(categoryKey !== 'general'
+          ? [
+              ...WORK_TYPES.general.surfaceBased,
+              ...WORK_TYPES.general.linearFtBased,
+              ...WORK_TYPES.general.unitBased,
+            ]
+          : []),
+      ];
+    } else {
+      // Custom category (key not in WORK_TYPES)
+      return Object.values(WORK_TYPES).reduce((types, category) => {
+        return [
+          ...types,
+          ...category.surfaceBased,
+          ...category.linearFtBased,
+          ...category.unitBased,
+        ];
+      }, []);
+    }
+  })();
 
-  // Log warning for debugging if categoryKey is invalid or undefined
-  if (!workItem.category || !categoryKey || !(categoryKey in WORK_TYPES)) {
+  // Check if the work item type is surface-based in any category
+  const isSurfaceBased = workItem.type
+    ? Object.values(WORK_TYPES).some(category => category.surfaceBased.includes(workItem.type))
+    : false;
+  const isLinearFtBased = workItem.type
+    ? Object.values(WORK_TYPES).some(category => category.linearFtBased.includes(workItem.type))
+    : false;
+  const isUnitBased = workItem.type
+    ? Object.values(WORK_TYPES).some(category => category.unitBased.includes(workItem.type))
+    : false;
+
+  // Log warning for debugging
+  if (!workItem.category || !categoryKey) {
     console.warn(
-      `Invalid or missing category for workItem: category="${workItem.category}", categoryKey="${categoryKey}", catIndex=${catIndex}, workIndex=${workIndex}, workItem=`,
+      `Invalid or missing category for workItem: category="${workItem.category}", categoryKey="${categoryKey}", catIndex=${catIndex}, workIndex=${workIndex}, available WORK_TYPES keys=${Object.keys(WORK_TYPES).join(', ')}`,
       workItem
     );
   }
+  console.debug(
+    `WorkItem type="${workItem.type}", isSurfaceBased=${isSurfaceBased}, isLinearFtBased=${isLinearFtBased}, isUnitBased=${isUnitBased}, surfaces=`,
+    workItem.surfaces
+  );
 
   const updateWorkItem = useCallback(
     (field, value) => {
@@ -70,15 +106,17 @@ export default function WorkItem({
         } else if (field === 'type') {
           item[field] = value;
           item.subtype = DEFAULT_SUBTYPES[value] || '';
-          item.surfaces = (categoryKey in WORK_TYPES && WORK_TYPES[categoryKey]?.surfaceBased.includes(value))
+          // Initialize surfaces for surface-based types
+          const isNewTypeSurfaceBased = Object.values(WORK_TYPES).some(cat => cat.surfaceBased.includes(value));
+          item.surfaces = isNewTypeSurfaceBased
             ? item.surfaces?.length > 0
               ? item.surfaces
               : [{ width: '10', height: '10', sqft: 100, manualSqft: false }]
             : [];
-          item.linearFt = (categoryKey in WORK_TYPES && WORK_TYPES[categoryKey]?.linearFtBased.includes(value))
+          item.linearFt = Object.values(WORK_TYPES).some(cat => cat.linearFtBased.includes(value))
             ? item.linearFt || '10'
             : '';
-          item.units = (categoryKey in WORK_TYPES && WORK_TYPES[categoryKey]?.unitBased.includes(value))
+          item.units = Object.values(WORK_TYPES).some(cat => cat.unitBased.includes(value))
             ? item.units || '1'
             : '';
           item.materialCost = item.materialCost ?? '0.00';
@@ -93,7 +131,7 @@ export default function WorkItem({
         return newCategories;
       });
     },
-    [disabled, catIndex, workIndex, setCategories, categoryKey]
+    [disabled, catIndex, workIndex, setCategories]
   );
 
   const removeWorkItem = useCallback(() => {
@@ -121,9 +159,6 @@ export default function WorkItem({
     });
   }, [disabled, catIndex, workIndex, setCategories]);
 
-  const isSurfaceBased = (categoryKey in WORK_TYPES && WORK_TYPES[categoryKey]?.surfaceBased.includes(workItem.type)) || false;
-  const isLinearFtBased = (categoryKey in WORK_TYPES && WORK_TYPES[categoryKey]?.linearFtBased.includes(workItem.type)) || false;
-  const isUnitBased = (categoryKey in WORK_TYPES && WORK_TYPES[categoryKey]?.unitBased.includes(workItem.type)) || false;
   const materialCost = parseFloat(workItem.materialCost) || 0;
   const laborCost = parseFloat(workItem.laborCost) || 0;
   const costOptions = Array.from({ length: 21 }, (_, i) => i.toString()).concat('Custom');
@@ -178,10 +213,10 @@ export default function WorkItem({
             value={workItem.type || ''}
             onChange={(e) => updateWorkItem('type', e.target.value)}
             className={styles.select}
-            disabled={disabled || !workItem.category || !categoryKey || !(categoryKey in WORK_TYPES)}
+            disabled={disabled || !workItem.category || !categoryKey}
           >
             <option value="">
-              {workItem.category && categoryKey && categoryKey in WORK_TYPES
+              {workItem.category && categoryKey
                 ? 'Select Type'
                 : workItem.category
                 ? 'Invalid Category'
@@ -220,7 +255,7 @@ export default function WorkItem({
         </div>
       )}
 
-      {isSurfaceBased && (
+      {isSurfaceBased && workItem.surfaces?.length > 0 && (
         <div className={styles.surfaces}>
           {workItem.surfaces.map((surf, surfIndex) => (
             <SurfaceInput
