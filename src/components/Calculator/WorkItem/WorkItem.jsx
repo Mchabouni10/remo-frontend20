@@ -1,11 +1,12 @@
 // src/components/Calculator/WorkItem/WorkItem.jsx
-import React, { useCallback, useState } from 'react';
+
+import React, { useCallback, useState, useRef } from 'react';
 import SurfaceInput from '../SurfaceInput/SurfaceInput';
 import { WORK_TYPES as WORK_TYPES1, SUBTYPE_OPTIONS as SUBTYPE_OPTIONS1, DEFAULT_SUBTYPES as DEFAULT_SUBTYPES1 } from '../data/workTypes';
 import { WORK_TYPES as WORK_TYPES2, SUBTYPE_OPTIONS as SUBTYPE_OPTIONS2, DEFAULT_SUBTYPES as DEFAULT_SUBTYPES2 } from '../data/workTypes2';
 import styles from './WorkItem.module.css';
 
-// Merge WORK_TYPES, SUBTYPE_OPTIONS, and DEFAULT_SUBTYPES from both files
+// Merge WORK_TYPES, SUBTYPE_OPTIONS, and DEFAULT_SUBTYPES
 const WORK_TYPES = { ...WORK_TYPES1, ...WORK_TYPES2 };
 const SUBTYPE_OPTIONS = { ...SUBTYPE_OPTIONS1, ...SUBTYPE_OPTIONS2 };
 const DEFAULT_SUBTYPES = { ...DEFAULT_SUBTYPES1, ...DEFAULT_SUBTYPES2 };
@@ -23,25 +24,18 @@ export default function WorkItem({
   const [isLaborCustomMode, setIsLaborCustomMode] = useState(
     !Array.from({ length: 21 }, (_, i) => i.toString()).includes((parseFloat(workItem.laborCost) || 0).toString())
   );
+  const inputTimeoutRef = useRef(null);
 
-  // Use key if available, otherwise normalize category name
   const categoryKey = workItem.key
     ? workItem.key
     : workItem.category
-      ? workItem.category
-          .trim()
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, '')
+      ? workItem.category.trim().toLowerCase().replace(/[^a-z0-9]+/g, '')
       : '';
 
-  // Validate WORK_TYPES
   if (!WORK_TYPES || Object.keys(WORK_TYPES).length === 0) {
-    console.error('WORK_TYPES is empty or not loaded. Check import path or data structure.');
-  } else {
-    console.debug('WORK_TYPES keys:', Object.keys(WORK_TYPES));
+    console.error('WORK_TYPES is empty or not loaded.');
   }
 
-  // Compute available types, including general types for non-general categories and all types for custom
   const availableTypes = (() => {
     if (categoryKey && categoryKey in WORK_TYPES) {
       return [
@@ -56,20 +50,15 @@ export default function WorkItem({
             ]
           : []),
       ];
-    } else {
-      // Custom category (key not in WORK_TYPES)
-      return Object.values(WORK_TYPES).reduce((types, category) => {
-        return [
-          ...types,
-          ...category.surfaceBased,
-          ...category.linearFtBased,
-          ...category.unitBased,
-        ];
-      }, []);
     }
+    return Object.values(WORK_TYPES).reduce((types, category) => [
+      ...types,
+      ...category.surfaceBased,
+      ...category.linearFtBased,
+      ...category.unitBased,
+    ], []);
   })();
 
-  // Check if the work item type is surface-based in any category
   const isSurfaceBased = workItem.type
     ? Object.values(WORK_TYPES).some(category => category.surfaceBased.includes(workItem.type))
     : false;
@@ -80,56 +69,48 @@ export default function WorkItem({
     ? Object.values(WORK_TYPES).some(category => category.unitBased.includes(workItem.type))
     : false;
 
-  // Log warning for debugging
-  if (!workItem.category || !categoryKey) {
-    console.warn(
-      `Invalid or missing category for workItem: category="${workItem.category}", categoryKey="${categoryKey}", catIndex=${catIndex}, workIndex=${workIndex}, available WORK_TYPES keys=${Object.keys(WORK_TYPES).join(', ')}`,
-      workItem
-    );
-  }
-  console.debug(
-    `WorkItem type="${workItem.type}", isSurfaceBased=${isSurfaceBased}, isLinearFtBased=${isLinearFtBased}, isUnitBased=${isUnitBased}, surfaces=`,
-    workItem.surfaces
-  );
-
   const updateWorkItem = useCallback(
     (field, value) => {
       if (disabled) return;
-      setCategories((prev) => {
-        const newCategories = [...prev];
-        const category = { ...newCategories[catIndex] };
-        const workItems = [...category.workItems];
-        const item = { ...workItems[workIndex] };
+      if (inputTimeoutRef.current) {
+        clearTimeout(inputTimeoutRef.current);
+      }
+      inputTimeoutRef.current = setTimeout(() => {
+        setCategories((prev) => {
+          const newCategories = [...prev];
+          const category = { ...newCategories[catIndex] };
+          const workItems = [...category.workItems];
+          const item = { ...workItems[workIndex] };
 
-        if (['materialCost', 'laborCost', 'linearFt', 'units'].includes(field)) {
-          item[field] = value === '' ? '' : Math.max(0, parseFloat(value) || 0);
-        } else if (field === 'type') {
-          item[field] = value;
-          item.subtype = DEFAULT_SUBTYPES[value] || '';
-          // Initialize surfaces for surface-based types
-          const isNewTypeSurfaceBased = Object.values(WORK_TYPES).some(cat => cat.surfaceBased.includes(value));
-          item.surfaces = isNewTypeSurfaceBased
-            ? item.surfaces?.length > 0
-              ? item.surfaces
-              : [{ width: '10', height: '10', sqft: 100, manualSqft: false }]
-            : [];
-          item.linearFt = Object.values(WORK_TYPES).some(cat => cat.linearFtBased.includes(value))
-            ? item.linearFt || '10'
-            : '';
-          item.units = Object.values(WORK_TYPES).some(cat => cat.unitBased.includes(value))
-            ? item.units || '1'
-            : '';
-          item.materialCost = item.materialCost ?? '0.00';
-          item.laborCost = item.laborCost ?? '0.00';
-        } else {
-          item[field] = value;
-        }
+          if (['materialCost', 'laborCost', 'linearFt', 'units'].includes(field)) {
+            item[field] = value === '' ? '' : Math.max(0, parseFloat(value) || 0);
+          } else if (field === 'type') {
+            item[field] = value;
+            item.subtype = DEFAULT_SUBTYPES[value] || '';
+            const isNewTypeSurfaceBased = Object.values(WORK_TYPES).some(cat => cat.surfaceBased.includes(value));
+            item.surfaces = isNewTypeSurfaceBased
+              ? item.surfaces?.length > 0
+                ? item.surfaces
+                : [{ width: '10', height: '10', sqft: 100, manualSqft: false }]
+              : [];
+            item.linearFt = Object.values(WORK_TYPES).some(cat => cat.linearFtBased.includes(value))
+              ? item.linearFt || '10'
+              : '';
+            item.units = Object.values(WORK_TYPES).some(cat => cat.unitBased.includes(value))
+              ? item.units || '1'
+              : '';
+            item.materialCost = item.materialCost ?? '0.00';
+            item.laborCost = item.laborCost ?? '0.00';
+          } else {
+            item[field] = value;
+          }
 
-        workItems[workIndex] = item;
-        category.workItems = workItems;
-        newCategories[catIndex] = category;
-        return newCategories;
-      });
+          workItems[workIndex] = item;
+          category.workItems = workItems;
+          newCategories[catIndex] = category;
+          return newCategories;
+        });
+      }, 50);
     },
     [disabled, catIndex, workIndex, setCategories]
   );
@@ -162,6 +143,30 @@ export default function WorkItem({
   const materialCost = parseFloat(workItem.materialCost) || 0;
   const laborCost = parseFloat(workItem.laborCost) || 0;
   const costOptions = Array.from({ length: 21 }, (_, i) => i.toString()).concat('Custom');
+
+  const totalMaterialCost = isSurfaceBased
+    ? workItem.surfaces?.reduce((sum, surf) => sum + ((parseFloat(surf.sqft) || 0) * materialCost), 0) || 0
+    : isLinearFtBased
+    ? (parseFloat(workItem.linearFt) || 0) * materialCost
+    : isUnitBased
+    ? (parseFloat(workItem.units) || 0) * materialCost
+    : 0;
+  const totalLaborCost = isSurfaceBased
+    ? workItem.surfaces?.reduce((sum, surf) => sum + ((parseFloat(surf.sqft) || 0) * laborCost), 0) || 0
+    : isLinearFtBased
+    ? (parseFloat(workItem.linearFt) || 0) * laborCost
+    : isUnitBased
+    ? (parseFloat(workItem.units) || 0) * laborCost
+    : 0;
+  const totalCost = (totalMaterialCost + totalLaborCost).toFixed(2);
+  const totalUnits = isSurfaceBased
+    ? workItem.surfaces?.reduce((sum, surf) => sum + (parseFloat(surf.sqft) || 0), 0) || 0
+    : isLinearFtBased
+    ? parseFloat(workItem.linearFt) || 0
+    : isUnitBased
+    ? parseFloat(workItem.units) || 0
+    : 0;
+  const unitLabel = isSurfaceBased ? 'sqft' : isLinearFtBased ? 'ft' : 'units';
 
   const materialLabel = isSurfaceBased
     ? 'Material Cost per Sqft ($)'
@@ -205,6 +210,7 @@ export default function WorkItem({
             placeholder="Work Item Name"
             className={styles.input}
             disabled={disabled}
+            aria-label="Work item name"
           />
         </div>
         <div className={styles.inputWrapper}>
@@ -214,13 +220,10 @@ export default function WorkItem({
             onChange={(e) => updateWorkItem('type', e.target.value)}
             className={styles.select}
             disabled={disabled || !workItem.category || !categoryKey}
+            aria-label="Work item type"
           >
             <option value="">
-              {workItem.category && categoryKey
-                ? 'Select Type'
-                : workItem.category
-                ? 'Invalid Category'
-                : 'Select a Category'}
+              {workItem.category && categoryKey ? 'Select Type' : 'Select a Category'}
             </option>
             {availableTypes.map((type) => (
               <option key={type} value={type}>
@@ -244,6 +247,7 @@ export default function WorkItem({
             onChange={(e) => updateWorkItem('subtype', e.target.value)}
             className={styles.select}
             disabled={disabled}
+            aria-label="Work item subtype"
           >
             <option value="">Select Subtype</option>
             {(SUBTYPE_OPTIONS[workItem.type] || []).map((option) => (
@@ -267,6 +271,8 @@ export default function WorkItem({
               setCategories={setCategories}
               showRemove={workItem.surfaces.length > 1 && !disabled}
               disabled={disabled}
+              materialCost={materialCost}
+              laborCost={laborCost}
             />
           ))}
           {!disabled && (
@@ -274,6 +280,7 @@ export default function WorkItem({
               onClick={addSurface}
               className={styles.addSurfaceButton}
               title="Add Surface"
+              aria-label="Add surface"
             >
               <i className="fas fa-plus"></i> Add Surface
             </button>
@@ -286,12 +293,13 @@ export default function WorkItem({
             <i className="fas fa-ruler-horizontal"></i> Linear Feet:
           </label>
           <input
-            type="number"
+            type="text"
+            pattern="[0-9]*\.?[0-9]*"
             value={workItem.linearFt || ''}
             onChange={(e) => updateWorkItem('linearFt', e.target.value)}
             className={styles.input}
-            min="0"
             disabled={disabled}
+            aria-label="Linear feet"
           />
         </div>
       )}
@@ -301,12 +309,13 @@ export default function WorkItem({
             <i className="fas fa-boxes"></i> Units:
           </label>
           <input
-            type="number"
+            type="text"
+            pattern="[0-9]*\.?[0-9]*"
             value={workItem.units || ''}
             onChange={(e) => updateWorkItem('units', e.target.value)}
             className={styles.input}
-            min="0"
             disabled={disabled}
+            aria-label="Units"
           />
         </div>
       )}
@@ -322,6 +331,7 @@ export default function WorkItem({
               onChange={(e) => handleMaterialSelectChange(e.target.value)}
               className={styles.select}
               disabled={disabled}
+              aria-label="Material cost selection"
             >
               {costOptions.map((option) => (
                 <option key={option} value={option}>
@@ -332,14 +342,14 @@ export default function WorkItem({
             <div className={styles.inputWrapper}>
               <i className={`fas fa-dollar-sign ${styles.inputIcon}`}></i>
               <input
-                type="number"
+                type="text"
+                pattern="[0-9]*\.?[0-9]*"
                 value={materialCost}
                 onChange={(e) => updateWorkItem('materialCost', e.target.value)}
                 className={styles.input}
-                min="0"
-                step="0.01"
                 placeholder="0.00"
                 disabled={disabled || !isMaterialCustomMode}
+                aria-label="Material cost"
               />
             </div>
           </div>
@@ -354,6 +364,7 @@ export default function WorkItem({
               onChange={(e) => handleLaborSelectChange(e.target.value)}
               className={styles.select}
               disabled={disabled}
+              aria-label="Labor cost selection"
             >
               {costOptions.map((option) => (
                 <option key={option} value={option}>
@@ -364,18 +375,33 @@ export default function WorkItem({
             <div className={styles.inputWrapper}>
               <i className={`fas fa-dollar-sign ${styles.inputIcon}`}></i>
               <input
-                type="number"
+                type="text"
+                pattern="[0-9]*\.?[0-9]*"
                 value={laborCost}
                 onChange={(e) => updateWorkItem('laborCost', e.target.value)}
                 className={styles.input}
-                min="0"
-                step="0.01"
                 placeholder="0.00"
                 disabled={disabled || !isLaborCustomMode}
+                aria-label="Labor cost"
               />
             </div>
           </div>
         </div>
+      </div>
+
+      <div className={styles.costDisplay}>
+        <span className={styles.cost}>
+          Material: ${totalMaterialCost.toFixed(2)}
+        </span>
+        <span className={styles.cost}>
+          Labor: ${totalLaborCost.toFixed(2)}
+        </span>
+        <span className={styles.cost}>
+          Total: ${totalCost}
+        </span>
+        <span className={styles.units}>
+          Total: {totalUnits.toFixed(2)} {unitLabel}
+        </span>
       </div>
 
       <div className={styles.notesSection}>
@@ -388,6 +414,7 @@ export default function WorkItem({
             onChange={(e) => updateWorkItem('notes', e.target.value)}
             className={styles.input}
             disabled={disabled}
+            aria-label="Work notes"
           />
         </div>
         {!disabled && (
@@ -395,6 +422,7 @@ export default function WorkItem({
             onClick={removeWorkItem}
             className={styles.removeButton}
             title="Remove Work Item"
+            aria-label="Remove work item"
           >
             <i className="fas fa-trash-alt"></i>
           </button>

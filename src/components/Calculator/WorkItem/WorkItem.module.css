@@ -1,32 +1,28 @@
-.workCard {
-  padding: var(--spacing-lg);
-  border: 1px solid rgba(226, 232, 240, 0.2);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  margin-bottom: var(--spacing-lg);
-  box-shadow: 0 2px 6px var(--shadow);
-  transition: box-shadow 0.2s ease, background-color 0.3s ease;
-}
 
-.workCard:hover {
-  box-shadow: 0 4px 12px var(--shadow);
+.workCard {
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .workItemRow {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-md);
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
 }
 
 .workItemRow label {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--text);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #333;
   min-width: 100px;
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: 0.5rem;
 }
 
 .inputWrapper {
@@ -37,13 +33,12 @@
 .input,
 .select {
   width: 100%;
-  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) 2rem;
-  font-size: var(--font-size-sm);
-  border: 1px solid rgba(209, 213, 219, 0.3);
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  color: var(--text);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
+  padding: 0.5rem 0.75rem 0.5rem 2rem;
+  font-size: 0.875rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background: #fff;
+  color: #333;
 }
 
 .pricingField .select {
@@ -57,170 +52,167 @@
 .input:focus,
 .select:focus {
   outline: none;
-  border-color: var(--secondary);
-  box-shadow: 0 0 4px var(--shadow);
+  border-color: #3b82f6;
+  box-shadow: 0 0 4px rgba(59, 130, 246, 0.5);
 }
 
 .input:disabled,
 .select:disabled {
-  background: rgba(233, 236, 239, 0.1);
-  border-color: rgba(226, 232, 240, 0.2);
+  background: #f9fafb;
+  border-color: #e2e8f0;
   opacity: 0.7;
-  cursor: not-allowed;
 }
 
 .inputIcon {
   position: absolute;
-  left: var(--spacing-md);
+  left: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
-  font-size: var(--font-size-sm);
-  color: var(--text-light);
+  font-size: 0.875rem;
+  color: #6b7280;
 }
 
 .surfaces {
-  margin-top: var(--spacing-md);
+  margin-top: 0.75rem;
   display: flex;
   flex-direction: column;
 }
 
 .addSurfaceButton {
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-  color: var(--surface);
+  padding: 0.5rem 0.75rem;
+  background: #3b82f6;
+  color: #fff;
   border: none;
-  border-radius: var(--radius-sm);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 600;
   align-self: flex-start;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  gap: 0.25rem;
 }
 
 .addSurfaceButton:hover {
-  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px var(--shadow);
+  background: #2563eb;
 }
 
 .addSurfaceButton:disabled {
-  background: var(--text-light);
+  background: #6b7280;
   cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
 }
 
 .pricingSection {
-  margin-top: var(--spacing-md);
-  padding: var(--spacing-md);
-  border: 1px solid rgba(226, 232, 240, 0.2);
-  border-radius: var(--radius-sm);
-  background: var(--background);
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  background: #f9fafb;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
-  transition: background-color 0.3s ease;
+  gap: 0.75rem;
 }
 
 .pricingField {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: 0.5rem;
 }
 
 .pricingField label {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--text);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #333;
   min-width: 160px;
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  white-space: nowrap;
+  gap: 0.5rem;
 }
 
 .costWrapper {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: 0.5rem;
   flex: 1;
 }
 
 .notesSection {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-md);
+  gap: 0.75rem;
+  margin-top: 0.75rem;
 }
 
 .removeButton {
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: var(--error);
-  color: var(--surface);
+  padding: 0.5rem 0.75rem;
+  background: #dc2626;
+  color: #fff;
   border: none;
-  border-radius: var(--radius-sm);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  gap: 0.25rem;
 }
 
 .removeButton:hover {
-  background: #c82333;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px var(--shadow);
-}
-
-.removeButton:disabled {
-  background: var(--text-light);
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+  background: #b91c1c;
 }
 
 .workLabel {
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-bold);
-  color: #ff0000; /* Red color for visibility */
-  margin-bottom: var(--spacing-md);
+  font-size: 1rem;
+  font-weight: 600;
+  color: #dc2626;
+  margin-bottom: 0.75rem;
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: 0.5rem;
 }
 
 .workLabel::before {
-  content: '\f0ae'; /* FontAwesome tasks icon */
+  content: '\f0ae';
   font-family: 'Font Awesome 5 Free';
   font-weight: 900;
-  font-size: var(--font-size-sm);
-  color: #ff0000;
+  font-size: 0.875rem;
+  color: #dc2626;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .workCard {
-    padding: var(--spacing-md);
-  }
+.costDisplay {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.75rem;
+  padding: 0.5rem;
+  background: #f1f5f9;
+  border-radius: 4px;
+}
 
+.cost,
+.units {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1e40af;
+  padding: 0.5rem;
+  background: #e2e8f0;
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
   .workItemRow,
   .pricingField,
-  .notesSection {
+  .notesSection,
+  .costDisplay {
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--spacing-sm);
+    gap: 0.5rem;
   }
 
-  .workItemRow label,
   .pricingField label {
     min-width: 0;
     width: 100%;
-    white-space: normal;
   }
 
   .pricingField .select,
@@ -242,12 +234,6 @@
   .addSurfaceButton,
   .removeButton {
     width: 100%;
-    padding: var(--spacing-sm);
     justify-content: center;
-  }
-
-  .workLabel {
-    font-size: var(--font-size-sm);
-    margin-bottom: var(--spacing-sm);
   }
 }

@@ -186,8 +186,8 @@ export default function CategoryList({
     if (!categoryName || !categoryKey) return;
 
     setCategories((prev) => [
+      { name: categoryName, key: categoryKey, workItems: [], number: prev.length + 1 },
       ...prev,
-      { name: categoryName, key: categoryKey, workItems: [] },
     ]);
     setSelectedCategory('');
     setCustomCategory('');
@@ -221,6 +221,7 @@ export default function CategoryList({
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
                   className={styles.categorySelect}
+                  aria-label="Select category"
                 >
                   <option value="">Select Category</option>
                   {categoryOptions.map((option) => (
@@ -239,6 +240,7 @@ export default function CategoryList({
                       onChange={(e) => setCustomCategory(e.target.value)}
                       placeholder="Enter custom category"
                       className={styles.categoryInput}
+                      aria-label="Custom category name"
                     />
                   </div>
                 )}
@@ -253,8 +255,9 @@ export default function CategoryList({
               </div>
             )}
             {categories.map((cat, catIndex) => (
-              <div key={catIndex} className={styles.category}>
+              <div key={cat.key} className={styles.category}>
                 <div className={styles.categoryHeader}>
+                  <span className={styles.categoryNumber}>{cat.number}</span>
                   <button
                     className={styles.toggleButton}
                     onClick={() => toggleCategory(catIndex)}
@@ -274,6 +277,7 @@ export default function CategoryList({
                     className={styles.categoryInput}
                     placeholder="Room or Phase Name"
                     disabled={disabled}
+                    aria-label={`Category ${cat.number} name`}
                   />
                   {!disabled && (
                     <button
@@ -309,6 +313,7 @@ export default function CategoryList({
                             onChange={(e) => setNewWorkName(e.target.value)}
                             placeholder="e.g., Outlet Installation"
                             className={styles.workInput}
+                            aria-label="New work item name"
                           />
                         </div>
                         <button
@@ -360,6 +365,7 @@ export default function CategoryList({
                 min="0"
                 step="0.1"
                 disabled={disabled}
+                aria-label="Waste factor percentage"
               />
             </div>
             <div className={styles.field}>
@@ -372,6 +378,7 @@ export default function CategoryList({
                 onChange={(e) => handleSettingsChange('transportationFee', e.target.value)}
                 min="0"
                 disabled={disabled}
+                aria-label="Transportation fee"
               />
             </div>
             <div className={styles.field}>
@@ -385,6 +392,7 @@ export default function CategoryList({
                 min="0"
                 step="0.1"
                 disabled={disabled}
+                aria-label="Tax rate percentage"
               />
             </div>
             <div className={styles.field}>
@@ -399,12 +407,14 @@ export default function CategoryList({
                   min="0"
                   step="0.1"
                   disabled={disabled}
+                  aria-label="Markup percentage"
                 />
               ) : (
                 <select
                   value={settings.markup * 100 || 0}
                   onChange={(e) => handleSettingsChange('markup', e.target.value / 100)}
                   disabled={disabled}
+                  aria-label="Markup percentage"
                 >
                   {Array.from({ length: 21 }, (_, i) => i).map((val) => (
                     <option key={val} value={val}>
@@ -419,6 +429,7 @@ export default function CategoryList({
                     type="checkbox"
                     checked={useManualMarkup}
                     onChange={() => setUseManualMarkup(!useManualMarkup)}
+                    aria-label="Toggle manual markup"
                   />
                   <i className="fas fa-edit"></i> Manual
                 </label>
@@ -437,12 +448,14 @@ export default function CategoryList({
                   max="100"
                   step="0.1"
                   disabled={disabled}
+                  aria-label="Labor discount percentage"
                 />
               ) : (
                 <select
                   value={settings.laborDiscount * 100 || 0}
                   onChange={(e) => handleSettingsChange('laborDiscount', e.target.value / 100)}
                   disabled={disabled}
+                  aria-label="Labor discount percentage"
                 >
                   {Array.from({ length: 31 }, (_, i) => i).map((val) => (
                     <option key={val} value={val}>
@@ -457,6 +470,7 @@ export default function CategoryList({
                     type="checkbox"
                     checked={useManualLaborDiscount}
                     onChange={() => setUseManualLaborDiscount(!useManualLaborDiscount)}
+                    aria-label="Toggle manual labor discount"
                   />
                   <i className="fas fa-edit"></i> Manual
                 </label>
@@ -476,6 +490,7 @@ export default function CategoryList({
                       onChange={(e) => handleMiscFeeChange(index, 'name', e.target.value)}
                       placeholder="Fee Name"
                       disabled={disabled}
+                      aria-label={`Miscellaneous fee ${index + 1} name`}
                     />
                   </div>
                   <div className={styles.inputWrapper}>
@@ -486,6 +501,7 @@ export default function CategoryList({
                       onChange={(e) => handleMiscFeeChange(index, 'amount', e.target.value)}
                       min="0"
                       disabled={disabled}
+                      aria-label={`Miscellaneous fee ${index + 1} amount`}
                     />
                   </div>
                   {!disabled && (
@@ -493,6 +509,7 @@ export default function CategoryList({
                       onClick={() => removeMiscFee(index)}
                       className={styles.removeButton}
                       title="Remove Fee"
+                      aria-label={`Remove miscellaneous fee ${index + 1}`}
                     >
                       <i className="fas fa-trash-alt"></i>
                     </button>
