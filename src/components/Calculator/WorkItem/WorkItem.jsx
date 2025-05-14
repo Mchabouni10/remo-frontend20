@@ -1,5 +1,6 @@
 // src/components/Calculator/WorkItem/WorkItem.jsx
 
+
 import React, { useCallback, useState, useRef } from 'react';
 import SurfaceInput from '../SurfaceInput/SurfaceInput';
 import { WORK_TYPES as WORK_TYPES1, SUBTYPE_OPTIONS as SUBTYPE_OPTIONS1, DEFAULT_SUBTYPES as DEFAULT_SUBTYPES1 } from '../data/workTypes';
@@ -59,15 +60,16 @@ export default function WorkItem({
     ], []);
   })();
 
-  const isSurfaceBased = workItem.type
-    ? Object.values(WORK_TYPES).some(category => category.surfaceBased.includes(workItem.type))
-    : false;
-  const isLinearFtBased = workItem.type
-    ? Object.values(WORK_TYPES).some(category => category.linearFtBased.includes(workItem.type))
-    : false;
-  const isUnitBased = workItem.type
-    ? Object.values(WORK_TYPES).some(category => category.unitBased.includes(workItem.type))
-    : false;
+  // Determine default measurement type based on WORK_TYPES category
+  const getDefaultMeasurementType = (type) => {
+    if (!type) return 'single-surface';
+    for (const category of Object.values(WORK_TYPES)) {
+      if (category.surfaceBased.includes(type)) return 'single-surface';
+      if (category.linearFtBased.includes(type)) return 'linear-foot';
+      if (category.unitBased.includes(type)) return 'by-unit';
+    }
+    return 'single-surface';
+  };
 
   const updateWorkItem = useCallback(
     (field, value) => {
@@ -82,23 +84,30 @@ export default function WorkItem({
           const workItems = [...category.workItems];
           const item = { ...workItems[workIndex] };
 
-          if (['materialCost', 'laborCost', 'linearFt', 'units'].includes(field)) {
+          if (['materialCost', 'laborCost'].includes(field)) {
             item[field] = value === '' ? '' : Math.max(0, parseFloat(value) || 0);
           } else if (field === 'type') {
             item[field] = value;
             item.subtype = DEFAULT_SUBTYPES[value] || '';
-            const isNewTypeSurfaceBased = Object.values(WORK_TYPES).some(cat => cat.surfaceBased.includes(value));
-            item.surfaces = isNewTypeSurfaceBased
-              ? item.surfaces?.length > 0
-                ? item.surfaces
-                : [{ width: '10', height: '10', sqft: 100, manualSqft: false }]
-              : [];
-            item.linearFt = Object.values(WORK_TYPES).some(cat => cat.linearFtBased.includes(value))
-              ? item.linearFt || '10'
-              : '';
-            item.units = Object.values(WORK_TYPES).some(cat => cat.unitBased.includes(value))
-              ? item.units || '1'
-              : '';
+            const measurementType = getDefaultMeasurementType(value);
+            item.surfaces = item.surfaces?.length > 0 && item.surfaces[0].measurementType === measurementType
+              ? item.surfaces
+              : [{
+                  measurementType,
+                  ...(measurementType === 'single-surface' ? { width: '10', height: '10', sqft: 100, manualSqft: false } : {}),
+                  ...(measurementType === 'linear-foot' ? { linearFt: '10', sqft: 10 } : {}),
+                  ...(measurementType === 'by-unit' ? { units: '1', sqft: 1 } : {}),
+                  ...(measurementType === 'room-surface' ? {
+                    length: '12',
+                    width: '10',
+                    roomShape: 'rectangular',
+                    roomHeight: '8',
+                    doors: [{ size: '3x7', width: 3, height: 7, area: 21 }],
+                    windows: [{ size: '3x4', width: 3, height: 4, area: 12 }],
+                    closets: [{ size: '4x7', width: 4, height: 7, area: 28 }],
+                    sqft: 184,
+                  } : {}),
+                }];
             item.materialCost = item.materialCost ?? '0.00';
             item.laborCost = item.laborCost ?? '0.00';
           } else {
@@ -131,8 +140,24 @@ export default function WorkItem({
       const category = { ...newCategories[catIndex] };
       const workItems = [...category.workItems];
       const item = { ...workItems[workIndex] };
+      const measurementType = item.surfaces?.length > 0 ? item.surfaces[0].measurementType : getDefaultMeasurementType(item.type);
 
-      item.surfaces = [...(item.surfaces || []), { width: '10', height: '10', sqft: 100, manualSqft: false }];
+      item.surfaces = [...(item.surfaces || []), {
+        measurementType,
+        ...(measurementType === 'single-surface' ? { width: '10', height: '10', sqft: 100, manualSqft: false } : {}),
+        ...(measurementType === 'linear-foot' ? { linearFt: '10', sqft: 10 } : {}),
+        ...(measurementType === 'by-unit' ? { units: '1', sqft: 1 } : {}),
+        ...(measurementType === 'room-surface' ? {
+          length: '12',
+          width: '10',
+          roomShape: 'rectangular',
+          roomHeight: '8',
+          doors: [{ size: '3x7', width: 3, height: 7, area: 21 }],
+          windows: [{ size: '3x4', width: 3, height: 4, area: 12 }],
+          closets: [{ size: '4x7', width: 4, height: 7, area: 28 }],
+          sqft: 184,
+        } : {}),
+      }];
       workItems[workIndex] = item;
       category.workItems = workItems;
       newCategories[catIndex] = category;
@@ -144,40 +169,51 @@ export default function WorkItem({
   const laborCost = parseFloat(workItem.laborCost) || 0;
   const costOptions = Array.from({ length: 21 }, (_, i) => i.toString()).concat('Custom');
 
-  const totalMaterialCost = isSurfaceBased
-    ? workItem.surfaces?.reduce((sum, surf) => sum + ((parseFloat(surf.sqft) || 0) * materialCost), 0) || 0
-    : isLinearFtBased
-    ? (parseFloat(workItem.linearFt) || 0) * materialCost
-    : isUnitBased
-    ? (parseFloat(workItem.units) || 0) * materialCost
-    : 0;
-  const totalLaborCost = isSurfaceBased
-    ? workItem.surfaces?.reduce((sum, surf) => sum + ((parseFloat(surf.sqft) || 0) * laborCost), 0) || 0
-    : isLinearFtBased
-    ? (parseFloat(workItem.linearFt) || 0) * laborCost
-    : isUnitBased
-    ? (parseFloat(workItem.units) || 0) * laborCost
-    : 0;
-  const totalCost = (totalMaterialCost + totalLaborCost).toFixed(2);
-  const totalUnits = isSurfaceBased
-    ? workItem.surfaces?.reduce((sum, surf) => sum + (parseFloat(surf.sqft) || 0), 0) || 0
-    : isLinearFtBased
-    ? parseFloat(workItem.linearFt) || 0
-    : isUnitBased
-    ? parseFloat(workItem.units) || 0
-    : 0;
-  const unitLabel = isSurfaceBased ? 'sqft' : isLinearFtBased ? 'ft' : 'units';
+  const primaryMeasurementType = workItem.surfaces?.length > 0
+    ? workItem.surfaces[0].measurementType
+    : getDefaultMeasurementType(workItem.type);
 
-  const materialLabel = isSurfaceBased
-    ? 'Material Cost per Sqft ($)'
-    : isLinearFtBased
+  const materialLabel = primaryMeasurementType === 'linear-foot'
     ? 'Material Cost per Linear Ft ($)'
-    : 'Material Cost per Unit ($)';
-  const laborLabel = isSurfaceBased
-    ? 'Labor Cost per Sqft ($)'
-    : isLinearFtBased
+    : primaryMeasurementType === 'by-unit'
+    ? 'Material Cost per Unit ($)'
+    : 'Material Cost per Sqft ($)';
+
+  const laborLabel = primaryMeasurementType === 'linear-foot'
     ? 'Labor Cost per Linear Ft ($)'
-    : 'Labor Cost per Unit ($)';
+    : primaryMeasurementType === 'by-unit'
+    ? 'Labor Cost per Unit ($)'
+    : 'Labor Cost per Sqft ($)';
+
+  const totalMaterialCost = workItem.surfaces?.reduce((sum, surf) => {
+    const qty = surf.measurementType === 'linear-foot'
+      ? parseFloat(surf.linearFt) || 0
+      : surf.measurementType === 'by-unit'
+      ? parseFloat(surf.units) || 0
+      : parseFloat(surf.sqft) || 0;
+    return sum + qty * materialCost;
+  }, 0) || 0;
+
+  const totalLaborCost = workItem.surfaces?.reduce((sum, surf) => {
+    const qty = surf.measurementType === 'linear-foot'
+      ? parseFloat(surf.linearFt) || 0
+      : surf.measurementType === 'by-unit'
+      ? parseFloat(surf.units) || 0
+      : parseFloat(surf.sqft) || 0;
+    return sum + qty * laborCost;
+  }, 0) || 0;
+
+  const totalCost = (totalMaterialCost + totalLaborCost).toFixed(2);
+
+  const totalUnits = workItem.surfaces?.reduce((sum, surf) => {
+    return sum + (surf.measurementType === 'linear-foot'
+      ? parseFloat(surf.linearFt) || 0
+      : surf.measurementType === 'by-unit'
+      ? parseFloat(surf.units) || 0
+      : parseFloat(surf.sqft) || 0);
+  }, 0) || 0;
+
+  const unitLabel = primaryMeasurementType === 'linear-foot' ? 'ft' : primaryMeasurementType === 'by-unit' ? 'units' : 'sqft';
 
   const handleMaterialSelectChange = (value) => {
     if (value === 'Custom') {
@@ -259,9 +295,9 @@ export default function WorkItem({
         </div>
       )}
 
-      {isSurfaceBased && workItem.surfaces?.length > 0 && (
-        <div className={styles.surfaces}>
-          {workItem.surfaces.map((surf, surfIndex) => (
+      <div className={styles.surfaces}>
+        {workItem.surfaces?.length > 0 ? (
+          workItem.surfaces.map((surf, surfIndex) => (
             <SurfaceInput
               key={surfIndex}
               catIndex={catIndex}
@@ -271,54 +307,45 @@ export default function WorkItem({
               setCategories={setCategories}
               showRemove={workItem.surfaces.length > 1 && !disabled}
               disabled={disabled}
-              materialCost={materialCost}
-              laborCost={laborCost}
             />
-          ))}
-          {!disabled && (
-            <button
-              onClick={addSurface}
-              className={styles.addSurfaceButton}
-              title="Add Surface"
-              aria-label="Add surface"
-            >
-              <i className="fas fa-plus"></i> Add Surface
-            </button>
-          )}
-        </div>
-      )}
-      {isLinearFtBased && (
-        <div className={styles.workItemRow}>
-          <label>
-            <i className="fas fa-ruler-horizontal"></i> Linear Feet:
-          </label>
-          <input
-            type="text"
-            pattern="[0-9]*\.?[0-9]*"
-            value={workItem.linearFt || ''}
-            onChange={(e) => updateWorkItem('linearFt', e.target.value)}
-            className={styles.input}
+          ))
+        ) : (
+          <SurfaceInput
+            catIndex={catIndex}
+            workIndex={workIndex}
+            surfIndex={0}
+            surface={{
+              measurementType: getDefaultMeasurementType(workItem.type),
+              ...(getDefaultMeasurementType(workItem.type) === 'single-surface' ? { width: '10', height: '10', sqft: 100, manualSqft: false } : {}),
+              ...(getDefaultMeasurementType(workItem.type) === 'linear-foot' ? { linearFt: '10', sqft: 10 } : {}),
+              ...(getDefaultMeasurementType(workItem.type) === 'by-unit' ? { units: '1', sqft: 1 } : {}),
+              ...(getDefaultMeasurementType(workItem.type) === 'room-surface' ? {
+                length: '12',
+                width: '10',
+                roomShape: 'rectangular',
+                roomHeight: '8',
+                doors: [{ size: '3x7', width: 3, height: 7, area: 21 }],
+                windows: [{ size: '3x4', width: 3, height: 4, area: 12 }],
+                closets: [{ size: '4x7', width: 4, height: 7, area: 28 }],
+                sqft: 184,
+              } : {}),
+            }}
+            setCategories={setCategories}
+            showRemove={false}
             disabled={disabled}
-            aria-label="Linear feet"
           />
-        </div>
-      )}
-      {isUnitBased && (
-        <div className={styles.workItemRow}>
-          <label>
-            <i className="fas fa-boxes"></i> Units:
-          </label>
-          <input
-            type="text"
-            pattern="[0-9]*\.?[0-9]*"
-            value={workItem.units || ''}
-            onChange={(e) => updateWorkItem('units', e.target.value)}
-            className={styles.input}
-            disabled={disabled}
-            aria-label="Units"
-          />
-        </div>
-      )}
+        )}
+        {!disabled && (
+          <button
+            onClick={addSurface}
+            className={styles.addSurfaceButton}
+            title="Add Surface"
+            aria-label="Add surface"
+          >
+            <i className="fas fa-plus"></i> Add Surface
+          </button>
+        )}
+      </div>
 
       <div className={styles.pricingSection}>
         <div className={styles.pricingField}>
@@ -342,8 +369,8 @@ export default function WorkItem({
             <div className={styles.inputWrapper}>
               <i className={`fas fa-dollar-sign ${styles.inputIcon}`}></i>
               <input
-                type="text"
-                pattern="[0-9]*\.?[0-9]*"
+                type="number"
+                step="0.01"
                 value={materialCost}
                 onChange={(e) => updateWorkItem('materialCost', e.target.value)}
                 className={styles.input}
@@ -375,8 +402,8 @@ export default function WorkItem({
             <div className={styles.inputWrapper}>
               <i className={`fas fa-dollar-sign ${styles.inputIcon}`}></i>
               <input
-                type="text"
-                pattern="[0-9]*\.?[0-9]*"
+                type="number"
+                step="0.01"
                 value={laborCost}
                 onChange={(e) => updateWorkItem('laborCost', e.target.value)}
                 className={styles.input}

@@ -12,7 +12,7 @@ export default function SurfaceInput({
   showRemove,
   disabled = false,
 }) {
-  const [isRoomPaintingMode, setIsRoomPaintingMode] = useState(surface.isRoomPaintingMode || false);
+  const [measurementType, setMeasurementType] = useState(surface.measurementType || 'single-surface');
   const [roomShape, setRoomShape] = useState(surface.roomShape || 'rectangular');
   const [lastAddedExclusion, setLastAddedExclusion] = useState(null);
   const [showUndo, setShowUndo] = useState(false);
@@ -55,12 +55,18 @@ export default function SurfaceInput({
               const updatedSurfaces = item.surfaces.map((surf, k) => {
                 if (k === surfIndex) {
                   const updated = { ...surf };
-                  if (field === 'width' || field === 'height' || field === 'length' || field === 'customHeight') {
+                  if (['width', 'height', 'length', 'customHeight', 'linearFt', 'units'].includes(field)) {
                     updated[field] = value === '' ? '' : Math.max(0, parseFloat(value) || 0);
-                    if (!surf.manualSqft && !surf.isRoomPaintingMode) {
-                      const width = updated.width || 0;
-                      const height = updated.height || 0;
-                      updated.sqft = width * height;
+                    if (field === 'width' || field === 'height') {
+                      if (!surf.manualSqft && surf.measurementType === 'single-surface') {
+                        const width = updated.width || 0;
+                        const height = updated.height || 0;
+                        updated.sqft = width * height;
+                      }
+                    } else if (field === 'linearFt' && surf.measurementType === 'linear-foot') {
+                      updated.sqft = updated.linearFt || 0;
+                    } else if (field === 'units' && surf.measurementType === 'by-unit') {
+                      updated.sqft = updated.units || 0;
                     }
                   } else if (field === 'sqft' && surf.manualSqft) {
                     updated.sqft = Math.max(0, parseFloat(value) || 0);
@@ -85,8 +91,8 @@ export default function SurfaceInput({
                   } else {
                     updated[field] = value;
                   }
-                  // Calculate room painting area if in room painting mode
-                  if (updated.isRoomPaintingMode) {
+                  // Calculate room painting area if in room-surface mode
+                  if (updated.measurementType === 'room-surface') {
                     const length = updated.length || 0;
                     const width = updated.roomShape === 'square' ? length : updated.width || 0;
                     const height = updated.roomHeight === 'custom' ? (updated.customHeight || 8) : parseFloat(updated.roomHeight || 8);
@@ -118,7 +124,7 @@ export default function SurfaceInput({
   };
 
   const addExclusion = (type) => {
-    if (disabled) return;
+    if (disabled || measurementType !== 'room-surface') return;
     setCategories((prevCategories) =>
       prevCategories.map((cat, i) => {
         if (i === catIndex) {
@@ -135,10 +141,8 @@ export default function SurfaceInput({
                   ).find(s => s.value === defaultSize);
                   const newExclusion = { size: defaultSize, width: sizeData.width, height: sizeData.height, area: sizeData.area };
                   updated[type] = [...(updated[type] || []), newExclusion];
-                  // Store for undo
                   setLastAddedExclusion({ type, index: updated[type].length - 1 });
                   setShowUndo(true);
-                  // Recalculate sqft
                   const length = updated.length || 0;
                   const width = updated.roomShape === 'square' ? length : updated.width || 0;
                   const height = updated.roomHeight === 'custom' ? (updated.customHeight || 8) : parseFloat(updated.roomHeight || 8);
@@ -176,18 +180,19 @@ export default function SurfaceInput({
                 if (k === surfIndex) {
                   const updated = { ...surf };
                   updated[type] = updated[type] ? updated[type].filter((_, idx) => idx !== index) : [];
-                  // Recalculate sqft
-                  const length = updated.length || 0;
-                  const width = updated.roomShape === 'square' ? length : updated.width || 0;
-                  const height = updated.roomHeight === 'custom' ? (updated.customHeight || 8) : parseFloat(updated.roomHeight || 8);
-                  const perimeter = updated.roomShape === 'square' ? 4 * length : 2 * (length + width);
-                  const wallArea = perimeter * height;
-                  const ceilingArea = length * width;
-                  const exclusions =
-                    (updated.doors || []).reduce((sum, d) => sum + (d.area || 0), 0) +
-                    (updated.windows || []).reduce((sum, w) => sum + (w.area || 0), 0) +
-                    (updated.closets || []).reduce((sum, c) => sum + (c.area || 0), 0);
-                  updated.sqft = Math.max(0, wallArea + ceilingArea - exclusions);
+                  if (updated.measurementType === 'room-surface') {
+                    const length = updated.length || 0;
+                    const width = updated.roomShape === 'square' ? length : updated.width || 0;
+                    const height = updated.roomHeight === 'custom' ? (updated.customHeight || 8) : parseFloat(updated.roomHeight || 8);
+                    const perimeter = updated.roomShape === 'square' ? 4 * length : 2 * (length + width);
+                    const wallArea = perimeter * height;
+                    const ceilingArea = length * width;
+                    const exclusions =
+                      (updated.doors || []).reduce((sum, d) => sum + (d.area || 0), 0) +
+                      (updated.windows || []).reduce((sum, w) => sum + (w.area || 0), 0) +
+                      (updated.closets || []).reduce((sum, c) => sum + (c.area || 0), 0);
+                    updated.sqft = Math.max(0, wallArea + ceilingArea - exclusions);
+                  }
                   return updated;
                 }
                 return surf;
@@ -201,7 +206,7 @@ export default function SurfaceInput({
         return cat;
       })
     );
-    setShowUndo(false); // Hide undo button if removing manually
+    setShowUndo(false);
   };
 
   const undoAddExclusion = () => {
@@ -234,10 +239,9 @@ export default function SurfaceInput({
     );
   };
 
-  const toggleRoomPaintingMode = () => {
+  const handleMeasurementTypeChange = (type) => {
     if (disabled) return;
-    const newMode = !isRoomPaintingMode;
-    setIsRoomPaintingMode(newMode);
+    setMeasurementType(type);
     setCategories((prevCategories) =>
       prevCategories.map((cat, i) => {
         if (i === catIndex) {
@@ -245,21 +249,33 @@ export default function SurfaceInput({
             if (j === workIndex) {
               const updatedSurfaces = item.surfaces.map((surf, k) => {
                 if (k === surfIndex) {
-                  const updated = {
-                    ...surf,
-                    isRoomPaintingMode: newMode,
-                    manualSqft: false,
-                    roomShape: newMode ? roomShape : undefined,
-                    length: newMode ? (surf.length || '12') : '',
-                    width: newMode && roomShape === 'rectangular' ? (surf.width || '10') : '',
-                    roomHeight: newMode ? (surf.roomHeight || '8') : undefined,
-                    customHeight: newMode ? (surf.customHeight || '') : undefined,
-                    doors: newMode ? (surf.doors || [{ size: '3x7', width: 3, height: 7, area: 21 }]) : [],
-                    windows: newMode ? (surf.windows || [{ size: '3x4', width: 3, height: 4, area: 12 }]) : [],
-                    closets: newMode ? (surf.closets || [{ size: '4x7', width: 4, height: 7, area: 28 }]) : [],
-                  };
-                  // Initialize sqft for room painting mode
-                  if (newMode) {
+                  const updated = { ...surf, measurementType: type };
+                  if (type === 'single-surface') {
+                    updated.width = surf.width || '10';
+                    updated.height = surf.height || '10';
+                    updated.sqft = !surf.manualSqft ? (parseFloat(updated.width) * parseFloat(updated.height)) || 100 : surf.sqft || 100;
+                    updated.manualSqft = surf.manualSqft || false;
+                    updated.length = '';
+                    updated.roomShape = undefined;
+                    updated.roomHeight = undefined;
+                    updated.customHeight = undefined;
+                    updated.doors = [];
+                    updated.windows = [];
+                    updated.closets = [];
+                    updated.linearFt = '';
+                    updated.units = '';
+                  } else if (type === 'room-surface') {
+                    updated.length = surf.length || '12';
+                    updated.width = roomShape === 'rectangular' ? (surf.width || '10') : '';
+                    updated.roomShape = roomShape;
+                    updated.roomHeight = surf.roomHeight || '8';
+                    updated.customHeight = surf.customHeight || '';
+                    updated.doors = surf.doors || [{ size: '3x7', width: 3, height: 7, area: 21 }];
+                    updated.windows = surf.windows || [{ size: '3x4', width: 3, height: 4, area: 12 }];
+                    updated.closets = surf.closets || [{ size: '4x7', width: 4, height: 7, area: 28 }];
+                    updated.manualSqft = false;
+                    updated.linearFt = '';
+                    updated.units = '';
                     const length = parseFloat(updated.length) || 0;
                     const width = updated.roomShape === 'square' ? length : parseFloat(updated.width) || 0;
                     const height = updated.roomHeight === 'custom' ? (parseFloat(updated.customHeight) || 8) : parseFloat(updated.roomHeight || 8);
@@ -271,8 +287,34 @@ export default function SurfaceInput({
                       (updated.windows || []).reduce((sum, w) => sum + (w.area || 0), 0) +
                       (updated.closets || []).reduce((sum, c) => sum + (c.area || 0), 0);
                     updated.sqft = Math.max(0, wallArea + ceilingArea - exclusions);
-                  } else {
-                    updated.sqft = (parseFloat(updated.width) || 0) * (parseFloat(updated.height) || 0);
+                  } else if (type === 'linear-foot') {
+                    updated.linearFt = surf.linearFt || '10';
+                    updated.sqft = parseFloat(updated.linearFt) || 10;
+                    updated.width = '';
+                    updated.height = '';
+                    updated.manualSqft = false;
+                    updated.length = '';
+                    updated.roomShape = undefined;
+                    updated.roomHeight = undefined;
+                    updated.customHeight = undefined;
+                    updated.doors = [];
+                    updated.windows = [];
+                    updated.closets = [];
+                    updated.units = '';
+                  } else if (type === 'by-unit') {
+                    updated.units = surf.units || '1';
+                    updated.sqft = parseFloat(updated.units) || 1;
+                    updated.width = '';
+                    updated.height = '';
+                    updated.manualSqft = false;
+                    updated.length = '';
+                    updated.roomShape = undefined;
+                    updated.roomHeight = undefined;
+                    updated.customHeight = undefined;
+                    updated.doors = [];
+                    updated.windows = [];
+                    updated.closets = [];
+                    updated.linearFt = '';
                   }
                   return updated;
                 }
@@ -317,22 +359,27 @@ export default function SurfaceInput({
 
   return (
     <div className={styles.surfaceRow}>
-      <label className={styles.toggleLabel} title="Toggle between single surface and room painting mode">
-        <input
-          type="checkbox"
-          checked={isRoomPaintingMode}
-          onChange={toggleRoomPaintingMode}
+      <div className={styles.inputWrapper}>
+        <i className={`fas fa-ruler-combined ${styles.inputIcon}`}></i>
+        <select
+          value={measurementType}
+          onChange={(e) => handleMeasurementTypeChange(e.target.value)}
+          className={styles.input}
           disabled={disabled}
-        />
-        <i className={`fas ${isRoomPaintingMode ? 'fa-home' : 'fa-square'} ${styles.icon}`}></i>
-        <span>{isRoomPaintingMode ? 'Room Painting' : 'Single Surface'}</span>
-      </label>
+          title="Select measurement type"
+          aria-label="Measurement type"
+        >
+          <option value="single-surface">Single Surface</option>
+          <option value="room-surface">Room Surface</option>
+          <option value="linear-foot">Linear Foot</option>
+          <option value="by-unit">By Unit</option>
+        </select>
+      </div>
 
-      {isRoomPaintingMode ? (
+      {measurementType === 'room-surface' ? (
         <div className={styles.roomPaintingContainer}>
           <div className={styles.inputGroup}>
             <span className={styles.groupLabel}>Room Dimensions</span>
-            {/* Room Shape Selection */}
             <div className={styles.inputWrapper}>
               <i className={`fas fa-shapes ${styles.inputIcon}`}></i>
               <select
@@ -341,13 +388,12 @@ export default function SurfaceInput({
                 className={styles.input}
                 disabled={disabled}
                 title="Select the room's floor plan shape"
+                aria-label="Room shape"
               >
                 <option value="rectangular">Rectangular Room</option>
                 <option value="square">Square Room</option>
               </select>
             </div>
-
-            {/* Dimensions */}
             <div className={styles.inputWrapper}>
               <i className={`fas fa-ruler-horizontal ${styles.inputIcon}`}></i>
               <input
@@ -360,6 +406,7 @@ export default function SurfaceInput({
                 step="0.1"
                 disabled={disabled}
                 title="Enter the room's length or side length in feet (e.g., 12)"
+                aria-label="Room length"
               />
             </div>
             {roomShape === 'rectangular' && (
@@ -375,11 +422,10 @@ export default function SurfaceInput({
                   step="0.1"
                   disabled={disabled}
                   title="Enter the room's width in feet (e.g., 10)"
+                  aria-label="Room width"
                 />
               </div>
             )}
-
-            {/* Height Selection */}
             <div className={styles.inputWrapper}>
               <i className={`fas fa-ruler-vertical ${styles.inputIcon}`}></i>
               <select
@@ -388,6 +434,7 @@ export default function SurfaceInput({
                 className={styles.input}
                 disabled={disabled}
                 title="Select the room's ceiling height"
+                aria-label="Room height"
               >
                 <option value="8">8 ft (Standard)</option>
                 <option value="10">10 ft</option>
@@ -407,6 +454,7 @@ export default function SurfaceInput({
                   step="0.1"
                   disabled={disabled}
                   title="Enter a custom ceiling height in feet (e.g., 9)"
+                  aria-label="Custom room height"
                 />
               </div>
             )}
@@ -419,11 +467,11 @@ export default function SurfaceInput({
                 onClick={undoAddExclusion}
                 className={styles.undoButton}
                 title={`Undo adding ${lastAddedExclusion.type.slice(0, -1)}`}
+                aria-label={`Undo adding ${lastAddedExclusion.type.slice(0, -1)}`}
               >
                 <i className="fas fa-undo"></i> Undo Add {lastAddedExclusion.type.slice(0, -1)}
               </button>
             )}
-            {/* Doors */}
             {(surface.doors || []).map((door, idx) => (
               <div key={`door-${idx}`} className={styles.exclusionRow}>
                 <div className={styles.inputWrapper}>
@@ -434,6 +482,7 @@ export default function SurfaceInput({
                     className={styles.input}
                     disabled={disabled}
                     title="Select door size or choose Custom"
+                    aria-label={`Door ${idx + 1} size`}
                   >
                     {DOOR_SIZES.map(size => (
                       <option key={size.value} value={size.value}>{size.label}</option>
@@ -446,28 +495,30 @@ export default function SurfaceInput({
                       <i className={`fas fa-arrows-alt-h ${styles.inputIcon}`}></i>
                       <input
                         type="number"
-                        placeholder="Width (ft, e.g., 7)"
+                        placeholder="Width (ft)"
                         value={door.width || ''}
                         onChange={(e) => updateSurface('width', e.target.value, idx, 'doors')}
                         className={styles.input}
                         min="0"
                         step="0.1"
                         disabled={disabled}
-                        title="Enter custom door width in feet (e.g., 7)"
+                        title="Enter custom door width in feet (e.g., 3)"
+                        aria-label={`Door ${idx + 1} custom width`}
                       />
                     </div>
                     <div className={styles.inputWrapper}>
                       <i className={`fas fa-arrows-alt-v ${styles.inputIcon}`}></i>
                       <input
                         type="number"
-                        placeholder="Height (ft, e.g., 5)"
+                        placeholder="Height (ft)"
                         value={door.height || ''}
                         onChange={(e) => updateSurface('height', e.target.value, idx, 'doors')}
                         className={styles.input}
                         min="0"
                         step="0.1"
                         disabled={disabled}
-                        title="Enter custom door height in feet (e.g., 5)"
+                        title="Enter custom door height in feet (e.g., 7)"
+                        aria-label={`Door ${idx + 1} custom height`}
                       />
                     </div>
                   </>
@@ -477,6 +528,7 @@ export default function SurfaceInput({
                     onClick={() => removeExclusion('doors', idx)}
                     className={styles.removeExclusionButton}
                     title="Remove this door"
+                    aria-label={`Remove door ${idx + 1}`}
                   >
                     <i className="fas fa-minus-circle"></i>
                   </button>
@@ -488,12 +540,11 @@ export default function SurfaceInput({
                 onClick={() => addExclusion('doors')}
                 className={styles.addExclusionButton}
                 title="Add another door"
+                aria-label="Add door"
               >
                 <i className="fas fa-plus"></i> Add Door
               </button>
             )}
-
-            {/* Windows */}
             {(surface.windows || []).map((window, idx) => (
               <div key={`window-${idx}`} className={styles.exclusionRow}>
                 <div className={styles.inputWrapper}>
@@ -504,6 +555,7 @@ export default function SurfaceInput({
                     className={styles.input}
                     disabled={disabled}
                     title="Select window size or choose Custom"
+                    aria-label={`Window ${idx + 1} size`}
                   >
                     {WINDOW_SIZES.map(size => (
                       <option key={size.value} value={size.value}>{size.label}</option>
@@ -516,28 +568,30 @@ export default function SurfaceInput({
                       <i className={`fas fa-arrows-alt-h ${styles.inputIcon}`}></i>
                       <input
                         type="number"
-                        placeholder="Width (ft, e.g., 7)"
+                        placeholder="Width (ft)"
                         value={window.width || ''}
                         onChange={(e) => updateSurface('width', e.target.value, idx, 'windows')}
                         className={styles.input}
                         min="0"
                         step="0.1"
                         disabled={disabled}
-                        title="Enter custom window width in feet (e.g., 7)"
+                        title="Enter custom window width in feet (e.g., 3)"
+                        aria-label={`Window ${idx + 1} custom width`}
                       />
                     </div>
                     <div className={styles.inputWrapper}>
                       <i className={`fas fa-arrows-alt-v ${styles.inputIcon}`}></i>
                       <input
                         type="number"
-                        placeholder="Height (ft, e.g., 5)"
+                        placeholder="Height (ft)"
                         value={window.height || ''}
                         onChange={(e) => updateSurface('height', e.target.value, idx, 'windows')}
                         className={styles.input}
                         min="0"
                         step="0.1"
                         disabled={disabled}
-                        title="Enter custom window height in feet (e.g., 5)"
+                        title="Enter custom window height in feet (e.g., 4)"
+                        aria-label={`Window ${idx + 1} custom height`}
                       />
                     </div>
                   </>
@@ -547,6 +601,7 @@ export default function SurfaceInput({
                     onClick={() => removeExclusion('windows', idx)}
                     className={styles.removeExclusionButton}
                     title="Remove this window"
+                    aria-label={`Remove window ${idx + 1}`}
                   >
                     <i className="fas fa-minus-circle"></i>
                   </button>
@@ -558,12 +613,11 @@ export default function SurfaceInput({
                 onClick={() => addExclusion('windows')}
                 className={styles.addExclusionButton}
                 title="Add another window"
+                aria-label="Add window"
               >
                 <i className="fas fa-plus"></i> Add Window
               </button>
             )}
-
-            {/* Closets */}
             {(surface.closets || []).map((closet, idx) => (
               <div key={`closet-${idx}`} className={styles.exclusionRow}>
                 <div className={styles.inputWrapper}>
@@ -574,6 +628,7 @@ export default function SurfaceInput({
                     className={styles.input}
                     disabled={disabled}
                     title="Select closet opening size or choose Custom"
+                    aria-label={`Closet ${idx + 1} size`}
                   >
                     {CLOSET_SIZES.map(size => (
                       <option key={size.value} value={size.value}>{size.label}</option>
@@ -586,28 +641,30 @@ export default function SurfaceInput({
                       <i className={`fas fa-arrows-alt-h ${styles.inputIcon}`}></i>
                       <input
                         type="number"
-                        placeholder="Width (ft, e.g., 7)"
+                        placeholder="Width (ft)"
                         value={closet.width || ''}
                         onChange={(e) => updateSurface('width', e.target.value, idx, 'closets')}
                         className={styles.input}
                         min="0"
                         step="0.1"
                         disabled={disabled}
-                        title="Enter custom closet opening width in feet (e.g., 7)"
+                        title="Enter custom closet opening width in feet (e.g., 4)"
+                        aria-label={`Closet ${idx + 1} custom width`}
                       />
                     </div>
                     <div className={styles.inputWrapper}>
                       <i className={`fas fa-arrows-alt-v ${styles.inputIcon}`}></i>
                       <input
                         type="number"
-                        placeholder="Height (ft, e.g., 5)"
+                        placeholder="Height (ft)"
                         value={closet.height || ''}
                         onChange={(e) => updateSurface('height', e.target.value, idx, 'closets')}
                         className={styles.input}
                         min="0"
                         step="0.1"
                         disabled={disabled}
-                        title="Enter custom closet opening height in feet (e.g., 5)"
+                        title="Enter custom closet opening height in feet (e.g., 7)"
+                        aria-label={`Closet ${idx + 1} custom height`}
                       />
                     </div>
                   </>
@@ -617,6 +674,7 @@ export default function SurfaceInput({
                     onClick={() => removeExclusion('closets', idx)}
                     className={styles.removeExclusionButton}
                     title="Remove this closet opening"
+                    aria-label={`Remove closet ${idx + 1}`}
                   >
                     <i className="fas fa-minus-circle"></i>
                   </button>
@@ -628,13 +686,14 @@ export default function SurfaceInput({
                 onClick={() => addExclusion('closets')}
                 className={styles.addExclusionButton}
                 title="Add another closet opening"
+                aria-label="Add closet"
               >
                 <i className="fas fa-plus"></i> Add Closet
               </button>
             )}
           </div>
         </div>
-      ) : (
+      ) : measurementType === 'single-surface' ? (
         <>
           <label className={styles.toggleLabel} title="Toggle manual square footage input">
             <input
@@ -642,6 +701,7 @@ export default function SurfaceInput({
               checked={surface.manualSqft || false}
               onChange={toggleManualSqft}
               disabled={disabled}
+              aria-label="Toggle manual square footage"
             />
             <i className={`fas ${surface.manualSqft ? 'fa-ruler' : 'fa-calculator'} ${styles.icon}`}></i>
             <span>Manual</span>
@@ -659,6 +719,7 @@ export default function SurfaceInput({
                 step="0.1"
                 disabled={disabled}
                 title="Enter the total square footage manually"
+                aria-label="Manual square footage"
               />
             </div>
           ) : (
@@ -675,6 +736,7 @@ export default function SurfaceInput({
                   step="0.1"
                   disabled={disabled}
                   title="Enter the surface width in feet"
+                  aria-label="Surface width"
                 />
               </div>
               <div className={styles.inputWrapper}>
@@ -689,22 +751,56 @@ export default function SurfaceInput({
                   step="0.1"
                   disabled={disabled}
                   title="Enter the surface height in feet"
+                  aria-label="Surface height"
                 />
               </div>
             </>
           )}
         </>
+      ) : measurementType === 'linear-foot' ? (
+        <div className={styles.inputWrapper}>
+          <i className={`fas fa-ruler-horizontal ${styles.inputIcon}`}></i>
+          <input
+            type="number"
+            placeholder="Linear Feet"
+            value={surface.linearFt || ''}
+            onChange={(e) => updateSurface('linearFt', e.target.value)}
+            className={styles.input}
+            min="0"
+            step="0.1"
+            disabled={disabled}
+            title="Enter the total linear feet"
+            aria-label="Linear feet"
+          />
+        </div>
+      ) : (
+        <div className={styles.inputWrapper}>
+          <i className={`fas fa-boxes ${styles.inputIcon}`}></i>
+          <input
+            type="number"
+            placeholder="Units"
+            value={surface.units || ''}
+            onChange={(e) => updateSurface('units', e.target.value)}
+            className={styles.input}
+            min="0"
+            step="1"
+            disabled={disabled}
+            title="Enter the number of units"
+            aria-label="Units"
+          />
+        </div>
       )}
 
       <span className={styles.sqft}>
         <i className={`fas fa-square-full ${styles.sqftIcon}`}></i>
-        {(parseFloat(surface.sqft) || 0).toFixed(2)} sqft
+        {(parseFloat(surface.sqft) || 0).toFixed(2)} {measurementType === 'by-unit' ? 'units' : measurementType === 'linear-foot' ? 'ft' : 'sqft'}
       </span>
       {showRemove && !disabled && (
         <button
           onClick={removeSurface}
           className={styles.removeSurfaceButton}
           title="Remove this surface"
+          aria-label="Remove surface"
         >
           <i className="fas fa-trash-alt"></i>
         </button>
