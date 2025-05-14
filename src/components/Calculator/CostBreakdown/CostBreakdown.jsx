@@ -1,7 +1,6 @@
 // src/components/Calculator/CostBreakdown/CostBreakdown.jsx
 import React, { useState, useMemo } from 'react';
 import { calculateTotal } from '../calculations/costCalculations';
-import { getUnits, getUnitLabel } from '../utils/calculatorUtils';
 import styles from './CostBreakdown.module.css';
 
 export default function CostBreakdown({ categories, settings }) {
@@ -10,7 +9,38 @@ export default function CostBreakdown({ categories, settings }) {
   const [showMiscDetails, setShowMiscDetails] = useState(false);
   const [showPaymentDetails, setShowPaymentDetails] = useState(false);
 
-  // Memoized calculations (all hooks moved before any returns)
+  // Helper functions to determine units and unit labels
+  const getUnits = (item) => {
+    if (!item?.surfaces || !Array.isArray(item.surfaces)) return 0;
+    return item.surfaces.reduce((sum, surf) => {
+      if (surf.measurementType === 'linear-foot') {
+        return sum + (parseFloat(surf.linearFt) || 0);
+      } else if (surf.measurementType === 'by-unit') {
+        return sum + (parseFloat(surf.units) || 0);
+      } else {
+        return sum + (parseFloat(surf.sqft) || 0);
+      }
+    }, 0);
+  };
+
+  const getUnitLabel = (item) => {
+    if (!item?.surfaces || !Array.isArray(item.surfaces) || item.surfaces.length === 0) {
+      return 'sqft';
+    }
+    const measurementType = item.surfaces[0]?.measurementType;
+    switch (measurementType) {
+      case 'linear-foot':
+        return 'linear ft';
+      case 'by-unit':
+        return 'units';
+      case 'single-surface':
+      case 'room-surface':
+      default:
+        return 'sqft';
+    }
+  };
+
+  // Memoized calculations
   const categoryBreakdowns = useMemo(() => {
     if (!categories || !Array.isArray(categories)) return [];
     return categories.map((cat) => {
@@ -18,10 +48,12 @@ export default function CostBreakdown({ categories, settings }) {
         return { name: cat.name || 'Unnamed', materialCost: 0, laborCost: 0, subtotal: 0, itemCount: 0 };
       }
       const materialCost = cat.workItems.reduce((sum, item) => {
-        return sum + (parseFloat(item.materialCost) || 0) * getUnits(item);
+        const qty = getUnits(item);
+        return sum + (parseFloat(item.materialCost) || 0) * qty;
       }, 0);
       const laborCost = cat.workItems.reduce((sum, item) => {
-        return sum + (parseFloat(item.laborCost) || 0) * getUnits(item);
+        const qty = getUnits(item);
+        return sum + (parseFloat(item.laborCost) || 0) * qty;
       }, 0);
       return {
         name: cat.name,
@@ -89,21 +121,21 @@ export default function CostBreakdown({ categories, settings }) {
     return (settings?.payments || []).reduce((sum, payment) => sum + (payment.isPaid ? payment.amount : 0), 0) + (settings?.deposit || 0);
   }, [settings?.payments, settings?.deposit]);
 
-  // Error handling (moved after all hooks)
+  // Error handling
   if (!categories || !Array.isArray(categories)) {
     return <div className={styles.error}>No valid categories provided.</div>;
   }
 
   // Detailed total calculations
-  const baseMaterialCost = totals.materialCost || 0;
-  const baseLaborCost = totals.laborCost || 0; // Post-discount labor cost
-  const laborDiscount = totals.laborDiscount || 0; // Dollar amount of labor discount
+  const baseMaterialCost = categoryBreakdowns.reduce((sum, cat) => sum + cat.materialCost, 0);
+  const baseLaborCost = categoryBreakdowns.reduce((sum, cat) => sum + cat.laborCost, 0);
+  const laborDiscount = totals.laborDiscount || 0;
   const baseSubtotal = baseMaterialCost + baseLaborCost;
   const wasteCost = baseSubtotal * (settings?.wasteFactor || 0);
   const taxAmount = baseSubtotal * (settings?.taxRate || 0);
   const markupAmount = baseSubtotal * (settings?.markup || 0);
   const miscFeesTotal = (settings?.miscFees || []).reduce((sum, fee) => sum + (parseFloat(fee.amount) || 0), 0);
-  const transportationFee = totals.transportationFee || 0;
+  const transportationFee = settings?.transportationFee || 0;
   const grandTotal = baseSubtotal + wasteCost + taxAmount + markupAmount + miscFeesTotal + transportationFee;
   const deposit = settings?.deposit || 0;
 
