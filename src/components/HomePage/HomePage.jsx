@@ -1,9 +1,8 @@
-//src/components/HomePage/HomePage.jsx
-
+// src/components/HomePage/HomePage.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSave, faUndo, faArrowLeft, faEdit } from '@fortawesome/free-solid-svg-icons';
+import { faSave, faUndo, faArrowLeft, faEdit, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import CustomerInfo from '../CustomerInfo/CustomerInfo';
 import Calculator from '../Calculator/Calculator';
 import CostBreakdown from '../Calculator/CostBreakdown/CostBreakdown';
@@ -45,6 +44,7 @@ export default function HomePage() {
   });
   const [projectId, setProjectId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isCustomerInfoVisible, setIsCustomerInfoVisible] = useState(true);
 
   const isDetailsMode = location.pathname.startsWith('/home/customer/') && id;
   const isEditMode = location.pathname.startsWith('/home/edit/') && id;
@@ -82,7 +82,7 @@ export default function HomePage() {
             wasteFactor: project.settings?.wasteFactor || 0,
             miscFees: project.settings?.miscFees || [],
             deposit: project.settings?.deposit || 0,
-            payments: project.settings?.payments || [], // Ensure payments is always an array
+            payments: project.settings?.payments || [],
             markup: project.settings?.markup || 0,
           });
         } catch (err) {
@@ -98,7 +98,7 @@ export default function HomePage() {
   }, [id, isEditMode, isDetailsMode, navigate]);
 
   const saveOrUpdateProject = async () => {
-    const requiredFields = ['firstName', 'lastName', 'street', 'phone', 'startDate', 'zipCode'];
+    const requiredFields = ['firstName', 'lastName', 'street', 'phone', 'startDate', 'zipCode', 'email', 'projectName'];
     const missing = requiredFields.filter((field) => {
       if (field === 'startDate') {
         return !customer[field] || (customer[field] instanceof Date && isNaN(customer[field].getTime()));
@@ -207,6 +207,10 @@ export default function HomePage() {
     }
   };
 
+  const toggleCustomerInfo = () => {
+    setIsCustomerInfoVisible(prev => !prev);
+  };
+
   if (loading) {
     return (
       <main className={styles.mainContent}>
@@ -218,7 +222,7 @@ export default function HomePage() {
   }
 
   return (
-    <main className={styles.mainContent}>
+    <main className={`${styles.mainContent} ${!isCustomerInfoVisible ? styles.mainContentCompact : ''}`}>
       <div className={styles.container}>
         <div className={styles.header}>
           <h1 className={styles.title}>
@@ -232,15 +236,39 @@ export default function HomePage() {
           )}
         </div>
         <div className={styles.content}>
-          <div className={styles.topRow}>
-            <section className={styles.customerSection}>
-              <CustomerInfo
-                customer={customer}
-                setCustomer={setCustomer}
-                disabled={isDetailsMode}
-              />
+          <div className={`${styles.topRow} ${!isCustomerInfoVisible ? styles.customerHidden : ''}`}>
+            {!isDetailsMode && (
+              <button
+                onClick={toggleCustomerInfo}
+                className={`${styles.toggleArrow} ${isCustomerInfoVisible ? styles.toggleArrowRight : styles.toggleArrowLeft}`}
+                disabled={loading}
+                aria-label={isCustomerInfoVisible ? 'Hide customer information' : 'Show customer information'}
+                aria-expanded={isCustomerInfoVisible}
+                aria-controls="customer-section"
+              >
+                <FontAwesomeIcon
+                  icon={isCustomerInfoVisible ? faChevronLeft : faChevronRight}
+                  className={styles.toggleIcon}
+                />
+              </button>
+            )}
+            <section
+              className={`${styles.customerSection} ${!isCustomerInfoVisible ? styles.customerSectionHidden : ''}`}
+              id="customer-section"
+            >
+              <div
+                className={styles.slideWrapper}
+                style={{ transform: isCustomerInfoVisible ? 'translateX(0)' : 'translateX(-100%)' }}
+                aria-hidden={!isCustomerInfoVisible}
+              >
+                <CustomerInfo
+                  customer={customer}
+                  setCustomer={setCustomer}
+                  disabled={isDetailsMode}
+                />
+              </div>
             </section>
-            <section className={styles.calculatorSection}>
+            <section className={`${styles.calculatorSection} ${!isCustomerInfoVisible ? styles.calculatorExpanded : ''}`}>
               <Calculator
                 categories={categories}
                 setCategories={setCategories}

@@ -1,0 +1,443 @@
+
+/* Root section container */
+.section {
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 8px var(--shadow);
+  overflow: hidden;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Section header with toggle */
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(to right, #e9ecef, #d3d8de);
+  border-radius: 10px 10px 0 0;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.sectionHeader:hover {
+  background: rgba(226, 232, 240, 0.3);
+}
+
+.sectionTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* Toggle button for sections */
+.toggleButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.125rem;
+  color: var(--primary);
+  padding: var(--spacing-xs);
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.toggleButton:hover,
+.toggleButton:focus-visible {
+  color: var(--secondary);
+  transform: scale(1.1);
+}
+
+.toggleButton:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--secondary);
+  border-radius: var(--radius-sm);
+}
+
+/* Content area */
+.settingsContent {
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  background: var(--surface);
+  transition: background-color 0.3s ease;
+}
+
+/* Form fields */
+.field {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.field label {
+  flex: 0 0 140px;
+  font-size: 0.9375rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.field input,
+.field select {
+  flex: 1;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid rgba(209, 213, 219, 0.4);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  max-width: 220px;
+  background: var(--surface);
+  color: var(--text);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
+}
+
+.field input:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--secondary);
+  box-shadow: 0 0 6px var(--shadow);
+}
+
+.field input:disabled,
+.field select:disabled {
+  background: rgba(233, 236, 239, 0.15);
+  border-color: rgba(226, 232, 240, 0.3);
+  cursor: not-allowed;
+}
+
+.field input[type="checkbox"] {
+  width: auto;
+  max-width: none;
+  accent-color: var(--secondary);
+}
+
+/* Summary section */
+.summary {
+  background: rgba(226, 232, 240, 0.15);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(226, 232, 240, 0.2);
+  box-shadow: 0 2px 4px var(--shadow);
+}
+
+.summary p {
+  margin: var(--spacing-sm) 0;
+  font-size: 0.9375rem;
+  color: var(--text);
+}
+
+.summary p strong {
+  font-weight: var(--font-weight-bold);
+  color: var(--primary);
+}
+
+.summary .overdue {
+  color: var(--error);
+  font-weight: var(--font-weight-bold);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+/* Payment list section */
+.paymentList {
+  margin-top: var(--spacing-lg);
+}
+
+/* Subsection header */
+.subSectionHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: rgba(226, 232, 240, 0.1);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.subSectionHeader h4 {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--primary);
+  margin: 0;
+}
+
+/* Payment table */
+.paymentTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--font-size-sm);
+  background: var(--surface);
+  border: 1px solid rgba(226, 232, 240, 0.2);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.paymentTable th,
+.paymentTable td {
+  padding: var(--spacing-md);
+  text-align: left;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.2);
+  color: var(--text);
+}
+
+.paymentTable th {
+  background: var(--background);
+  color: var(--text-light);
+  font-weight: var(--font-weight-medium);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.paymentTable td {
+  background: var(--surface);
+}
+
+.paymentTable tr:nth-child(even) td {
+  background: rgba(226, 232, 240, 0.05);
+}
+
+.paymentTable tr:hover td {
+  background: rgba(0, 123, 255, 0.05);
+  transition: background-color 0.2s ease;
+}
+
+.paymentTable tr.paid td {
+  background: rgba(40, 167, 69, 0.1);
+  color: var(--text);
+}
+
+.paymentTable tr.overdue td {
+  background: rgba(220, 53, 69, 0.1);
+  color: var(--text);
+}
+
+.paymentTable td input[type="checkbox"] {
+  margin-right: var(--spacing-sm);
+  accent-color: var(--secondary);
+}
+
+.paymentTable td input[type="date"],
+.paymentTable td input[type="number"],
+.paymentTable td input[type="text"],
+.paymentTable td select {
+  width: 100%;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  border: 1px solid rgba(209, 213, 219, 0.5);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.paymentTable td input:focus,
+.paymentTable td select:focus {
+  border-color: var(--secondary);
+  box-shadow: 0 0 4px var(--shadow);
+}
+
+/* Action buttons */
+.actionsCell {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.editButton,
+.saveButton,
+.cancelButton,
+.removeButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.editButton {
+  color: var(--secondary);
+}
+
+.editButton:hover,
+.editButton:focus-visible {
+  background: rgba(0, 123, 255, 0.15);
+  transform: scale(1.1);
+}
+
+.saveButton {
+  color: #28a745;
+}
+
+.saveButton:hover,
+.saveButton:focus-visible {
+  background: rgba(40, 167, 69, 0.15);
+  transform: scale(1.1);
+}
+
+.cancelButton {
+  color: #6c757d;
+}
+
+.cancelButton:hover,
+.cancelButton:focus-visible {
+  background: rgba(108, 117, 125, 0.15);
+  transform: scale(1.1);
+}
+
+.removeButton {
+  color: var(--error);
+}
+
+.removeButton:hover,
+.removeButton:focus-visible {
+  background: rgba(220, 53, 69, 0.15);
+  transform: scale(1.1);
+}
+
+.editButton:focus-visible,
+.saveButton:focus-visible,
+.cancelButton:focus-visible,
+.removeButton:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--secondary);
+}
+
+/* New payment section */
+.newPayment {
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background: rgba(226, 232, 240, 0.15);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(226, 232, 240, 0.2);
+}
+
+/* Add payment button */
+.addButton {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: linear-gradient(135deg, var(--secondary) 0%, #0056b3 100%);
+  color: var(--surface);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.addButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0056b3 0%, var(--secondary) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px var(--shadow);
+}
+
+.addButton:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.3);
+}
+
+.addButton:disabled {
+  background: var(--text-light);
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Error message */
+.errorMessage {
+  color: var(--error);
+  font-size: 0.875rem;
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-sm);
+  background: rgba(220, 53, 69, 0.1);
+  border: 1px solid var(--error);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .section {
+    margin: 0 var(--spacing-sm) var(--spacing-md);
+  }
+
+  .field {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .field label {
+    flex: none;
+    width: 100%;
+  }
+
+  .field input,
+  .field select {
+    max-width: none;
+    width: 100%;
+  }
+
+  .paymentTable {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .paymentTable th,
+  .paymentTable td {
+    min-width: 120px;
+  }
+
+  .actionsCell {
+    gap: var(--spacing-xs);
+  }
+
+  .subSectionHeader {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 480px) {
+  .sectionTitle {
+    font-size: calc(var(--font-size-lg) * 0.9);
+  }
+
+  .subSectionHeader h4 {
+    font-size: calc(var(--font-size-md) * 0.9);
+  }
+
+  .addButton,
+  .saveButton,
+  .cancelButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .paymentTable th,
+  .paymentTable td {
+    padding: var(--spacing-sm);
+    font-size: calc(var(--font-size-sm) * 0.9);
+  }
+}

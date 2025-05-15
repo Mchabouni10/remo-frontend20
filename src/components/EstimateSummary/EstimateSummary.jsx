@@ -61,6 +61,8 @@ export default function EstimateSummary() {
           wasteFactor: 0,
           miscFees: [],
           deposit: 0,
+          depositDate: '',
+          depositMethod: '',
           payments: [],
           markup: 0,
           laborDiscount: 0,
@@ -76,7 +78,6 @@ export default function EstimateSummary() {
     loadProject();
   }, [id, navigate]);
 
-  // Memoized calculations for category breakdowns
   const categoryBreakdowns = useMemo(() => {
     if (!categories || !Array.isArray(categories)) return [];
     return categories.map((cat) => {
@@ -86,20 +87,19 @@ export default function EstimateSummary() {
       const materialCost = cat.workItems.reduce((sum, item) => {
         return sum + (parseFloat(item.materialCost) || 0) * getUnits(item);
       }, 0);
-      const laborCost = cat.workItems.reduce((sum, item) => {
+      const preDiscountLaborCost = cat.workItems.reduce((sum, item) => {
         return sum + (parseFloat(item.laborCost) || 0) * getUnits(item);
       }, 0);
       return {
         name: cat.name,
         materialCost,
-        laborCost,
-        subtotal: materialCost + laborCost,
+        laborCost: preDiscountLaborCost,
+        subtotal: materialCost + preDiscountLaborCost,
         itemCount: cat.workItems.length,
       };
     });
   }, [categories]);
 
-  // Memoized material breakdown
   const materialBreakdown = useMemo(() => {
     if (!categories || !Array.isArray(categories)) return [];
     const breakdown = [];
@@ -123,7 +123,6 @@ export default function EstimateSummary() {
     return breakdown;
   }, [categories]);
 
-  // Memoized labor breakdown
   const laborBreakdown = useMemo(() => {
     if (!categories || !Array.isArray(categories)) return [];
     const breakdown = [];
@@ -147,7 +146,6 @@ export default function EstimateSummary() {
     return breakdown;
   }, [categories]);
 
-  // Memoized totals
   const totals = useMemo(() =>
     calculateTotal(
       categories,
@@ -161,25 +159,26 @@ export default function EstimateSummary() {
     [categories, settings]
   );
 
-  // Memoized misc fees total
   const miscFeesTotal = useMemo(() =>
     (settings?.miscFees || []).reduce((sum, fee) => sum + (parseFloat(fee.amount) || 0), 0),
     [settings?.miscFees]
   );
 
-  // Memoized payment details
   const paymentDetails = useMemo(() => {
     const payments = settings?.payments || [];
     const totalPaid = payments.reduce((sum, p) => sum + (p.isPaid ? parseFloat(p.amount) || 0 : 0), 0) + (settings?.deposit || 0);
     const totalDue = payments.reduce((sum, p) => sum + (!p.isPaid ? parseFloat(p.amount) || 0 : 0), 0);
-    return { totalPaid, totalDue };
+    const overduePayments = payments
+      .filter((p) => !p.isPaid && new Date(p.date) < new Date())
+      .reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+    return { totalPaid, totalDue, overduePayments };
   }, [settings?.payments, settings?.deposit]);
 
-  // Detailed total calculations
   const baseMaterialCost = totals.materialCost || 0;
-  const baseLaborCost = totals.laborCost || 0; // Post-discount labor cost
-  const laborDiscount = totals.laborDiscount || 0; // Dollar amount of labor discount
-  const baseSubtotal = baseMaterialCost + baseLaborCost;
+  const baseLaborCost = totals.laborCost || 0;
+  const laborDiscount = totals.laborDiscount || 0;
+  const preDiscountLaborCost = baseLaborCost + laborDiscount;
+  const baseSubtotal = baseMaterialCost + preDiscountLaborCost;
   const wasteCost = baseSubtotal * (settings?.wasteFactor || 0);
   const taxAmount = baseSubtotal * (settings?.taxRate || 0);
   const markupAmount = baseSubtotal * (settings?.markup || 0);
@@ -189,9 +188,8 @@ export default function EstimateSummary() {
   const remainingBalance = Math.max(0, adjustedGrandTotal - paymentDetails.totalPaid);
   const overpayment = paymentDetails.totalPaid > adjustedGrandTotal ? paymentDetails.totalPaid - adjustedGrandTotal : 0;
 
-  // Formatters
   const formatCurrency = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
-  const formatDate = (dateStr) => dateStr ? new Date(dateStr).toLocaleDateString() : 'N/A';
+  const formatDate = (dateStr) => (dateStr ? new Date(dateStr).toLocaleDateString() : 'N/A');
 
   const generatePDF = async () => {
     if (!componentRef.current) throw new Error('Component not ready for PDF generation.');
@@ -199,11 +197,10 @@ export default function EstimateSummary() {
     const element = componentRef.current;
     element.style.display = 'block';
     element.style.visibility = 'visible';
-    element.style.width = '595px'; // A4 width in pixels at 72 DPI
-    element.style.padding = '15mm'; // Increased margin for better printing
+    element.style.width = '595px';
+    element.style.padding = '15mm';
     element.style.boxSizing = 'border-box';
 
-    // Ensure content fits within A4 height with margins
     const sections = element.querySelectorAll(`.${styles.section}`);
     sections.forEach((section) => {
       section.style.pageBreakInside = 'avoid';
@@ -218,7 +215,7 @@ export default function EstimateSummary() {
       width: element.offsetWidth,
       height: element.scrollHeight,
       backgroundColor: '#ffffff',
-      logging: true,
+      logging: false,
     });
 
     const imgData = canvas.toDataURL('image/png');
@@ -320,9 +317,18 @@ export default function EstimateSummary() {
             <h3 className={styles.totalTitle}>Comprehensive Estimate Breakdown</h3>
             <div className={styles.customerInfo}>
               <h4>Customer Information</h4>
-              <p><strong>{customer.firstName} {customer.lastName}</strong></p>
-              <p>{customer.street}{customer.unit ? `, Unit ${customer.unit}` : ''}</p>
-              <p>{customer.state} {customer.zipCode}</p>
+              <p>
+                <strong>
+                  {customer.firstName} {customer.lastName}
+                </strong>
+              </p>
+              <p>
+                {customer.street}
+                {customer.unit ? `, Unit ${customer.unit}` : ''}
+              </p>
+              <p>
+                {customer.state} {customer.zipCode}
+              </p>
               <p>Phone: {customer.phone ? `+${customer.phone}` : 'N/A'}</p>
               {customer.email && <p>Email: {customer.email}</p>}
               {customer.projectName && <p>Project: {customer.projectName}</p>}
@@ -360,7 +366,7 @@ export default function EstimateSummary() {
                     <td>Total</td>
                     <td>{categoryBreakdowns.reduce((sum, cat) => sum + cat.itemCount, 0)}</td>
                     <td>{formatCurrency(baseMaterialCost)}</td>
-                    <td>{formatCurrency(baseLaborCost)}</td>
+                    <td>{formatCurrency(preDiscountLaborCost)}</td>
                     <td className={styles.subtotal}>{formatCurrency(baseSubtotal)}</td>
                   </tr>
                 </tbody>
@@ -385,8 +391,12 @@ export default function EstimateSummary() {
                   {materialBreakdown.map((item, index) => (
                     <tr key={index}>
                       <td>{item.category}</td>
-                      <td>{item.name} ({item.type}) {item.subtype && `- ${item.subtype}`}</td>
-                      <td>{item.quantity.toFixed(2)} {item.unitType}</td>
+                      <td>
+                        {item.name} ({item.type}) {item.subtype && `- ${item.subtype}`}
+                      </td>
+                      <td>
+                        {item.quantity.toFixed(2)} {item.unitType}
+                      </td>
                       <td>{formatCurrency(item.costPerUnit)}</td>
                       <td>{formatCurrency(item.total)}</td>
                     </tr>
@@ -417,15 +427,19 @@ export default function EstimateSummary() {
                   {laborBreakdown.map((item, index) => (
                     <tr key={index}>
                       <td>{item.category}</td>
-                      <td>{item.name} ({item.type}) {item.subtype && `- ${item.subtype}`}</td>
-                      <td>{item.quantity.toFixed(2)} {item.unitType}</td>
+                      <td>
+                        {item.name} ({item.type}) {item.subtype && `- ${item.subtype}`}
+                      </td>
+                      <td>
+                        {item.quantity.toFixed(2)} {item.unitType}
+                      </td>
                       <td>{formatCurrency(item.costPerUnit)}</td>
                       <td>{formatCurrency(item.total)}</td>
                     </tr>
                   ))}
                   <tr className={styles.totalRow}>
                     <td colSpan={4}>Total Labor Cost</td>
-                    <td>{formatCurrency(baseLaborCost)}</td>
+                    <td>{formatCurrency(preDiscountLaborCost)}</td>
                   </tr>
                 </tbody>
               </table>
@@ -436,33 +450,60 @@ export default function EstimateSummary() {
             <h4 className={styles.sectionTitle}>Cost Calculation</h4>
             <table className={styles.breakdownTable} aria-label="Cost Calculation">
               <tbody>
-                <tr><td>Base Material Cost</td><td>{formatCurrency(baseMaterialCost)}</td></tr>
-                <tr><td>Base Labor Cost (after discount)</td><td>{formatCurrency(baseLaborCost)}</td></tr>
+                <tr>
+                  <td>Base Material Cost</td>
+                  <td>{formatCurrency(baseMaterialCost)}</td>
+                </tr>
+                <tr>
+                  <td>Base Labor Cost</td>
+                  <td>{formatCurrency(preDiscountLaborCost)}</td>
+                </tr>
                 {laborDiscount > 0 && (
                   <tr className={styles.discountRow}>
                     <td>Labor Discount ({((settings?.laborDiscount || 0) * 100).toFixed(1)}%)</td>
                     <td>-{formatCurrency(laborDiscount)}</td>
                   </tr>
                 )}
-                <tr className={styles.subtotalRow}><td>Base Subtotal</td><td>{formatCurrency(baseSubtotal)}</td></tr>
-                <tr><td>Waste ({(settings?.wasteFactor * 100 || 0).toFixed(1)}%)</td><td>{formatCurrency(wasteCost)}</td></tr>
-                <tr><td>Tax ({(settings?.taxRate * 100 || 0).toFixed(1)}%)</td><td>{formatCurrency(taxAmount)}</td></tr>
-                <tr><td>Markup ({(settings?.markup * 100 || 0).toFixed(1)}%)</td><td>{formatCurrency(markupAmount)}</td></tr>
-                <tr><td>Transportation Fee</td><td>{formatCurrency(transportationFee)}</td></tr>
+                <tr className={styles.subtotalRow}>
+                  <td>Base Subtotal</td>
+                  <td>{formatCurrency(baseSubtotal)}</td>
+                </tr>
+                <tr>
+                  <td>Waste ({(settings?.wasteFactor * 100 || 0).toFixed(1)}%)</td>
+                  <td>{formatCurrency(wasteCost)}</td>
+                </tr>
+                <tr>
+                  <td>Tax ({(settings?.taxRate * 100 || 0).toFixed(1)}%)</td>
+                  <td>{formatCurrency(taxAmount)}</td>
+                </tr>
+                <tr>
+                  <td>Markup ({(settings?.markup * 100 || 0).toFixed(1)}%)</td>
+                  <td>{formatCurrency(markupAmount)}</td>
+                </tr>
+                <tr>
+                  <td>Transportation Fee</td>
+                  <td>{formatCurrency(transportationFee)}</td>
+                </tr>
                 {miscFeesTotal > 0 && (
                   <tr>
                     <td>Miscellaneous Fees</td>
                     <td>
                       {settings.miscFees.map((fee, i) => (
-                        <div key={i}>{fee.name}: {formatCurrency(parseFloat(fee.amount))}</div>
+                        <div key={i}>
+                          {fee.name}: {formatCurrency(parseFloat(fee.amount))}
+                        </div>
                       ))}
                       <strong>Total: {formatCurrency(miscFeesTotal)}</strong>
                     </td>
                   </tr>
                 )}
                 <tr className={styles.grandTotalRow}>
-                  <td><strong>Grand Total</strong></td>
-                  <td><strong>{formatCurrency(grandTotal)}</strong></td>
+                  <td>
+                    <strong>Grand Total</strong>
+                  </td>
+                  <td>
+                    <strong>{formatCurrency(grandTotal)}</strong>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -484,9 +525,9 @@ export default function EstimateSummary() {
                 <tbody>
                   {settings.deposit > 0 && (
                     <tr>
-                      <td>{formatDate(customer.startDate)}</td>
+                      <td>{formatDate(settings.depositDate || customer.startDate)}</td>
                       <td>{formatCurrency(settings.deposit)}</td>
-                      <td>{customer.paymentType}</td>
+                      <td>{settings.depositMethod || customer.paymentType}</td>
                       <td>Paid</td>
                       <td>Initial Deposit</td>
                     </tr>
@@ -502,15 +543,34 @@ export default function EstimateSummary() {
                   ))}
                   {settings.payments.length > 0 && (
                     <tr className={styles.totalRow}>
-                      <td><strong>Total Paid</strong></td>
-                      <td><strong>{formatCurrency(paymentDetails.totalPaid)}</strong></td>
+                      <td>
+                        <strong>Total Paid</strong>
+                      </td>
+                      <td>
+                        <strong>{formatCurrency(paymentDetails.totalPaid)}</strong>
+                      </td>
                       <td colSpan={3}></td>
                     </tr>
                   )}
                   {paymentDetails.totalDue > 0 && (
                     <tr className={styles.totalRow}>
-                      <td><strong>Total Due</strong></td>
-                      <td><strong>{formatCurrency(paymentDetails.totalDue)}</strong></td>
+                      <td>
+                        <strong>Total Due</strong>
+                      </td>
+                      <td>
+                        <strong>{formatCurrency(paymentDetails.totalDue)}</strong>
+                      </td>
+                      <td colSpan={3}></td>
+                    </tr>
+                  )}
+                  {paymentDetails.overduePayments > 0 && (
+                    <tr className={styles.totalRow}>
+                      <td>
+                        <strong>Overdue Payments</strong>
+                      </td>
+                      <td>
+                        <strong>{formatCurrency(paymentDetails.overduePayments)}</strong>
+                      </td>
                       <td colSpan={3}></td>
                     </tr>
                   )}
@@ -523,16 +583,35 @@ export default function EstimateSummary() {
             <h4 className={styles.sectionTitle}>Payment Summary</h4>
             <table className={styles.breakdownTable} aria-label="Payment Summary">
               <tbody>
-                <tr><td>Grand Total</td><td>{formatCurrency(grandTotal)}</td></tr>
-                <tr><td>Deposit</td><td>-{formatCurrency(settings?.deposit || 0)}</td></tr>
-                <tr><td>Adjusted Total</td><td>{formatCurrency(adjustedGrandTotal)}</td></tr>
-                <tr><td>Total Paid</td><td>-{formatCurrency(paymentDetails.totalPaid)}</td></tr>
+                <tr>
+                  <td>Grand Total</td>
+                  <td>{formatCurrency(grandTotal)}</td>
+                </tr>
+                <tr>
+                  <td>Deposit</td>
+                  <td>-{formatCurrency(settings?.deposit || 0)}</td>
+                </tr>
+                <tr>
+                  <td>Adjusted Total</td>
+                  <td>{formatCurrency(adjustedGrandTotal)}</td>
+                </tr>
+                <tr>
+                  <td>Total Paid</td>
+                  <td>-{formatCurrency(paymentDetails.totalPaid)}</td>
+                </tr>
                 <tr className={styles.remainingRow}>
-                  <td><strong>Remaining Balance</strong></td>
-                  <td><strong>{formatCurrency(remainingBalance)}</strong></td>
+                  <td>
+                    <strong>Remaining Balance</strong>
+                  </td>
+                  <td>
+                    <strong>{formatCurrency(remainingBalance)}</strong>
+                  </td>
                 </tr>
                 {overpayment > 0 && (
-                  <tr><td>Overpayment</td><td>{formatCurrency(overpayment)}</td></tr>
+                  <tr>
+                    <td>Overpayment</td>
+                    <td>{formatCurrency(overpayment)}</td>
+                  </tr>
                 )}
               </tbody>
             </table>
@@ -547,7 +626,10 @@ export default function EstimateSummary() {
 
           <section className={styles.section}>
             <h4 className={styles.sectionTitle}>Customer Approval</h4>
-            <p>By signing below, I, {customer.firstName} {customer.lastName}, acknowledge that I have reviewed and agree to the terms and costs outlined in this estimate provided by Rawdah Remodeling Company.</p>
+            <p>
+              By signing below, I, {customer.firstName} {customer.lastName}, acknowledge that I have reviewed and agree to
+              the terms and costs outlined in this estimate provided by Rawdah Remodeling Company.
+            </p>
             <div className={styles.signatureLine}>
               <span>Customer Signature: _______________________________</span>
               <span>Date: ___________________</span>
@@ -556,7 +638,7 @@ export default function EstimateSummary() {
               <span>Contractor Signature: _____________________________</span>
               <span>Date: ___________________</span>
             </div>
-          </section>
+            </section>
 
           <div className={styles.footer}>
             <p>Generated on: {new Date().toLocaleDateString()}</p>
@@ -565,13 +647,27 @@ export default function EstimateSummary() {
         </div>
 
         <div className={styles.buttonGroup}>
-          <button onClick={handlePrintClick} className={styles.printButton} disabled={isPrinting}>
+          <button
+            onClick={handlePrintClick}
+            className={styles.printButton}
+            disabled={isPrinting}
+            aria-label={isPrinting ? 'Printing in progress' : 'Print Estimate'}
+          >
             <FontAwesomeIcon icon={faPrint} /> {isPrinting ? 'Printing...' : 'Print'}
           </button>
-          <button onClick={handleSendEmail} className={styles.printButton} disabled={isSendingEmail || !customer?.email}>
+          <button
+            onClick={handleSendEmail}
+            className={styles.printButton}
+            disabled={isSendingEmail || !customer?.email}
+            aria-label={isSendingEmail ? 'Preparing Email' : 'Send Estimate by Email'}
+          >
             <FontAwesomeIcon icon={faEnvelope} /> {isSendingEmail ? 'Preparing Email...' : 'Send by Email'}
           </button>
-          <button onClick={() => navigate('/home/customers')} className={styles.backButton}>
+          <button
+            onClick={() => navigate('/home/customers')}
+            className={styles.backButton}
+            aria-label="Back to Customers"
+          >
             <FontAwesomeIcon icon={faArrowLeft} /> Back
           </button>
         </div>
