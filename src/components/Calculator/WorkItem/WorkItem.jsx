@@ -1,6 +1,4 @@
 // src/components/Calculator/WorkItem/WorkItem.jsx
-
-
 import React, { useCallback, useState, useRef } from 'react';
 import SurfaceInput from '../SurfaceInput/SurfaceInput';
 import { WORK_TYPES as WORK_TYPES1, SUBTYPE_OPTIONS as SUBTYPE_OPTIONS1, DEFAULT_SUBTYPES as DEFAULT_SUBTYPES1 } from '../data/workTypes';
@@ -11,6 +9,14 @@ import styles from './WorkItem.module.css';
 const WORK_TYPES = { ...WORK_TYPES1, ...WORK_TYPES2 };
 const SUBTYPE_OPTIONS = { ...SUBTYPE_OPTIONS1, ...SUBTYPE_OPTIONS2 };
 const DEFAULT_SUBTYPES = { ...DEFAULT_SUBTYPES1, ...DEFAULT_SUBTYPES2 };
+
+// Infer type from name if missing
+const inferTypeFromName = (name) => {
+  if (!name) return '';
+  const normalizedName = name.trim().toLowerCase().replace(/\s+/g, '-');
+  if (/installation/i.test(name)) return 'outlet-installation'; // Adjust based on WORK_TYPES
+  return normalizedName;
+};
 
 export default function WorkItem({
   catIndex,
@@ -32,6 +38,9 @@ export default function WorkItem({
     : workItem.category
       ? workItem.category.trim().toLowerCase().replace(/[^a-z0-9]+/g, '')
       : '';
+
+  // Normalize workItem.type if missing
+  const effectiveType = workItem.type || inferTypeFromName(workItem.name);
 
   if (!WORK_TYPES || Object.keys(WORK_TYPES).length === 0) {
     console.error('WORK_TYPES is empty or not loaded.');
@@ -60,14 +69,16 @@ export default function WorkItem({
     ], []);
   })();
 
-  // Determine default measurement type based on WORK_TYPES category
-  const getDefaultMeasurementType = (type) => {
-    if (!type) return 'single-surface';
+  // Determine default measurement type based on WORK_TYPES category or name
+  const getDefaultMeasurementType = (type, name) => {
+    if (!type && !name) return 'single-surface';
+    const effectiveType = type || inferTypeFromName(name);
     for (const category of Object.values(WORK_TYPES)) {
-      if (category.surfaceBased.includes(type)) return 'single-surface';
-      if (category.linearFtBased.includes(type)) return 'linear-foot';
-      if (category.unitBased.includes(type)) return 'by-unit';
+      if (effectiveType && category.surfaceBased.includes(effectiveType)) return 'single-surface';
+      if (effectiveType && category.linearFtBased.includes(effectiveType)) return 'linear-foot';
+      if (effectiveType && category.unitBased.includes(effectiveType)) return 'by-unit';
     }
+    if (name && /installation/i.test(name)) return 'by-unit';
     return 'single-surface';
   };
 
@@ -89,7 +100,7 @@ export default function WorkItem({
           } else if (field === 'type') {
             item[field] = value;
             item.subtype = DEFAULT_SUBTYPES[value] || '';
-            const measurementType = getDefaultMeasurementType(value);
+            const measurementType = getDefaultMeasurementType(value, item.name);
             item.surfaces = item.surfaces?.length > 0 && item.surfaces[0].measurementType === measurementType
               ? item.surfaces
               : [{
@@ -140,7 +151,7 @@ export default function WorkItem({
       const category = { ...newCategories[catIndex] };
       const workItems = [...category.workItems];
       const item = { ...workItems[workIndex] };
-      const measurementType = item.surfaces?.length > 0 ? item.surfaces[0].measurementType : getDefaultMeasurementType(item.type);
+      const measurementType = item.surfaces?.length > 0 ? item.surfaces[0].measurementType : getDefaultMeasurementType(item.type, item.name);
 
       item.surfaces = [...(item.surfaces || []), {
         measurementType,
@@ -171,7 +182,7 @@ export default function WorkItem({
 
   const primaryMeasurementType = workItem.surfaces?.length > 0
     ? workItem.surfaces[0].measurementType
-    : getDefaultMeasurementType(workItem.type);
+    : getDefaultMeasurementType(effectiveType, workItem.name);
 
   const materialLabel = primaryMeasurementType === 'linear-foot'
     ? 'Material Cost per Linear Ft ($)'
@@ -189,7 +200,7 @@ export default function WorkItem({
     const qty = surf.measurementType === 'linear-foot'
       ? parseFloat(surf.linearFt) || 0
       : surf.measurementType === 'by-unit'
-      ? parseFloat(surf.units) || 0
+      ? parseFloat(surf.units) || parseFloat(surf.sqft) || 0
       : parseFloat(surf.sqft) || 0;
     return sum + qty * materialCost;
   }, 0) || 0;
@@ -198,7 +209,7 @@ export default function WorkItem({
     const qty = surf.measurementType === 'linear-foot'
       ? parseFloat(surf.linearFt) || 0
       : surf.measurementType === 'by-unit'
-      ? parseFloat(surf.units) || 0
+      ? parseFloat(surf.units) || parseFloat(surf.sqft) || 0
       : parseFloat(surf.sqft) || 0;
     return sum + qty * laborCost;
   }, 0) || 0;
@@ -209,7 +220,7 @@ export default function WorkItem({
     return sum + (surf.measurementType === 'linear-foot'
       ? parseFloat(surf.linearFt) || 0
       : surf.measurementType === 'by-unit'
-      ? parseFloat(surf.units) || 0
+      ? parseFloat(surf.units) || parseFloat(surf.sqft) || 0
       : parseFloat(surf.sqft) || 0);
   }, 0) || 0;
 
@@ -252,7 +263,7 @@ export default function WorkItem({
         <div className={styles.inputWrapper}>
           <i className={`fas fa-list-alt ${styles.inputIcon}`}></i>
           <select
-            value={workItem.type || ''}
+            value={effectiveType}
             onChange={(e) => updateWorkItem('type', e.target.value)}
             className={styles.select}
             disabled={disabled || !workItem.category || !categoryKey}
@@ -273,20 +284,20 @@ export default function WorkItem({
         </div>
       </div>
 
-      {workItem.type && SUBTYPE_OPTIONS[workItem.type] && (
+      {effectiveType && SUBTYPE_OPTIONS[effectiveType] && (
         <div className={styles.workItemRow}>
           <label>
             <i className="fas fa-layer-group"></i> Subtype:
           </label>
           <select
-            value={workItem.subtype || DEFAULT_SUBTYPES[workItem.type] || ''}
+            value={workItem.subtype || DEFAULT_SUBTYPES[effectiveType] || ''}
             onChange={(e) => updateWorkItem('subtype', e.target.value)}
             className={styles.select}
             disabled={disabled}
             aria-label="Work item subtype"
           >
             <option value="">Select Subtype</option>
-            {(SUBTYPE_OPTIONS[workItem.type] || []).map((option) => (
+            {(SUBTYPE_OPTIONS[effectiveType] || []).map((option) => (
               <option key={option} value={option}>
                 {option.charAt(0).toUpperCase() + option.slice(1)}
               </option>
@@ -315,11 +326,11 @@ export default function WorkItem({
             workIndex={workIndex}
             surfIndex={0}
             surface={{
-              measurementType: getDefaultMeasurementType(workItem.type),
-              ...(getDefaultMeasurementType(workItem.type) === 'single-surface' ? { width: '10', height: '10', sqft: 100, manualSqft: false } : {}),
-              ...(getDefaultMeasurementType(workItem.type) === 'linear-foot' ? { linearFt: '10', sqft: 10 } : {}),
-              ...(getDefaultMeasurementType(workItem.type) === 'by-unit' ? { units: '1', sqft: 1 } : {}),
-              ...(getDefaultMeasurementType(workItem.type) === 'room-surface' ? {
+              measurementType: getDefaultMeasurementType(effectiveType, workItem.name),
+              ...(getDefaultMeasurementType(effectiveType, workItem.name) === 'single-surface' ? { width: '10', height: '10', sqft: 100, manualSqft: false } : {}),
+              ...(getDefaultMeasurementType(effectiveType, workItem.name) === 'linear-foot' ? { linearFt: '10', sqft: 10 } : {}),
+              ...(getDefaultMeasurementType(effectiveType, workItem.name) === 'by-unit' ? { units: '1', sqft: 1 } : {}),
+              ...(getDefaultMeasurementType(effectiveType, workItem.name) === 'room-surface' ? {
                 length: '12',
                 width: '10',
                 roomShape: 'rectangular',

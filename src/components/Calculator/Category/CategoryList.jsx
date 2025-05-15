@@ -1,10 +1,8 @@
-//src/components/Calculator/Category/CategoryList.jsx
+// src/components/Calculator/Category/CategoryList.jsx
 import React, { useState } from 'react';
 import styles from './CategoryList.module.css';
 import WorkItem from '../WorkItem/WorkItem';
-import PaymentTracking from './PaymentTracking';
 import AdditionalCosts from './AdditionalCosts';
-import CostSummary from './CostSummary';
 import { WORK_TYPES as WORK_TYPES1 } from '../data/workTypes';
 import { WORK_TYPES as WORK_TYPES2 } from '../data/workTypes2';
 
@@ -24,6 +22,10 @@ export default function CategoryList({
   const [expandedSections, setExpandedSections] = useState({ categories: true });
   const [selectedCategory, setSelectedCategory] = useState('');
   const [customCategory, setCustomCategory] = useState('');
+
+  // Debug logging
+  console.log('CategoryList - Categories:', JSON.stringify(categories, null, 2));
+  console.log('CategoryList - Settings:', JSON.stringify(settings, null, 2));
 
   const categoryOptions = Object.keys(WORK_TYPES).map((key) => ({
     value: key,
@@ -279,17 +281,6 @@ export default function CategoryList({
 
       {/* Additional Costs Section */}
       <AdditionalCosts settings={settings} setSettings={setSettings} disabled={disabled} />
-
-      {/* Payment Tracking Section */}
-      <PaymentTracking
-        settings={settings}
-        setSettings={setSettings}
-        categories={categories}
-        disabled={disabled}
-      />
-
-      {/* Cost Summary Section */}
-      <CostSummary categories={categories} settings={settings} />
     </div>
   );
 }

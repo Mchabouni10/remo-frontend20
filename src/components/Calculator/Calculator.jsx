@@ -2,6 +2,9 @@
 import React, { useState } from 'react';
 import CategoryList from './Category/CategoryList';
 import LaborPricingSheet from './LaborPricingSheet/LaborPricingSheet';
+import CostSummary from './Category/CostSummary';
+import PaymentTracking from './Category/PaymentTracking';
+import CostBreakdown from './CostBreakdown/CostBreakdown';
 import styles from './Calculator.module.css';
 
 export default function Calculator({ categories, setCategories, settings, setSettings, disabled = false }) {
@@ -15,6 +18,10 @@ export default function Calculator({ categories, setCategories, settings, setSet
   const toggleLaborPricing = () => {
     setShowLaborPricing((prev) => !prev);
   };
+
+  // Debug logging
+  console.log('Calculator - Categories:', JSON.stringify(categories, null, 2));
+  console.log('Calculator - Settings:', JSON.stringify(settings, null, 2));
 
   return (
     <div className={styles.calculator}>
@@ -38,6 +45,14 @@ export default function Calculator({ categories, setCategories, settings, setSet
         disabled={disabled}
         removeCategory={removeCategory}
       />
+      <CostSummary categories={categories} settings={settings} />
+      <PaymentTracking
+        categories={categories}
+        settings={settings}
+        setSettings={setSettings}
+        disabled={disabled}
+      />
+      <CostBreakdown categories={categories} settings={settings} />
     </div>
   );
 }

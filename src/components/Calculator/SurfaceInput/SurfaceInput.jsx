@@ -54,18 +54,18 @@ export default function SurfaceInput({
             if (j === workIndex) {
               const updatedSurfaces = item.surfaces.map((surf, k) => {
                 if (k === surfIndex) {
-                  const updated = { ...surf };
+                  const updated = { ...surf, measurementType: surf.measurementType || 'single-surface' };
                   if (['width', 'height', 'length', 'customHeight', 'linearFt', 'units'].includes(field)) {
                     updated[field] = value === '' ? '' : Math.max(0, parseFloat(value) || 0);
                     if (field === 'width' || field === 'height') {
-                      if (!surf.manualSqft && surf.measurementType === 'single-surface') {
+                      if (!surf.manualSqft && updated.measurementType === 'single-surface') {
                         const width = updated.width || 0;
                         const height = updated.height || 0;
                         updated.sqft = width * height;
                       }
-                    } else if (field === 'linearFt' && surf.measurementType === 'linear-foot') {
+                    } else if (field === 'linearFt' && updated.measurementType === 'linear-foot') {
                       updated.sqft = updated.linearFt || 0;
-                    } else if (field === 'units' && surf.measurementType === 'by-unit') {
+                    } else if (field === 'units' && updated.measurementType === 'by-unit') {
                       updated.sqft = updated.units || 0;
                     }
                   } else if (field === 'sqft' && surf.manualSqft) {
