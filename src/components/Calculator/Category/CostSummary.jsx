@@ -1,45 +1,62 @@
 //src/components/Calculator/Category/CostSummary.jsx
 import React, { useState, useMemo } from 'react';
 import styles from './CostSummary.module.css';
-import { calculateTotal } from '../calculations/costCalculations';
+import { getUnits } from '../utils/calculatorUtils';
 
 export default function CostSummary({ categories = [], settings = {} }) {
   const [isExpanded, setIsExpanded] = useState(true);
 
-  const totals = useMemo(
-    () =>
-      calculateTotal(
-        categories,
-        settings.taxRate || 0,
-        settings.transportationFee || 0,
-        settings.wasteFactor || 0,
-        settings.miscFees || [],
-        settings.markup || 0,
-        settings.laborDiscount || 0
-      ),
-    [settings, categories]
-  );
+  // Calculate material and labor costs directly
+  const totals = useMemo(() => {
+    let materialCost = 0;
+    let laborCost = 0;
 
-  const totalPaid = useMemo(() => {
-    return (settings.payments || []).reduce((sum, payment) => sum + (payment.isPaid ? payment.amount : 0), 0) + (settings.deposit || 0);
-  }, [settings.payments, settings.deposit]);
+    categories.forEach((cat) => {
+      (cat.workItems || []).forEach((item) => {
+        const qty = getUnits(item);
+        materialCost += (parseFloat(item.materialCost) || 0) * qty;
+        laborCost += (parseFloat(item.laborCost) || 0) * qty;
+      });
+    });
+
+    const laborDiscount = (settings.laborDiscount || 0) * laborCost;
+    const discountedLaborCost = laborCost - laborDiscount;
+
+    const baseSubtotal = materialCost + discountedLaborCost;
+    const wasteCost = baseSubtotal * (settings.wasteFactor || 0);
+    const tax = baseSubtotal * (settings.taxRate || 0);
+    const markupCost = baseSubtotal * (settings.markup || 0);
+    const miscFeesTotal = (settings.miscFees || []).reduce((sum, fee) => sum + (parseFloat(fee.amount) || 0), 0);
+    const transportationFee = settings.transportationFee || 0;
+
+    const total = baseSubtotal + wasteCost + tax + markupCost + miscFeesTotal + transportationFee;
+
+    return {
+      materialCost,
+      laborCost: discountedLaborCost,
+      laborDiscount,
+      wasteCost,
+      tax,
+      markupCost,
+      transportationFee,
+      total,
+    };
+  }, [categories, settings]);
 
   // Calculate labor cost before discount
   const laborCostBeforeDiscount = useMemo(() => {
     return categories.reduce((sum, cat) => {
-      return sum + cat.workItems.reduce((catSum, item) => {
+      return sum + (cat.workItems || []).reduce((catSum, item) => {
         const laborCost = parseFloat(item.laborCost) || 0;
-        const totalUnits = item.surfaces?.reduce((surfSum, surf) => {
-          return surfSum + (surf.measurementType === 'linear-foot'
-            ? parseFloat(surf.linearFt) || 0
-            : surf.measurementType === 'by-unit'
-            ? parseFloat(surf.units) || 0
-            : parseFloat(surf.sqft) || 0);
-        }, 0) || 0;
+        const totalUnits = getUnits(item);
         return catSum + laborCost * totalUnits;
       }, 0);
     }, 0);
   }, [categories]);
+
+  const totalPaid = useMemo(() => {
+    return (settings.payments || []).reduce((sum, payment) => sum + (payment.isPaid ? payment.amount : 0), 0) + (settings.deposit || 0);
+  }, [settings.payments, settings.deposit]);
 
   const grandTotal = totals.total;
   const overpayment = totalPaid > grandTotal ? totalPaid - grandTotal : 0;
@@ -70,12 +87,18 @@ export default function CostSummary({ categories = [], settings = {} }) {
             <span className={styles.totalsValue}>${totals.materialCost.toFixed(2)}</span>
             <span className={styles.totalsLabel}>Labor Cost (before discount):</span>
             <span className={styles.totalsValue}>${laborCostBeforeDiscount.toFixed(2)}</span>
-            <span className={styles.totalsLabel}>Labor Cost (after discount):</span>
-            <span className={styles.totalsValue}>${totals.laborCost.toFixed(2)}</span>
-            {totals.laborDiscount > 0 && (
+            {settings.laborDiscount > 0 && (
               <>
                 <span className={styles.totalsLabel}>Labor Discount:</span>
                 <span className={styles.totalsValue}>-${totals.laborDiscount.toFixed(2)}</span>
+                <span className={styles.totalsLabel}>Labor Cost (after discount):</span>
+                <span className={styles.totalsValue}>${totals.laborCost.toFixed(2)}</span>
+              </>
+            )}
+            {settings.laborDiscount === 0 && (
+              <>
+                <span className={styles.totalsLabel}>Labor Cost (after discount):</span>
+                <span className={styles.totalsValue}>${totals.laborCost.toFixed(2)}</span>
               </>
             )}
             <span className={styles.totalsLabel}>Waste Cost:</span>

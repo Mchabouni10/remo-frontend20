@@ -16,40 +16,6 @@
   box-shadow: 0 4px 8px var(--shadow);
 }
 
-.toggleLabel {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  font-size: var(--font-size-sm);
-  color: var(--text);
-  cursor: pointer;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--radius-sm);
-  transition: background 0.2s ease;
-}
-
-.toggleLabel:hover {
-  background: rgba(222, 226, 230, 0.3);
-}
-
-.toggleLabel input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  margin: 0;
-  cursor: pointer;
-  accent-color: var(--primary);
-}
-
-.toggleLabel input[type="checkbox"]:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.icon {
-  font-size: var(--font-size-base);
-  color: var(--text-light);
-}
-
 .inputWrapper {
   position: relative;
   flex: 1;
@@ -135,111 +101,6 @@
   transform: none;
 }
 
-.roomPaintingContainer {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm);
-  background: rgba(233, 236, 239, 0.05);
-  border-radius: var(--radius-sm);
-  width: 100%;
-}
-
-.inputGroup {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var (-spacing-sm);
-  width: 100%;
-  margin-bottom: var(--spacing-sm);
-}
-
-.groupLabel {
-  display: block;
-  width: 100%;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-light);
-  margin-bottom: var(--spacing-xs);
-}
-
-.exclusionRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  flex-wrap: wrap;
-  margin-bottom: var(--spacing-xs);
-}
-
-.addExclusionButton {
-  background: var(--primary);
-  color: var(--surface);
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: var(--spacing-sm);
-  font-size: var(--font-size-sm);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  transition: background 0.2s ease, transform 0.2s ease;
-}
-
-.addExclusionButton:hover {
-  background: #0056b3;
-  transform: scale(1.05);
-}
-
-.addExclusionButton:disabled {
-  background: var(--text-light);
-  cursor: not-allowed;
-  transform: none;
-}
-
-.removeExclusionButton {
-  background: none;
-  border: none;
-  color: var(--error);
-  cursor: pointer;
-  font-size: var(--font-size-base);
-  transition: color 0.2s ease, transform 0.2s ease;
-}
-
-.removeExclusionButton:hover {
-  color: #c82333;
-  transform: scale(1.1);
-}
-
-.removeExclusionButton:disabled {
-  color: var(--text-light);
-  cursor: not-allowed;
-  transform: none;
-}
-
-.undoButton {
-  background: var(--secondary);
-  color: var(--surface);
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: var(--spacing-sm);
-  font-size: var(--font-size-sm);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  transition: background 0.2s ease, transform 0.2s ease;
-}
-
-.undoButton:hover {
-  background: #e0a800;
-  transform: scale(1.05);
-}
-
-.undoButton:disabled {
-  background: var(--text-light);
-  cursor: not-allowed;
-  transform: none;
-}
-
 .input[type="select"],
 .input select {
   appearance: none;
@@ -284,20 +145,6 @@
   .removeSurfaceButton {
     margin-left: auto;
   }
-
-  .roomPaintingContainer {
-    flex-direction: column;
-    gap: var(--spacing-md);
-  }
-
-  .inputGroup {
-    flex-direction: column;
-  }
-
-  .exclusionRow {
-    flex-direction: column;
-    align-items: flex-start;
-  }
 }
 
 :focus-visible {
@@ -310,11 +157,7 @@
     border: 2px solid var(--text);
   }
 
-  .toggleLabel {
-    font-weight: var(--font-weight-bold);
-  }
-
-  .removeSurfaceButton, .removeExclusionButton, .undoButton {
+  .removeSurfaceButton {
     border: 2px solid var(--surface);
   }
 }

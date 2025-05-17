@@ -1,6 +1,9 @@
 // src/components/Calculator/WorkItem/WorkItem.jsx
 import React, { useCallback, useState, useRef } from 'react';
-import SurfaceInput from '../SurfaceInput/SurfaceInput';
+import SingleSurfaceInput from '../Surface-Unit/SingleSurfaceInput';
+import RoomSurfaceInput from '../Surface-Unit/RoomSurfaceInput';
+import LinearFootInput from '../Surface-Unit/LinearFootInput';
+import ByUnitInput from '../Surface-Unit/ByUnitInput';
 import { WORK_TYPES as WORK_TYPES1, SUBTYPE_OPTIONS as SUBTYPE_OPTIONS1, DEFAULT_SUBTYPES as DEFAULT_SUBTYPES1 } from '../data/workTypes';
 import { WORK_TYPES as WORK_TYPES2, SUBTYPE_OPTIONS as SUBTYPE_OPTIONS2, DEFAULT_SUBTYPES as DEFAULT_SUBTYPES2 } from '../data/workTypes2';
 import styles from './WorkItem.module.css';
@@ -14,8 +17,25 @@ const DEFAULT_SUBTYPES = { ...DEFAULT_SUBTYPES1, ...DEFAULT_SUBTYPES2 };
 const inferTypeFromName = (name) => {
   if (!name) return '';
   const normalizedName = name.trim().toLowerCase().replace(/\s+/g, '-');
-  if (/installation/i.test(name)) return 'outlet-installation'; // Adjust based on WORK_TYPES
+  if (/installation/i.test(name)) return 'outlet-installation';
+  if (/paint|painting|wall|ceiling/i.test(name)) return 'general-painting';
   return normalizedName;
+};
+
+// Map measurement type to corresponding component
+const getSurfaceInputComponent = (measurementType) => {
+  switch (measurementType) {
+    case 'single-surface':
+      return SingleSurfaceInput;
+    case 'room-surface':
+      return RoomSurfaceInput;
+    case 'linear-foot':
+      return LinearFootInput;
+    case 'by-unit':
+      return ByUnitInput;
+    default:
+      return SingleSurfaceInput; // Fallback to SingleSurfaceInput
+  }
 };
 
 export default function WorkItem({
@@ -73,6 +93,15 @@ export default function WorkItem({
   const getDefaultMeasurementType = (type, name) => {
     if (!type && !name) return 'single-surface';
     const effectiveType = type || inferTypeFromName(name);
+    // Prioritize room-surface for painting-related types
+    if (
+      effectiveType.includes('painting') ||
+      effectiveType.includes('walls') ||
+      effectiveType.includes('ceiling') ||
+      (name && /paint|painting|wall|ceiling/i.test(name))
+    ) {
+      return 'room-surface';
+    }
     for (const category of Object.values(WORK_TYPES)) {
       if (effectiveType && category.surfaceBased.includes(effectiveType)) return 'single-surface';
       if (effectiveType && category.linearFtBased.includes(effectiveType)) return 'linear-foot';
@@ -308,43 +337,52 @@ export default function WorkItem({
 
       <div className={styles.surfaces}>
         {workItem.surfaces?.length > 0 ? (
-          workItem.surfaces.map((surf, surfIndex) => (
-            <SurfaceInput
-              key={surfIndex}
-              catIndex={catIndex}
-              workIndex={workIndex}
-              surfIndex={surfIndex}
-              surface={surf}
-              setCategories={setCategories}
-              showRemove={workItem.surfaces.length > 1 && !disabled}
-              disabled={disabled}
-            />
-          ))
+          workItem.surfaces.map((surf, surfIndex) => {
+            const SurfaceInputComponent = getSurfaceInputComponent(surf.measurementType);
+            return (
+              <SurfaceInputComponent
+                key={surfIndex}
+                catIndex={catIndex}
+                workIndex={workIndex}
+                surfIndex={surfIndex}
+                surface={surf}
+                setCategories={setCategories}
+                showRemove={workItem.surfaces.length > 1 && !disabled}
+                disabled={disabled}
+              />
+            );
+          })
         ) : (
-          <SurfaceInput
-            catIndex={catIndex}
-            workIndex={workIndex}
-            surfIndex={0}
-            surface={{
-              measurementType: getDefaultMeasurementType(effectiveType, workItem.name),
-              ...(getDefaultMeasurementType(effectiveType, workItem.name) === 'single-surface' ? { width: '10', height: '10', sqft: 100, manualSqft: false } : {}),
-              ...(getDefaultMeasurementType(effectiveType, workItem.name) === 'linear-foot' ? { linearFt: '10', sqft: 10 } : {}),
-              ...(getDefaultMeasurementType(effectiveType, workItem.name) === 'by-unit' ? { units: '1', sqft: 1 } : {}),
-              ...(getDefaultMeasurementType(effectiveType, workItem.name) === 'room-surface' ? {
-                length: '12',
-                width: '10',
-                roomShape: 'rectangular',
-                roomHeight: '8',
-                doors: [{ size: '3x7', width: 3, height: 7, area: 21 }],
-                windows: [{ size: '3x4', width: 3, height: 4, area: 12 }],
-                closets: [{ size: '4x7', width: 4, height: 7, area: 28 }],
-                sqft: 184,
-              } : {}),
-            }}
-            setCategories={setCategories}
-            showRemove={false}
-            disabled={disabled}
-          />
+          (() => {
+            const defaultMeasurementType = getDefaultMeasurementType(effectiveType, workItem.name);
+            const SurfaceInputComponent = getSurfaceInputComponent(defaultMeasurementType);
+            return (
+              <SurfaceInputComponent
+                catIndex={catIndex}
+                workIndex={workIndex}
+                surfIndex={0}
+                surface={{
+                  measurementType: defaultMeasurementType,
+                  ...(defaultMeasurementType === 'single-surface' ? { width: '10', height: '10', sqft: 100, manualSqft: false } : {}),
+                  ...(defaultMeasurementType === 'linear-foot' ? { linearFt: '10', sqft: 10 } : {}),
+                  ...(defaultMeasurementType === 'by-unit' ? { units: '1', sqft: 1 } : {}),
+                  ...(defaultMeasurementType === 'room-surface' ? {
+                    length: '12',
+                    width: '10',
+                    roomShape: 'rectangular',
+                    roomHeight: '8',
+                    doors: [{ size: '3x7', width: 3, height: 7, area: 21 }],
+                    windows: [{ size: '3x4', width: 3, height: 4, area: 12 }],
+                    closets: [{ size: '4x7', width: 4, height: 7, area: 28 }],
+                    sqft: 184,
+                  } : {}),
+                }}
+                setCategories={setCategories}
+                showRemove={false}
+                disabled={disabled}
+              />
+            );
+          })()
         )}
         {!disabled && (
           <button

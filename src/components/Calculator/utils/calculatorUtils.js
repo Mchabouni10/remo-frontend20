@@ -46,12 +46,15 @@ export function getUnits(item) {
     return total;
   }
   if (Object.values(WORK_TYPES).some(cat => cat.linearFtBased.includes(type))) {
-    const linearFt = parseFloat(item.linearFt);
-    if (isNaN(linearFt)) {
-      console.warn(`getUnits: Invalid linearFt for linearFtBased item`, item);
-      return 0;
-    }
-    return linearFt;
+    const total = (item.surfaces || []).reduce((sum, surf, index) => {
+      if (!surf || isNaN(parseFloat(surf.linearFt))) {
+        console.warn(`getUnits: Invalid linearFt at index ${index} for linearFtBased type`, surf);
+        return sum;
+      }
+      return sum + (parseFloat(surf.linearFt) || 0);
+    }, 0);
+    if (total === 0) console.warn(`getUnits: Zero units for linearFtBased item`, item);
+    return total;
   }
   if (Object.values(WORK_TYPES).some(cat => cat.unitBased.includes(type))) {
     const total = (item.surfaces || []).reduce((sum, surf, index) => {

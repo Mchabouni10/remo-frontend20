@@ -16,10 +16,17 @@ export default function AdditionalCosts({ settings = {}, setSettings, disabled =
 
   const handleSettingsChange = (field, value) => {
     if (disabled) return;
-    setSettings((prev) => ({
-      ...prev,
-      [field]: parseFloat(value) || 0,
-    }));
+    if (field === 'laborDiscount' || field === 'markup' || field === 'wasteFactor' || field === 'taxRate') {
+      setSettings((prev) => ({
+        ...prev,
+        [field]: parseFloat(value) / 100 || 0,
+      }));
+    } else {
+      setSettings((prev) => ({
+        ...prev,
+        [field]: parseFloat(value) || 0,
+      }));
+    }
   };
 
   const handleMiscFeeChange = (index, field, value) => {
@@ -77,8 +84,8 @@ export default function AdditionalCosts({ settings = {}, setSettings, disabled =
             </label>
             <input
               type="number"
-              value={settings.wasteFactor * 100 || 0}
-              onChange={(e) => handleSettingsChange('wasteFactor', e.target.value / 100)}
+              value={(settings.wasteFactor * 100).toFixed(1) || 0}
+              onChange={(e) => handleSettingsChange('wasteFactor', e.target.value)}
               min="0"
               step="0.1"
               disabled={disabled}
@@ -104,8 +111,8 @@ export default function AdditionalCosts({ settings = {}, setSettings, disabled =
             </label>
             <input
               type="number"
-              value={settings.taxRate * 100 || 0}
-              onChange={(e) => handleSettingsChange('taxRate', e.target.value / 100)}
+              value={(settings.taxRate * 100).toFixed(1) || 0}
+              onChange={(e) => handleSettingsChange('taxRate', e.target.value)}
               min="0"
               step="0.1"
               disabled={disabled}
@@ -119,8 +126,8 @@ export default function AdditionalCosts({ settings = {}, setSettings, disabled =
             {useManualMarkup ? (
               <input
                 type="number"
-                value={settings.markup * 100 || 0}
-                onChange={(e) => handleSettingsChange('markup', e.target.value / 100)}
+                value={(settings.markup * 100).toFixed(1) || 0}
+                onChange={(e) => handleSettingsChange('markup', e.target.value)}
                 min="0"
                 step="0.1"
                 disabled={disabled}
@@ -128,8 +135,8 @@ export default function AdditionalCosts({ settings = {}, setSettings, disabled =
               />
             ) : (
               <select
-                value={settings.markup * 100 || 0}
-                onChange={(e) => handleSettingsChange('markup', e.target.value / 100)}
+                value={(settings.markup * 100).toFixed(0) || 0}
+                onChange={(e) => handleSettingsChange('markup', e.target.value)}
                 disabled={disabled}
                 aria-label="Markup percentage"
               >
@@ -159,8 +166,8 @@ export default function AdditionalCosts({ settings = {}, setSettings, disabled =
             {useManualLaborDiscount ? (
               <input
                 type="number"
-                value={settings.laborDiscount * 100 || 0}
-                onChange={(e) => handleSettingsChange('laborDiscount', e.target.value / 100)}
+                value={(settings.laborDiscount * 100).toFixed(1) || 0}
+                onChange={(e) => handleSettingsChange('laborDiscount', e.target.value)}
                 min="0"
                 max="100"
                 step="0.1"
@@ -169,12 +176,12 @@ export default function AdditionalCosts({ settings = {}, setSettings, disabled =
               />
             ) : (
               <select
-                value={settings.laborDiscount * 100 || 0}
-                onChange={(e) => handleSettingsChange('laborDiscount', e.target.value / 100)}
+                value={(settings.laborDiscount * 100).toFixed(0) || 0}
+                onChange={(e) => handleSettingsChange('laborDiscount', e.target.value)}
                 disabled={disabled}
                 aria-label="Labor discount percentage"
               >
-                {Array.from({ length: 31 }, (_, i) => i).map((val) => (
+                {Array.from({ length: 101 }, (_, i) => i).map((val) => (
                   <option key={val} value={val}>
                     {val}%
                   </option>
