@@ -1,13 +1,6 @@
 // src/components/calculator/calculations/costCalculations.js
+// src/components/calculator/calculations/costCalculations.js
 import { getUnits } from '../utils/calculatorUtils';
-
-export function calculateWorkCost(item) {
-  if (!item) return 0;
-  const materialCostPerUnit = parseFloat(item.materialCost) || 0;
-  const laborCostPerUnit = parseFloat(item.laborCost) || 0;
-  const totalUnits = getUnits(item);
-  return (materialCostPerUnit + laborCostPerUnit) * totalUnits;
-}
 
 export function calculateTotal(categories = [], taxRate = 0, transportationFee = 0, wasteFactor = 0, miscFees = [], markup = 0, laborDiscount = 0) {
   if (!Array.isArray(categories)) {
@@ -24,13 +17,28 @@ export function calculateTotal(categories = [], taxRate = 0, transportationFee =
       return;
     }
     cat.workItems.forEach((item, itemIndex) => {
+      if (!item.type) {
+        console.warn(`calculateTotal: Skipping item at category ${index}, item ${itemIndex} with no type`, item);
+        return;
+      }
+
       const units = getUnits(item) || 0;
       const itemMaterialCost = parseFloat(item.materialCost) || 0;
       const itemLaborCost = parseFloat(item.laborCost) || 0;
-      materialCost += itemMaterialCost * units;
-      laborCost += itemLaborCost * units;
-      if (units === 0) {
-        console.warn(`calculateTotal: item at category ${index}, item ${itemIndex} has zero units`, item);
+
+      // Only include costs if units are non-zero or item has valid surfaces
+      if (itemMaterialCost > 0 && units > 0) {
+        materialCost += itemMaterialCost * units;
+      }
+      if (itemLaborCost > 0 && units > 0) {
+        laborCost += itemLaborCost * units;
+      }
+
+      if (units === 0 && (itemMaterialCost > 0 || itemLaborCost > 0) && item.surfaces?.length > 0) {
+        console.debug(
+          `calculateTotal: Item at category ${index}, item ${itemIndex} has zero units but non-zero costs`,
+          { name: item.name, type: item.type, measurementType: item.surfaces[0]?.measurementType, surfaces: item.surfaces }
+        );
       }
     });
   });

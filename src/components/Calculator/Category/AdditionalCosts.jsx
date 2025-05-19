@@ -1,11 +1,12 @@
 //src/components/Calculator/Category/AdditionalCosts.jsx
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import styles from './AdditionalCosts.module.css';
 
 export default function AdditionalCosts({ settings = {}, setSettings, disabled = false }) {
   const [useManualMarkup, setUseManualMarkup] = useState(false);
   const [useManualLaborDiscount, setUseManualLaborDiscount] = useState(false);
   const [expandedSections, setExpandedSections] = useState({ additionalCosts: true });
+  const inputTimeoutRef = useRef(null);
 
   const toggleSection = (section) => {
     setExpandedSections((prev) => ({
@@ -16,29 +17,55 @@ export default function AdditionalCosts({ settings = {}, setSettings, disabled =
 
   const handleSettingsChange = (field, value) => {
     if (disabled) return;
-    if (field === 'laborDiscount' || field === 'markup' || field === 'wasteFactor' || field === 'taxRate') {
-      setSettings((prev) => ({
-        ...prev,
-        [field]: parseFloat(value) / 100 || 0,
-      }));
-    } else {
-      setSettings((prev) => ({
-        ...prev,
-        [field]: parseFloat(value) || 0,
-      }));
+    if (inputTimeoutRef.current) {
+      clearTimeout(inputTimeoutRef.current);
     }
+    inputTimeoutRef.current = setTimeout(() => {
+      let parsedValue = parseFloat(value) || 0;
+      if (field === 'transportationFee' && parsedValue < 0) {
+        console.warn(`handleSettingsChange: Negative ${field} (${value}) is invalid, setting to 0`);
+        parsedValue = 0;
+      }
+      if ((field === 'laborDiscount' || field === 'markup') && parsedValue > 100) {
+        console.warn(`handleSettingsChange: ${field} (${value}) exceeds 100%, capping at 100%`);
+        parsedValue = 100;
+      }
+      setSettings((prev) => ({
+        ...prev,
+        [field]: (field === 'laborDiscount' || field === 'markup' || field === 'wasteFactor' || field === 'taxRate')
+          ? parsedValue / 100
+          : parsedValue,
+      }));
+    }, 50);
   };
 
   const handleMiscFeeChange = (index, field, value) => {
     if (disabled) return;
-    setSettings((prev) => ({
-      ...prev,
-      miscFees: prev.miscFees.map((fee, i) =>
-        i === index
-          ? { ...fee, [field]: field === 'amount' ? parseFloat(value) || 0 : value }
-          : fee
-      ),
-    }));
+    if (inputTimeoutRef.current) {
+      clearTimeout(inputTimeoutRef.current);
+    }
+    inputTimeoutRef.current = setTimeout(() => {
+      if (field === 'amount') {
+        let parsedValue = parseFloat(value) || 0;
+        if (parsedValue < 0) {
+          console.warn(`handleMiscFeeChange: Negative amount (${value}) for miscFee[${index}] is invalid, setting to 0`);
+          parsedValue = 0;
+        }
+        setSettings((prev) => ({
+          ...prev,
+          miscFees: prev.miscFees.map((fee, i) =>
+            i === index ? { ...fee, amount: parsedValue } : fee
+          ),
+        }));
+      } else {
+        setSettings((prev) => ({
+          ...prev,
+          miscFees: prev.miscFees.map((fee, i) =>
+            i === index ? { ...fee, [field]: value } : fee
+          ),
+        }));
+      }
+    }, 50);
   };
 
   const addMiscFee = () => {
@@ -101,6 +128,7 @@ export default function AdditionalCosts({ settings = {}, setSettings, disabled =
               value={settings.transportationFee || 0}
               onChange={(e) => handleSettingsChange('transportationFee', e.target.value)}
               min="0"
+              step="0.01"
               disabled={disabled}
               aria-label="Transportation fee"
             />
@@ -129,6 +157,7 @@ export default function AdditionalCosts({ settings = {}, setSettings, disabled =
                 value={(settings.markup * 100).toFixed(1) || 0}
                 onChange={(e) => handleSettingsChange('markup', e.target.value)}
                 min="0"
+                max="100"
                 step="0.1"
                 disabled={disabled}
                 aria-label="Markup percentage"
@@ -224,6 +253,7 @@ export default function AdditionalCosts({ settings = {}, setSettings, disabled =
                     value={fee.amount || 0}
                     onChange={(e) => handleMiscFeeChange(index, 'amount', e.target.value)}
                     min="0"
+                    step="0.01"
                     disabled={disabled}
                     aria-label={`Miscellaneous fee ${index + 1} amount`}
                   />

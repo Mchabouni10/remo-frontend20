@@ -1,26 +1,12 @@
 // src/components/Calculator/WorkItem/WorkItem.jsx
+// src/components/Calculator/WorkItem/WorkItem.jsx
 import React, { useCallback, useState, useRef } from 'react';
 import SingleSurfaceInput from '../Surface-Unit/SingleSurfaceInput';
 import RoomSurfaceInput from '../Surface-Unit/RoomSurfaceInput';
 import LinearFootInput from '../Surface-Unit/LinearFootInput';
 import ByUnitInput from '../Surface-Unit/ByUnitInput';
-import { WORK_TYPES as WORK_TYPES1, SUBTYPE_OPTIONS as SUBTYPE_OPTIONS1, DEFAULT_SUBTYPES as DEFAULT_SUBTYPES1 } from '../data/workTypes';
-import { WORK_TYPES as WORK_TYPES2, SUBTYPE_OPTIONS as SUBTYPE_OPTIONS2, DEFAULT_SUBTYPES as DEFAULT_SUBTYPES2 } from '../data/workTypes2';
+import { WORK_TYPES, SUBTYPE_OPTIONS, DEFAULT_SUBTYPES, MEASUREMENT_TYPES } from '../data/workTypes';
 import styles from './WorkItem.module.css';
-
-// Merge WORK_TYPES, SUBTYPE_OPTIONS, and DEFAULT_SUBTYPES
-const WORK_TYPES = { ...WORK_TYPES1, ...WORK_TYPES2 };
-const SUBTYPE_OPTIONS = { ...SUBTYPE_OPTIONS1, ...SUBTYPE_OPTIONS2 };
-const DEFAULT_SUBTYPES = { ...DEFAULT_SUBTYPES1, ...DEFAULT_SUBTYPES2 };
-
-// Infer type from name if missing
-const inferTypeFromName = (name) => {
-  if (!name) return '';
-  const normalizedName = name.trim().toLowerCase().replace(/\s+/g, '-');
-  if (/installation/i.test(name)) return 'outlet-installation';
-  if (/paint|painting|wall|ceiling/i.test(name)) return 'general-painting';
-  return normalizedName;
-};
 
 // Map measurement type to corresponding component
 const getSurfaceInputComponent = (measurementType) => {
@@ -34,7 +20,8 @@ const getSurfaceInputComponent = (measurementType) => {
     case 'by-unit':
       return ByUnitInput;
     default:
-      return SingleSurfaceInput; // Fallback to SingleSurfaceInput
+      console.warn(`Unknown measurementType "${measurementType}", defaulting to SingleSurfaceInput`);
+      return SingleSurfaceInput; // Fallback
   }
 };
 
@@ -58,9 +45,6 @@ export default function WorkItem({
     : workItem.category
       ? workItem.category.trim().toLowerCase().replace(/[^a-z0-9]+/g, '')
       : '';
-
-  // Normalize workItem.type if missing
-  const effectiveType = workItem.type || inferTypeFromName(workItem.name);
 
   if (!WORK_TYPES || Object.keys(WORK_TYPES).length === 0) {
     console.error('WORK_TYPES is empty or not loaded.');
@@ -89,25 +73,16 @@ export default function WorkItem({
     ], []);
   })();
 
-  // Determine default measurement type based on WORK_TYPES category or name
-  const getDefaultMeasurementType = (type, name) => {
-    if (!type && !name) return 'single-surface';
-    const effectiveType = type || inferTypeFromName(name);
-    // Prioritize room-surface for painting-related types
-    if (
-      effectiveType.includes('painting') ||
-      effectiveType.includes('walls') ||
-      effectiveType.includes('ceiling') ||
-      (name && /paint|painting|wall|ceiling/i.test(name))
-    ) {
-      return 'room-surface';
+  // Determine measurement type based on MEASUREMENT_TYPES
+  const getDefaultMeasurementType = (type) => {
+    if (!type) {
+      console.warn('getDefaultMeasurementType: No type provided');
+      return null; // No measurement type until a valid type is selected
     }
-    for (const category of Object.values(WORK_TYPES)) {
-      if (effectiveType && category.surfaceBased.includes(effectiveType)) return 'single-surface';
-      if (effectiveType && category.linearFtBased.includes(effectiveType)) return 'linear-foot';
-      if (effectiveType && category.unitBased.includes(effectiveType)) return 'by-unit';
+    if (type in MEASUREMENT_TYPES) {
+      return MEASUREMENT_TYPES[type];
     }
-    if (name && /installation/i.test(name)) return 'by-unit';
+    console.warn(`getDefaultMeasurementType: Type "${type}" not found in MEASUREMENT_TYPES, defaulting to single-surface`);
     return 'single-surface';
   };
 
@@ -124,18 +99,19 @@ export default function WorkItem({
           const workItems = [...category.workItems];
           const item = { ...workItems[workIndex] };
 
-          if (['materialCost', 'laborCost'].includes(field)) {
-            item[field] = value === '' ? '' : Math.max(0, parseFloat(value) || 0);
-          } else if (field === 'type') {
+          if (field === 'type') {
+            if (!value) {
+              console.warn('updateWorkItem: Type cannot be empty', { name: item.name });
+              return prev; // Prevent empty type
+            }
             item[field] = value;
             item.subtype = DEFAULT_SUBTYPES[value] || '';
-            const measurementType = getDefaultMeasurementType(value, item.name);
-            item.surfaces = item.surfaces?.length > 0 && item.surfaces[0].measurementType === measurementType
-              ? item.surfaces
-              : [{
+            const measurementType = getDefaultMeasurementType(value);
+            item.surfaces = measurementType
+              ? [{
                   measurementType,
                   ...(measurementType === 'single-surface' ? { width: '10', height: '10', sqft: 100, manualSqft: false } : {}),
-                  ...(measurementType === 'linear-foot' ? { linearFt: '10', sqft: 10 } : {}),
+                  ...(measurementType === 'linear-foot' ? { linearFt: '10' } : {}),
                   ...(measurementType === 'by-unit' ? { units: '1', sqft: 1 } : {}),
                   ...(measurementType === 'room-surface' ? {
                     length: '12',
@@ -147,9 +123,12 @@ export default function WorkItem({
                     closets: [{ size: '4x7', width: 4, height: 7, area: 28 }],
                     sqft: 184,
                   } : {}),
-                }];
-            item.materialCost = item.materialCost ?? '0.00';
-            item.laborCost = item.laborCost ?? '0.00';
+                }]
+              : [];
+            item.materialCost = item.materialCost ?? '1.00';
+            item.laborCost = item.laborCost ?? '1.00';
+          } else if (['materialCost', 'laborCost'].includes(field)) {
+            item[field] = value === '' ? '' : Math.max(0, parseFloat(value) || 0).toFixed(2);
           } else {
             item[field] = value;
           }
@@ -174,18 +153,21 @@ export default function WorkItem({
   }, [disabled, catIndex, workIndex, setCategories]);
 
   const addSurface = useCallback(() => {
-    if (disabled) return;
+    if (disabled || !workItem.type) {
+      console.warn('addSurface: Cannot add surface without a valid type', workItem);
+      return;
+    }
     setCategories((prev) => {
       const newCategories = [...prev];
       const category = { ...newCategories[catIndex] };
       const workItems = [...category.workItems];
       const item = { ...workItems[workIndex] };
-      const measurementType = item.surfaces?.length > 0 ? item.surfaces[0].measurementType : getDefaultMeasurementType(item.type, item.name);
+      const measurementType = getDefaultMeasurementType(item.type);
 
       item.surfaces = [...(item.surfaces || []), {
         measurementType,
         ...(measurementType === 'single-surface' ? { width: '10', height: '10', sqft: 100, manualSqft: false } : {}),
-        ...(measurementType === 'linear-foot' ? { linearFt: '10', sqft: 10 } : {}),
+        ...(measurementType === 'linear-foot' ? { linearFt: '10' } : {}),
         ...(measurementType === 'by-unit' ? { units: '1', sqft: 1 } : {}),
         ...(measurementType === 'room-surface' ? {
           length: '12',
@@ -203,15 +185,13 @@ export default function WorkItem({
       newCategories[catIndex] = category;
       return newCategories;
     });
-  }, [disabled, catIndex, workIndex, setCategories]);
+  }, [disabled, catIndex, workIndex, setCategories, workItem.type]);
 
   const materialCost = parseFloat(workItem.materialCost) || 0;
   const laborCost = parseFloat(workItem.laborCost) || 0;
   const costOptions = Array.from({ length: 21 }, (_, i) => i.toString()).concat('Custom');
 
-  const primaryMeasurementType = workItem.surfaces?.length > 0
-    ? workItem.surfaces[0].measurementType
-    : getDefaultMeasurementType(effectiveType, workItem.name);
+  const primaryMeasurementType = workItem.type ? getDefaultMeasurementType(workItem.type) : null;
 
   const materialLabel = primaryMeasurementType === 'linear-foot'
     ? 'Material Cost per Linear Ft ($)'
@@ -253,7 +233,11 @@ export default function WorkItem({
       : parseFloat(surf.sqft) || 0);
   }, 0) || 0;
 
-  const unitLabel = primaryMeasurementType === 'linear-foot' ? 'ft' : primaryMeasurementType === 'by-unit' ? 'units' : 'sqft';
+  const unitLabel = primaryMeasurementType === 'linear-foot'
+    ? 'linear ft'
+    : primaryMeasurementType === 'by-unit'
+    ? 'units'
+    : 'sqft';
 
   const handleMaterialSelectChange = (value) => {
     if (value === 'Custom') {
@@ -283,7 +267,7 @@ export default function WorkItem({
             type="text"
             value={workItem.name || ''}
             onChange={(e) => updateWorkItem('name', e.target.value)}
-            placeholder="Work Item Name"
+            placeholder="Work Item Name (e.g., Trims)"
             className={styles.input}
             disabled={disabled}
             aria-label="Work item name"
@@ -292,15 +276,14 @@ export default function WorkItem({
         <div className={styles.inputWrapper}>
           <i className={`fas fa-list-alt ${styles.inputIcon}`}></i>
           <select
-            value={effectiveType}
+            value={workItem.type || ''}
             onChange={(e) => updateWorkItem('type', e.target.value)}
             className={styles.select}
             disabled={disabled || !workItem.category || !categoryKey}
             aria-label="Work item type"
+            required
           >
-            <option value="">
-              {workItem.category && categoryKey ? 'Select Type' : 'Select a Category'}
-            </option>
+            <option value="" disabled>Select Type</option>
             {availableTypes.map((type) => (
               <option key={type} value={type}>
                 {type
@@ -313,20 +296,26 @@ export default function WorkItem({
         </div>
       </div>
 
-      {effectiveType && SUBTYPE_OPTIONS[effectiveType] && (
+      {!workItem.type && (
+        <div className={styles.errorMessage} role="alert">
+          <i className="fas fa-exclamation-circle"></i> Please select a work type to proceed.
+        </div>
+      )}
+
+      {workItem.type && SUBTYPE_OPTIONS[workItem.type] && (
         <div className={styles.workItemRow}>
           <label>
             <i className="fas fa-layer-group"></i> Subtype:
           </label>
           <select
-            value={workItem.subtype || DEFAULT_SUBTYPES[effectiveType] || ''}
+            value={workItem.subtype || DEFAULT_SUBTYPES[workItem.type] || ''}
             onChange={(e) => updateWorkItem('subtype', e.target.value)}
             className={styles.select}
             disabled={disabled}
             aria-label="Work item subtype"
           >
             <option value="">Select Subtype</option>
-            {(SUBTYPE_OPTIONS[effectiveType] || []).map((option) => (
+            {(SUBTYPE_OPTIONS[workItem.type] || []).map((option) => (
               <option key={option} value={option}>
                 {option.charAt(0).toUpperCase() + option.slice(1)}
               </option>
@@ -335,150 +324,156 @@ export default function WorkItem({
         </div>
       )}
 
-      <div className={styles.surfaces}>
-        {workItem.surfaces?.length > 0 ? (
-          workItem.surfaces.map((surf, surfIndex) => {
-            const SurfaceInputComponent = getSurfaceInputComponent(surf.measurementType);
-            return (
-              <SurfaceInputComponent
-                key={surfIndex}
-                catIndex={catIndex}
-                workIndex={workIndex}
-                surfIndex={surfIndex}
-                surface={surf}
-                setCategories={setCategories}
-                showRemove={workItem.surfaces.length > 1 && !disabled}
-                disabled={disabled}
-              />
-            );
-          })
-        ) : (
-          (() => {
-            const defaultMeasurementType = getDefaultMeasurementType(effectiveType, workItem.name);
-            const SurfaceInputComponent = getSurfaceInputComponent(defaultMeasurementType);
-            return (
-              <SurfaceInputComponent
-                catIndex={catIndex}
-                workIndex={workIndex}
-                surfIndex={0}
-                surface={{
-                  measurementType: defaultMeasurementType,
-                  ...(defaultMeasurementType === 'single-surface' ? { width: '10', height: '10', sqft: 100, manualSqft: false } : {}),
-                  ...(defaultMeasurementType === 'linear-foot' ? { linearFt: '10', sqft: 10 } : {}),
-                  ...(defaultMeasurementType === 'by-unit' ? { units: '1', sqft: 1 } : {}),
-                  ...(defaultMeasurementType === 'room-surface' ? {
-                    length: '12',
-                    width: '10',
-                    roomShape: 'rectangular',
-                    roomHeight: '8',
-                    doors: [{ size: '3x7', width: 3, height: 7, area: 21 }],
-                    windows: [{ size: '3x4', width: 3, height: 4, area: 12 }],
-                    closets: [{ size: '4x7', width: 4, height: 7, area: 28 }],
-                    sqft: 184,
-                  } : {}),
-                }}
-                setCategories={setCategories}
-                showRemove={false}
-                disabled={disabled}
-              />
-            );
-          })()
-        )}
-        {!disabled && (
-          <button
-            onClick={addSurface}
-            className={styles.addSurfaceButton}
-            title="Add Surface"
-            aria-label="Add surface"
-          >
-            <i className="fas fa-plus"></i> Add Surface
-          </button>
-        )}
-      </div>
-
-      <div className={styles.pricingSection}>
-        <div className={styles.pricingField}>
-          <label title={materialLabel}>
-            <i className="fas fa-dollar-sign"></i> {materialLabel}:
-          </label>
-          <div className={styles.costWrapper}>
-            <select
-              value={isMaterialCustomMode ? 'Custom' : materialCost.toString()}
-              onChange={(e) => handleMaterialSelectChange(e.target.value)}
-              className={styles.select}
-              disabled={disabled}
-              aria-label="Material cost selection"
+      {workItem.type && (
+        <div className={styles.surfaces}>
+          {workItem.surfaces?.length > 0 ? (
+            workItem.surfaces.map((surf, surfIndex) => {
+              const SurfaceInputComponent = getSurfaceInputComponent(surf.measurementType);
+              return (
+                <SurfaceInputComponent
+                  key={surfIndex}
+                  catIndex={catIndex}
+                  workIndex={workIndex}
+                  surfIndex={surfIndex}
+                  surface={surf}
+                  setCategories={setCategories}
+                  showRemove={workItem.surfaces.length > 1 && !disabled}
+                  disabled={disabled}
+                />
+              );
+            })
+          ) : (
+            (() => {
+              const measurementType = getDefaultMeasurementType(workItem.type);
+              const SurfaceInputComponent = getSurfaceInputComponent(measurementType);
+              return (
+                <SurfaceInputComponent
+                  catIndex={catIndex}
+                  workIndex={workIndex}
+                  surfIndex={0}
+                  surface={{
+                    measurementType,
+                    ...(measurementType === 'single-surface' ? { width: '10', height: '10', sqft: 100, manualSqft: false } : {}),
+                    ...(measurementType === 'linear-foot' ? { linearFt: '10' } : {}),
+                    ...(measurementType === 'by-unit' ? { units: '1', sqft: 1 } : {}),
+                    ...(measurementType === 'room-surface' ? {
+                      length: '12',
+                      width: '10',
+                      roomShape: 'rectangular',
+                      roomHeight: '8',
+                      doors: [{ size: '3x7', width: 3, height: 7, area: 21 }],
+                      windows: [{ size: '3x4', width: 3, height: 4, area: 12 }],
+                      closets: [{ size: '4x7', width: 4, height: 7, area: 28 }],
+                      sqft: 184,
+                    } : {}),
+                  }}
+                  setCategories={setCategories}
+                  showRemove={false}
+                  disabled={disabled}
+                />
+              );
+            })()
+          )}
+          {!disabled && (
+            <button
+              onClick={addSurface}
+              className={styles.addSurfaceButton}
+              title="Add Surface"
+              aria-label="Add surface"
             >
-              {costOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option === 'Custom' ? 'Custom' : `$${option}`}
-                </option>
-              ))}
-            </select>
-            <div className={styles.inputWrapper}>
-              <i className={`fas fa-dollar-sign ${styles.inputIcon}`}></i>
-              <input
-                type="number"
-                step="0.01"
-                value={materialCost}
-                onChange={(e) => updateWorkItem('materialCost', e.target.value)}
-                className={styles.input}
-                placeholder="0.00"
-                disabled={disabled || !isMaterialCustomMode}
-                aria-label="Material cost"
-              />
+              <i className="fas fa-plus"></i> Add Surface
+            </button>
+          )}
+        </div>
+      )}
+
+      {workItem.type && (
+        <div className={styles.pricingSection}>
+          <div className={styles.pricingField}>
+            <label title={materialLabel}>
+              <i className="fas fa-dollar-sign"></i> {materialLabel}:
+            </label>
+            <div className={styles.costWrapper}>
+              <select
+                value={isMaterialCustomMode ? 'Custom' : materialCost.toString()}
+                onChange={(e) => handleMaterialSelectChange(e.target.value)}
+                className={styles.select}
+                disabled={disabled}
+                aria-label="Material cost selection"
+              >
+                {costOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option === 'Custom' ? 'Custom' : `$${option}`}
+                  </option>
+                ))}
+              </select>
+              <div className={styles.inputWrapper}>
+                <i className={`fas fa-dollar-sign ${styles.inputIcon}`}></i>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={materialCost}
+                  onChange={(e) => updateWorkItem('materialCost', e.target.value)}
+                  className={styles.input}
+                  placeholder="0.00"
+                  disabled={disabled || !isMaterialCustomMode}
+                  aria-label="Material cost"
+                />
+              </div>
+            </div>
+          </div>
+          <div className={styles.pricingField}>
+            <label title={laborLabel}>
+              <i className="fas fa-user-clock"></i> {laborLabel}:
+            </label>
+            <div className={styles.costWrapper}>
+              <select
+                value={isLaborCustomMode ? 'Custom' : laborCost.toString()}
+                onChange={(e) => handleLaborSelectChange(e.target.value)}
+                className={styles.select}
+                disabled={disabled}
+                aria-label="Labor cost selection"
+              >
+                {costOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option === 'Custom' ? 'Custom' : `$${option}`}
+                  </option>
+                ))}
+              </select>
+              <div className={styles.inputWrapper}>
+                <i className={`fas fa-dollar-sign ${styles.inputIcon}`}></i>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={laborCost}
+                  onChange={(e) => updateWorkItem('laborCost', e.target.value)}
+                  className={styles.input}
+                  placeholder="0.00"
+                  disabled={disabled || !isLaborCustomMode}
+                  aria-label="Labor cost"
+                />
+              </div>
             </div>
           </div>
         </div>
-        <div className={styles.pricingField}>
-          <label title={laborLabel}>
-            <i className="fas fa-user-clock"></i> {laborLabel}:
-          </label>
-          <div className={styles.costWrapper}>
-            <select
-              value={isLaborCustomMode ? 'Custom' : laborCost.toString()}
-              onChange={(e) => handleLaborSelectChange(e.target.value)}
-              className={styles.select}
-              disabled={disabled}
-              aria-label="Labor cost selection"
-            >
-              {costOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option === 'Custom' ? 'Custom' : `$${option}`}
-                </option>
-              ))}
-            </select>
-            <div className={styles.inputWrapper}>
-              <i className={`fas fa-dollar-sign ${styles.inputIcon}`}></i>
-              <input
-                type="number"
-                step="0.01"
-                value={laborCost}
-                onChange={(e) => updateWorkItem('laborCost', e.target.value)}
-                className={styles.input}
-                placeholder="0.00"
-                disabled={disabled || !isLaborCustomMode}
-                aria-label="Labor cost"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
+      )}
 
-      <div className={styles.costDisplay}>
-        <span className={styles.cost}>
-          Material: ${totalMaterialCost.toFixed(2)}
-        </span>
-        <span className={styles.cost}>
-          Labor: ${totalLaborCost.toFixed(2)}
-        </span>
-        <span className={styles.cost}>
-          Total: ${totalCost}
-        </span>
-        <span className={styles.units}>
-          Total: {totalUnits.toFixed(2)} {unitLabel}
-        </span>
-      </div>
+      {workItem.type && (
+        <div className={styles.costDisplay}>
+          <span className={styles.cost}>
+            Material: ${totalMaterialCost.toFixed(2)}
+          </span>
+          <span className={styles.cost}>
+            Labor: ${totalLaborCost.toFixed(2)}
+          </span>
+          <span className={styles.cost}>
+            Total: ${totalCost}
+          </span>
+          <span className={styles.units}>
+            Total: {totalUnits.toFixed(2)} {unitLabel}
+          </span>
+        </div>
+      )}
 
       <div className={styles.notesSection}>
         <div className={styles.inputWrapper}>

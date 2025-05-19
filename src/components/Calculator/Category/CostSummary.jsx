@@ -1,4 +1,4 @@
-//src/components/Calculator/Category/CostSummary.jsx
+// src/components/Calculator/Category/CostSummary.jsx
 import React, { useState, useMemo } from 'react';
 import styles from './CostSummary.module.css';
 import { getUnits } from '../utils/calculatorUtils';
@@ -11,11 +11,33 @@ export default function CostSummary({ categories = [], settings = {} }) {
     let materialCost = 0;
     let laborCost = 0;
 
-    categories.forEach((cat) => {
-      (cat.workItems || []).forEach((item) => {
-        const qty = getUnits(item);
-        materialCost += (parseFloat(item.materialCost) || 0) * qty;
-        laborCost += (parseFloat(item.laborCost) || 0) * qty;
+    categories.forEach((cat, catIndex) => {
+      if (!cat.workItems || !Array.isArray(cat.workItems)) {
+        console.warn(`CostSummary: Invalid workItems in category at index ${catIndex}`, cat);
+        return;
+      }
+      cat.workItems.forEach((item, itemIndex) => {
+        if (!item.type) {
+          console.warn(`CostSummary: Skipping item with no type in category "${cat.name || catIndex}" at index ${itemIndex}`, item);
+          return;
+        }
+        const qty = getUnits(item) || 0;
+        const itemMaterialCost = parseFloat(item.materialCost) || 0;
+        const itemLaborCost = parseFloat(item.laborCost) || 0;
+
+        if (qty === 0 && (itemMaterialCost > 0 || itemLaborCost > 0) && item.surfaces?.length > 0) {
+          console.debug(
+            `CostSummary: Zero units for item in category "${cat.name || catIndex}" at index ${itemIndex}`,
+            { name: item.name, type: item.type, measurementType: item.surfaces[0]?.measurementType, surfaces: item.surfaces }
+          );
+        }
+
+        if (itemMaterialCost > 0 && qty > 0) {
+          materialCost += itemMaterialCost * qty;
+        }
+        if (itemLaborCost > 0 && qty > 0) {
+          laborCost += itemLaborCost * qty;
+        }
       });
     });
 
@@ -26,8 +48,10 @@ export default function CostSummary({ categories = [], settings = {} }) {
     const wasteCost = baseSubtotal * (settings.wasteFactor || 0);
     const tax = baseSubtotal * (settings.taxRate || 0);
     const markupCost = baseSubtotal * (settings.markup || 0);
-    const miscFeesTotal = (settings.miscFees || []).reduce((sum, fee) => sum + (parseFloat(fee.amount) || 0), 0);
-    const transportationFee = settings.transportationFee || 0;
+    const miscFeesTotal = Array.isArray(settings.miscFees)
+      ? settings.miscFees.reduce((sum, fee) => sum + (parseFloat(fee.amount) || 0), 0)
+      : 0;
+    const transportationFee = parseFloat(settings.transportationFee) || 0;
 
     const total = baseSubtotal + wasteCost + tax + markupCost + miscFeesTotal + transportationFee;
 
@@ -38,6 +62,7 @@ export default function CostSummary({ categories = [], settings = {} }) {
       wasteCost,
       tax,
       markupCost,
+      miscFeesTotal,
       transportationFee,
       total,
     };
@@ -45,17 +70,32 @@ export default function CostSummary({ categories = [], settings = {} }) {
 
   // Calculate labor cost before discount
   const laborCostBeforeDiscount = useMemo(() => {
-    return categories.reduce((sum, cat) => {
-      return sum + (cat.workItems || []).reduce((catSum, item) => {
+    return categories.reduce((sum, cat, catIndex) => {
+      if (!cat.workItems || !Array.isArray(cat.workItems)) {
+        console.warn(`CostSummary: Invalid workItems in category at index ${catIndex}`, cat);
+        return sum;
+      }
+      return sum + cat.workItems.reduce((catSum, item, itemIndex) => {
+        if (!item.type) {
+          console.warn(`CostSummary: Skipping item with no type in category "${cat.name || catIndex}" at index ${itemIndex}`, item);
+          return catSum;
+        }
         const laborCost = parseFloat(item.laborCost) || 0;
-        const totalUnits = getUnits(item);
-        return catSum + laborCost * totalUnits;
+        const totalUnits = getUnits(item) || 0;
+        if (totalUnits === 0 && laborCost > 0 && item.surfaces?.length > 0) {
+          console.debug(
+            `CostSummary: Zero units for labor cost in category "${cat.name || catIndex}" at index ${itemIndex}`,
+            { name: item.name, type: item.type, measurementType: item.surfaces[0]?.measurementType, surfaces: item.surfaces }
+          );
+        }
+        return catSum + (laborCost * totalUnits);
       }, 0);
     }, 0);
   }, [categories]);
 
   const totalPaid = useMemo(() => {
-    return (settings.payments || []).reduce((sum, payment) => sum + (payment.isPaid ? payment.amount : 0), 0) + (settings.deposit || 0);
+    return (Array.isArray(settings.payments) ? settings.payments.reduce((sum, payment) => sum + (payment.isPaid ? parseFloat(payment.amount) || 0 : 0), 0) : 0) +
+           (parseFloat(settings.deposit) || 0);
   }, [settings.payments, settings.deposit]);
 
   const grandTotal = totals.total;
@@ -110,9 +150,7 @@ export default function CostSummary({ categories = [], settings = {} }) {
             <span className={styles.totalsLabel}>Markup:</span>
             <span className={styles.totalsValue}>${totals.markupCost.toFixed(2)}</span>
             <span className={styles.totalsLabel}>Miscellaneous Fees:</span>
-            <span className={styles.totalsValue}>
-              ${(settings.miscFees || []).reduce((sum, fee) => sum + (parseFloat(fee.amount) || 0), 0).toFixed(2)}
-            </span>
+            <span className={styles.totalsValue}>${totals.miscFeesTotal.toFixed(2)}</span>
             <span className={styles.totalsLabel}>Grand Total:</span>
             <span className={styles.totalsValueGrand}>${totals.total.toFixed(2)}</span>
           </div>
