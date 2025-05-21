@@ -6,6 +6,7 @@ export default function AdditionalCosts({ settings = {}, setSettings, disabled =
   const [useManualMarkup, setUseManualMarkup] = useState(false);
   const [useManualLaborDiscount, setUseManualLaborDiscount] = useState(false);
   const [expandedSections, setExpandedSections] = useState({ additionalCosts: true });
+  const [error, setError] = useState(null);
   const inputTimeoutRef = useRef(null);
 
   const toggleSection = (section) => {
@@ -13,6 +14,7 @@ export default function AdditionalCosts({ settings = {}, setSettings, disabled =
       ...prev,
       [section]: !prev[section],
     }));
+    setError(null);
   };
 
   const handleSettingsChange = (field, value) => {
@@ -22,12 +24,14 @@ export default function AdditionalCosts({ settings = {}, setSettings, disabled =
     }
     inputTimeoutRef.current = setTimeout(() => {
       let parsedValue = parseFloat(value) || 0;
-      if (field === 'transportationFee' && parsedValue < 0) {
+      if (parsedValue < 0) {
         console.warn(`handleSettingsChange: Negative ${field} (${value}) is invalid, setting to 0`);
+        setError(`Negative ${field.replace(/([A-Z])/g, ' $1').toLowerCase()} is invalid.`);
         parsedValue = 0;
       }
-      if ((field === 'laborDiscount' || field === 'markup') && parsedValue > 100) {
+      if ((field === 'laborDiscount' || field === 'markup' || field === 'wasteFactor' || field === 'taxRate') && parsedValue > 100) {
         console.warn(`handleSettingsChange: ${field} (${value}) exceeds 100%, capping at 100%`);
+        setError(`${field.replace(/([A-Z])/g, ' $1').toLowerCase()} cannot exceed 100%.`);
         parsedValue = 100;
       }
       setSettings((prev) => ({
@@ -36,6 +40,7 @@ export default function AdditionalCosts({ settings = {}, setSettings, disabled =
           ? parsedValue / 100
           : parsedValue,
       }));
+      setError(null);
     }, 50);
   };
 
@@ -49,6 +54,7 @@ export default function AdditionalCosts({ settings = {}, setSettings, disabled =
         let parsedValue = parseFloat(value) || 0;
         if (parsedValue < 0) {
           console.warn(`handleMiscFeeChange: Negative amount (${value}) for miscFee[${index}] is invalid, setting to 0`);
+          setError('Miscellaneous fee amount cannot be negative.');
           parsedValue = 0;
         }
         setSettings((prev) => ({
@@ -65,6 +71,7 @@ export default function AdditionalCosts({ settings = {}, setSettings, disabled =
           ),
         }));
       }
+      setError(null);
     }, 50);
   };
 
@@ -72,7 +79,7 @@ export default function AdditionalCosts({ settings = {}, setSettings, disabled =
     if (disabled) return;
     setSettings((prev) => ({
       ...prev,
-      miscFees: [...(prev.miscFees || []), { name: `Fee ${prev.miscFees.length + 1}`, amount: 0 }],
+      miscFees: [...(prev.miscFees || []), { name: `Fee ${prev.miscFees.length + 1}`, amount: 0.01 }],
     }));
   };
 
@@ -82,6 +89,7 @@ export default function AdditionalCosts({ settings = {}, setSettings, disabled =
       ...prev,
       miscFees: prev.miscFees.filter((_, i) => i !== index),
     }));
+    setError(null);
   };
 
   return (
@@ -105,6 +113,11 @@ export default function AdditionalCosts({ settings = {}, setSettings, disabled =
       </div>
       {expandedSections.additionalCosts && (
         <div className={styles.settingsContent}>
+          {error && (
+            <div className={styles.errorMessage} role="alert">
+              <i className="fas fa-exclamation-circle"></i> {error}
+            </div>
+          )}
           <div className={styles.field}>
             <label>
               <i className="fas fa-recycle"></i> Waste Factor (%):

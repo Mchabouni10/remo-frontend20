@@ -27,7 +27,7 @@ export default function CostSummary({ categories = [], settings = {} }) {
     const tax = baseSubtotal * (settings.taxRate || 0);
     const markupCost = baseSubtotal * (settings.markup || 0);
     const miscFeesTotal = (settings.miscFees || []).reduce((sum, fee) => sum + (parseFloat(fee.amount) || 0), 0);
-    const transportationFee = settings.transportationFee || 0;
+    const transportationFee = parseFloat(settings.transportationFee) || 0;
 
     const total = baseSubtotal + wasteCost + tax + markupCost + miscFeesTotal + transportationFee;
 
@@ -38,6 +38,7 @@ export default function CostSummary({ categories = [], settings = {} }) {
       wasteCost,
       tax,
       markupCost,
+      miscFeesTotal,
       transportationFee,
       total,
     };
@@ -55,10 +56,13 @@ export default function CostSummary({ categories = [], settings = {} }) {
   }, [categories]);
 
   const totalPaid = useMemo(() => {
-    return (settings.payments || []).reduce((sum, payment) => sum + (payment.isPaid ? payment.amount : 0), 0) + (settings.deposit || 0);
+    const payments = Array.isArray(settings.payments) ? settings.payments : [];
+    return payments.reduce((sum, payment) => sum + (payment.isPaid ? parseFloat(payment.amount) || 0 : 0), 0) +
+           (parseFloat(settings.deposit) || 0);
   }, [settings.payments, settings.deposit]);
 
   const grandTotal = totals.total;
+  const amountRemaining = Math.max(0, grandTotal - totalPaid);
   const overpayment = totalPaid > grandTotal ? totalPaid - grandTotal : 0;
 
   const toggleSection = () => {
@@ -89,18 +93,16 @@ export default function CostSummary({ categories = [], settings = {} }) {
             <span className={styles.totalsValue}>${laborCostBeforeDiscount.toFixed(2)}</span>
             {settings.laborDiscount > 0 && (
               <>
-                <span className={styles.totalsLabel}>Labor Discount:</span>
-                <span className={styles.totalsValue}>-${totals.laborDiscount.toFixed(2)}</span>
-                <span className={styles.totalsLabel}>Labor Cost (after discount):</span>
-                <span className={styles.totalsValue}>${totals.laborCost.toFixed(2)}</span>
+                <span className={`${styles.totalsLabel} ${styles.laborDiscountLabel}`}>
+                  <i className="fas fa-tags"></i> Labor Discount:
+                </span>
+                <span className={`${styles.totalsValue} ${styles.laborDiscount}`}>
+                  -${totals.laborDiscount.toFixed(2)}
+                </span>
               </>
             )}
-            {settings.laborDiscount === 0 && (
-              <>
-                <span className={styles.totalsLabel}>Labor Cost (after discount):</span>
-                <span className={styles.totalsValue}>${totals.laborCost.toFixed(2)}</span>
-              </>
-            )}
+            <span className={styles.totalsLabel}>Labor Cost (after discount):</span>
+            <span className={styles.totalsValue}>${totals.laborCost.toFixed(2)}</span>
             <span className={styles.totalsLabel}>Waste Cost:</span>
             <span className={styles.totalsValue}>${totals.wasteCost.toFixed(2)}</span>
             <span className={styles.totalsLabel}>Transportation Fee:</span>
@@ -110,11 +112,23 @@ export default function CostSummary({ categories = [], settings = {} }) {
             <span className={styles.totalsLabel}>Markup:</span>
             <span className={styles.totalsValue}>${totals.markupCost.toFixed(2)}</span>
             <span className={styles.totalsLabel}>Miscellaneous Fees:</span>
-            <span className={styles.totalsValue}>
-              ${(settings.miscFees || []).reduce((sum, fee) => sum + (parseFloat(fee.amount) || 0), 0).toFixed(2)}
+            <span className={styles.totalsValue}>${totals.miscFeesTotal.toFixed(2)}</span>
+            <span className={`${styles.totalsLabel} ${styles.grandTotalLabel}`}>
+              <i className="fas fa-sigma"></i> Grand Total:
             </span>
-            <span className={styles.totalsLabel}>Grand Total:</span>
             <span className={styles.totalsValueGrand}>${totals.total.toFixed(2)}</span>
+            <span className={`${styles.totalsLabel} ${styles.totalPaidLabel}`}>
+              <i className="fas fa-dollar-sign"></i> Total Paid (incl. Deposit):
+            </span>
+            <span className={`${styles.totalsValue} ${styles.totalPaid}`}>
+              ${totalPaid.toFixed(2)}
+            </span>
+            <span className={`${styles.totalsLabel} ${styles.amountRemainingLabel}`}>
+              <i className="fas fa-balance-scale"></i> Amount Remaining:
+            </span>
+            <span className={`${styles.totalsValue} ${styles.amountRemaining} ${amountRemaining > 0 ? styles.amountRemainingNonZero : ''}`}>
+              ${amountRemaining.toFixed(2)}
+            </span>
           </div>
           {overpayment > 0 && (
             <div className={styles.overpaymentNotice}>

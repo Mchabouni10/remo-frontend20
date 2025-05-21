@@ -1,4 +1,5 @@
 //src/components/Calculator/Surface-Unit/RoomSurfaceInput.jsx
+//src/components/Calculator/Surface-Unit/RoomSurfaceInput.jsx
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import styles from './RoomSurfaceInput.module.css';
 
@@ -119,7 +120,7 @@ export default function RoomSurfaceInput({
         })
       );
     }, 50);
-  }, [disabled, catIndex, workIndex, surfIndex, setCategories, calculateSqft]);
+  }, [disabled, catIndex, workIndex, surfIndex, setCategories, calculateSqft, DOOR_SIZES, WINDOW_SIZES, CLOSET_SIZES]);
 
   const addExclusion = useCallback((type) => {
     if (disabled) return;
@@ -155,7 +156,7 @@ export default function RoomSurfaceInput({
         return cat;
       })
     );
-  }, [disabled, catIndex, workIndex, surfIndex, setCategories, calculateSqft]);
+  }, [disabled, catIndex, workIndex, surfIndex, setCategories, calculateSqft, DOOR_SIZES, WINDOW_SIZES, CLOSET_SIZES]);
 
   const removeExclusion = useCallback((type, index) => {
     if (disabled) return;

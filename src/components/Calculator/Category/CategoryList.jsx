@@ -60,9 +60,11 @@ export default function CategoryList({
         const newKey = categories[catIndex].key.startsWith('custom_')
           ? `custom_${value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '')}`
           : categories[catIndex].key;
+        const normalizedNewKey = newKey.toLowerCase();
         if (
           newKey !== categories[catIndex].key &&
-          (WORK_TYPES && newKey in WORK_TYPES || categories.some((cat, i) => i !== catIndex && cat.key === newKey))
+          (WORK_TYPES && Object.keys(WORK_TYPES).some((k) => k.toLowerCase() === normalizedNewKey) ||
+           categories.some((cat, i) => i !== catIndex && cat.key.toLowerCase() === normalizedNewKey))
         ) {
           setError('Category name already exists or conflicts with an existing category.');
           return;
@@ -146,13 +148,14 @@ export default function CategoryList({
             : cat
         )
       );
+      setError(null);
     } catch (err) {
       console.error('Error removing work item:', err);
       setError('Failed to remove work item. Please try again.');
     }
   };
 
-  const addCategory = () => {
+  const addCategory = (catIndex, workIndex) => {
     if (disabled) return;
     if (inputTimeoutRef.current) {
       clearTimeout(inputTimeoutRef.current);
@@ -164,7 +167,12 @@ export default function CategoryList({
         if (selectedCategory === 'custom' && customCategory.trim()) {
           categoryName = customCategory.trim();
           categoryKey = `custom_${customCategory.trim().toLowerCase().replace(/[^a-z0-9]+/g, '')}`;
-          if (WORK_TYPES && (categoryKey in WORK_TYPES || categories.some((cat) => cat.key === categoryKey))) {
+          const normalizedCategoryKey = categoryKey.toLowerCase();
+          if (
+            WORK_TYPES &&
+            (Object.keys(WORK_TYPES).some((k) => k.toLowerCase() === normalizedCategoryKey) ||
+             categories.some((cat) => cat.key.toLowerCase() === normalizedCategoryKey))
+          ) {
             setError('Category name already exists or conflicts with an existing category.');
             return;
           }
@@ -305,6 +313,7 @@ export default function CategoryList({
                           workItem={item}
                           setCategories={setCategories}
                           disabled={disabled}
+                          removeWorkItem={() => removeWorkItem(catIndex, workIndex)}
                         />
                       ))}
                     </div>

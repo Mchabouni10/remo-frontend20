@@ -1,6 +1,7 @@
 // src/components/Calculator/CostBreakdown/CostBreakdown.jsx
 import React, { useState, useMemo } from 'react';
 import { calculateTotal } from '../calculations/costCalculations';
+import { getUnits, getUnitLabel } from '../utils/calculatorUtils';
 import styles from './CostBreakdown.module.css';
 
 export default function CostBreakdown({ categories, settings }) {
@@ -9,61 +10,33 @@ export default function CostBreakdown({ categories, settings }) {
   const [showMiscDetails, setShowMiscDetails] = useState(false);
   const [showPaymentDetails, setShowPaymentDetails] = useState(false);
 
-  // Helper functions to determine units and unit labels
-  const getUnits = (item) => {
-    if (!item?.surfaces || !Array.isArray(item.surfaces)) return 0;
-    return item.surfaces.reduce((sum, surf) => {
-      if (surf.measurementType === 'linear-foot') {
-        return sum + (parseFloat(surf.linearFt) || 0);
-      } else if (surf.measurementType === 'by-unit') {
-        return sum + (parseFloat(surf.units) || 0);
-      } else {
-        return sum + (parseFloat(surf.sqft) || 0);
-      }
-    }, 0);
-  };
-
-  const getUnitLabel = (item) => {
-    if (!item?.surfaces || !Array.isArray(item.surfaces) || item.surfaces.length === 0) {
-      return 'sqft';
-    }
-    const measurementType = item.surfaces[0]?.measurementType;
-    switch (measurementType) {
-      case 'linear-foot':
-        return 'linear ft';
-      case 'by-unit':
-        return 'units';
-      case 'single-surface':
-      case 'room-surface':
-      default:
-        return 'sqft';
-    }
-  };
-
   // Memoized calculations
   const categoryBreakdowns = useMemo(() => {
     if (!categories || !Array.isArray(categories)) return [];
     return categories.map((cat) => {
       if (!cat.workItems || !Array.isArray(cat.workItems)) {
-        return { name: cat.name || 'Unnamed', materialCost: 0, laborCost: 0, subtotal: 0, itemCount: 0 };
+        return { name: cat.name || 'Unnamed', materialCost: 0, laborCost: 0, laborCostBeforeDiscount: 0, subtotal: 0, itemCount: 0 };
       }
       const materialCost = cat.workItems.reduce((sum, item) => {
         const qty = getUnits(item);
         return sum + (parseFloat(item.materialCost) || 0) * qty;
       }, 0);
-      const laborCost = cat.workItems.reduce((sum, item) => {
+      const laborCostBeforeDiscount = cat.workItems.reduce((sum, item) => {
         const qty = getUnits(item);
         return sum + (parseFloat(item.laborCost) || 0) * qty;
       }, 0);
+      const laborDiscountFactor = 1 - (settings?.laborDiscount || 0);
+      const laborCost = laborCostBeforeDiscount * laborDiscountFactor;
       return {
         name: cat.name,
         materialCost,
+        laborCostBeforeDiscount,
         laborCost,
         subtotal: materialCost + laborCost,
         itemCount: cat.workItems.length,
       };
     });
-  }, [categories]);
+  }, [categories, settings?.laborDiscount]);
 
   const materialBreakdown = useMemo(() => {
     if (!categories || !Array.isArray(categories)) return [];
@@ -88,22 +61,25 @@ export default function CostBreakdown({ categories, settings }) {
   const laborBreakdown = useMemo(() => {
     if (!categories || !Array.isArray(categories)) return [];
     const breakdown = [];
+    const laborDiscountFactor = 1 - (settings?.laborDiscount || 0);
     categories.forEach((cat) => {
       (cat.workItems || []).forEach((item) => {
         const quantity = getUnits(item);
         const unitType = getUnitLabel(item);
-        const laborCost = (parseFloat(item.laborCost) || 0) * quantity;
+        const baseLaborCostPerUnit = parseFloat(item.laborCost) || 0;
+        const discountedLaborCostPerUnit = baseLaborCostPerUnit * laborDiscountFactor;
+        const laborCost = discountedLaborCostPerUnit * quantity;
         breakdown.push({
           name: item.name || 'Unnamed Item',
           quantity,
           unitType,
-          costPerUnit: parseFloat(item.laborCost) || 0,
+          costPerUnit: discountedLaborCostPerUnit,
           total: laborCost,
         });
       });
     });
     return breakdown;
-  }, [categories]);
+  }, [categories, settings?.laborDiscount]);
 
   const totals = useMemo(() => {
     return calculateTotal(
@@ -118,7 +94,9 @@ export default function CostBreakdown({ categories, settings }) {
   }, [categories, settings]);
 
   const totalPaid = useMemo(() => {
-    return (settings?.payments || []).reduce((sum, payment) => sum + (payment.isPaid ? payment.amount : 0), 0) + (settings?.deposit || 0);
+    return (Array.isArray(settings?.payments) ? settings.payments : [])
+      .reduce((sum, payment) => sum + (payment.isPaid ? parseFloat(payment.amount) || 0 : 0), 0) +
+      (parseFloat(settings?.deposit) || 0);
   }, [settings?.payments, settings?.deposit]);
 
   // Error handling
@@ -127,17 +105,18 @@ export default function CostBreakdown({ categories, settings }) {
   }
 
   // Detailed total calculations
-  const baseMaterialCost = categoryBreakdowns.reduce((sum, cat) => sum + cat.materialCost, 0);
-  const baseLaborCost = categoryBreakdowns.reduce((sum, cat) => sum + cat.laborCost, 0);
-  const laborDiscount = totals.laborDiscount || 0;
+  const baseMaterialCost = totals.materialCost;
+  const baseLaborCostBeforeDiscount = categoryBreakdowns.reduce((sum, cat) => sum + cat.laborCostBeforeDiscount, 0);
+  const baseLaborCost = totals.laborCost;
+  const laborDiscount = totals.laborDiscount;
   const baseSubtotal = baseMaterialCost + baseLaborCost;
-  const wasteCost = baseSubtotal * (settings?.wasteFactor || 0);
-  const taxAmount = baseSubtotal * (settings?.taxRate || 0);
-  const markupAmount = baseSubtotal * (settings?.markup || 0);
-  const miscFeesTotal = (settings?.miscFees || []).reduce((sum, fee) => sum + (parseFloat(fee.amount) || 0), 0);
-  const transportationFee = settings?.transportationFee || 0;
-  const grandTotal = baseSubtotal + wasteCost + taxAmount + markupAmount + miscFeesTotal + transportationFee;
-  const deposit = settings?.deposit || 0;
+  const wasteCost = totals.wasteCost;
+  const taxAmount = totals.tax;
+  const markupAmount = totals.markupCost;
+  const miscFeesTotal = totals.miscFeesTotal;
+  const transportationFee = totals.transportationFee;
+  const grandTotal = totals.total;
+  const deposit = parseFloat(settings?.deposit) || 0;
 
   const remainingBalance = Math.max(0, grandTotal - totalPaid);
   const overpayment = totalPaid > grandTotal ? totalPaid - grandTotal : 0;
@@ -231,7 +210,7 @@ export default function CostBreakdown({ categories, settings }) {
             </tr>
             <tr className={styles.detailRow}>
               <td>
-                Base Labor Cost (after discount)
+                Base Labor Cost (before discount)
                 <button
                   className={styles.toggleButton}
                   onClick={() => setShowLaborDetails(!showLaborDetails)}
@@ -241,7 +220,7 @@ export default function CostBreakdown({ categories, settings }) {
                 </button>
               </td>
               <td>
-                <span className={styles.totalValue}>{formatCurrency(baseLaborCost)}</span>
+                <span className={styles.totalValue}>{formatCurrency(baseLaborCostBeforeDiscount)}</span>
                 {showLaborDetails && laborBreakdown.length > 0 && (
                   <div className={styles.detailBreakdown}>
                     <table className={styles.innerTable} aria-label="Labor Cost Details">
@@ -274,6 +253,10 @@ export default function CostBreakdown({ categories, settings }) {
                 <td>-{formatCurrency(laborDiscount)}</td>
               </tr>
             )}
+            <tr className={styles.detailRow}>
+              <td>Base Labor Cost (after discount)</td>
+              <td><span className={styles.totalValue}>{formatCurrency(baseLaborCost)}</span></td>
+            </tr>
             <tr className={styles.subtotalRow}>
               <td>Base Subtotal</td>
               <td>{formatCurrency(baseSubtotal)}</td>
@@ -318,7 +301,7 @@ export default function CostBreakdown({ categories, settings }) {
                           </tr>
                         </thead>
                         <tbody>
-                          {settings.miscFees.map((fee, i) => (
+                          {(settings?.miscFees || []).map((fee, i) => (
                             <tr key={i}>
                               <td>{fee.name || 'Unnamed Fee'}</td>
                               <td>{formatCurrency(parseFloat(fee.amount) || 0)}</td>
@@ -382,7 +365,7 @@ export default function CostBreakdown({ categories, settings }) {
         {showPaymentDetails && (
           <div className={styles.detailBreakdown}>
             <h5>Payment Details</h5>
-            {(settings.payments || []).length === 0 && deposit === 0 ? (
+            {(settings?.payments || []).length === 0 && deposit === 0 ? (
               <p>No payments recorded yet.</p>
             ) : (
               <table className={styles.innerTable} aria-label="Payment Details">
@@ -405,10 +388,10 @@ export default function CostBreakdown({ categories, settings }) {
                       <td>Paid</td>
                     </tr>
                   )}
-                  {(settings.payments || []).map((payment, index) => (
+                  {(settings?.payments || []).map((payment, index) => (
                     <tr key={index}>
                       <td>{new Date(payment.date).toLocaleDateString()}</td>
-                      <td>{formatCurrency(payment.amount)}</td>
+                      <td>{formatCurrency(parseFloat(payment.amount) || 0)}</td>
                       <td>{payment.method}</td>
                       <td>{payment.note || '-'}</td>
                       <td>{payment.isPaid ? 'Paid' : 'Due'}</td>

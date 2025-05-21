@@ -1,5 +1,4 @@
 //src/components/Calculator/PaymentTracking/PaymentTracking.jsx
-
 import React, { useState, useMemo } from 'react';
 import { calculateTotal } from '../calculations/costCalculations';
 import styles from './PaymentTracking.module.css';
@@ -22,7 +21,6 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
   const [error, setError] = useState(null);
 
   const totals = useMemo(() => {
-    console.log('Categories input:', JSON.stringify(categories, null, 2));
     const result = calculateTotal(
       categories,
       settings.taxRate || 0,
@@ -32,7 +30,6 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
       settings.markup || 0,
       settings.laborDiscount || 0
     );
-    console.log('Totals output:', JSON.stringify(result, null, 2));
     return {
       ...result,
       total: result.total || 0,
@@ -44,26 +41,28 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
 
   const grandTotal = totals.total;
   const totalPaid = useMemo(() => {
-    const paidSum = (settings.payments || []).reduce((sum, payment) => sum + (payment.isPaid ? parseFloat(payment.amount) || 0 : 0), 0);
-    const deposit = parseFloat(settings.deposit) || 0;
-    return paidSum + deposit;
+    const payments = Array.isArray(settings.payments) ? settings.payments : [];
+    return payments.reduce((sum, payment) => sum + (payment.isPaid ? parseFloat(payment.amount) || 0 : 0), 0) +
+           (parseFloat(settings.deposit) || 0);
   }, [settings.payments, settings.deposit]);
 
   const amountRemaining = Math.max(0, grandTotal - totalPaid);
   const amountDue = (settings.payments || []).reduce((sum, payment) => sum + (!payment.isPaid ? parseFloat(payment.amount) || 0 : 0), 0);
-  const overduePayments = (settings.payments || []).filter(
-    (payment) => !payment.isPaid && new Date(payment.date) < new Date()
-  ).reduce((sum, payment) => sum + (parseFloat(payment.amount) || 0), 0);
+  const overduePayments = useMemo(() => {
+    const today = new Date().toISOString().split('T')[0];
+    return (Array.isArray(settings.payments) ? settings.payments : []).filter(
+      (payment) => !payment.isPaid && payment.date.split('T')[0] < today
+    ).reduce((sum, payment) => sum + (parseFloat(payment.amount) || 0), 0);
+  }, [settings.payments]);
+
   const overpaid = totalPaid > grandTotal ? totalPaid - grandTotal : 0;
 
   const toggleSection = (section) => {
-    console.log('Toggling section:', section, 'Current expandedSections:', expandedSections);
-    setExpandedSections((prev) => {
-      const newSections = { ...prev, [section]: !prev[section] };
-      console.log('New expandedSections:', newSections);
-      setError(null); // Clear error when toggling
-      return newSections;
-    });
+    setExpandedSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+    setError(null);
   };
 
   const validatePayment = (payment) => {
@@ -106,13 +105,10 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
         note: newPayment.note.trim(),
         isPaid: newPayment.isPaid,
       };
-      console.log('Adding payment:', JSON.stringify(payment, null, 2));
-      setSettings((prev) => {
-        const updatedPayments = [...(prev.payments || []), payment];
-        const updatedSettings = { ...prev, payments: updatedPayments };
-        console.log('Updated settings after adding payment:', JSON.stringify(updatedSettings, null, 2));
-        return updatedSettings;
-      });
+      setSettings((prev) => ({
+        ...prev,
+        payments: [...(prev.payments || []), payment],
+      }));
       setNewPayment({
         date: new Date().toISOString().split('T')[0],
         amount: '',
@@ -120,11 +116,10 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
         note: '',
         isPaid: false,
       });
-      setExpandedSections((prev) => {
-        const newSections = { ...prev, addPayment: false };
-        console.log('New expandedSections after addPayment:', newSections);
-        return newSections;
-      });
+      setExpandedSections((prev) => ({
+        ...prev,
+        addPayment: false,
+      }));
       setError(null);
     } catch (err) {
       console.error('Error adding payment:', err);
@@ -135,13 +130,12 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
   const togglePaymentStatus = (index) => {
     if (disabled) return;
     try {
-      setSettings((prev) => {
-        const updatedPayments = prev.payments.map((payment, i) =>
+      setSettings((prev) => ({
+        ...prev,
+        payments: prev.payments.map((payment, i) =>
           i === index ? { ...payment, isPaid: !payment.isPaid } : payment
-        );
-        console.log('Toggled payment status at index', index, ':', JSON.stringify(updatedPayments, null, 2));
-        return { ...prev, payments: updatedPayments };
-      });
+        ),
+      }));
     } catch (err) {
       console.error('Error toggling payment status:', err);
       setError('Failed to update payment status. Please try again.');
@@ -151,11 +145,10 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
   const removePayment = (index) => {
     if (disabled) return;
     try {
-      setSettings((prev) => {
-        const updatedPayments = prev.payments.filter((_, i) => i !== index);
-        console.log('Removed payment at index', index, ':', JSON.stringify(updatedPayments, null, 2));
-        return { ...prev, payments: updatedPayments };
-      });
+      setSettings((prev) => ({
+        ...prev,
+        payments: prev.payments.filter((_, i) => i !== index),
+      }));
     } catch (err) {
       console.error('Error removing payment:', err);
       setError('Failed to remove payment. Please try again.');
@@ -190,15 +183,14 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
     }
 
     try {
-      setSettings((prev) => {
-        const updatedPayments = prev.payments.map((payment, i) =>
+      setSettings((prev) => ({
+        ...prev,
+        payments: prev.payments.map((payment, i) =>
           i === index
             ? { ...editedPayment, date: new Date(editedPayment.date).toISOString(), amount: parseFloat(editedPayment.amount) }
             : payment
-        );
-        console.log('Saved edited payment at index', index, ':', JSON.stringify(updatedPayments, null, 2));
-        return { ...prev, payments: updatedPayments };
-      });
+        ),
+      }));
       setEditingIndex(null);
       setEditedPayment(null);
       setError(null);
@@ -235,6 +227,11 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
       </div>
       {expandedSections.paymentTracking && (
         <div className={styles.settingsContent}>
+          {error && (
+            <div className={styles.errorMessage} role="alert">
+              <i className="fas fa-exclamation-circle"></i> {error}
+            </div>
+          )}
           <div className={styles.field}>
             <label>
               <i className="fas fa-hand-holding-usd"></i> Deposit ($):
@@ -390,7 +387,7 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
                             className={
                               payment.isPaid
                                 ? styles.paid
-                                : new Date(payment.date) < new Date()
+                                : payment.date.split('T')[0] < new Date().toISOString().split('T')[0]
                                 ? styles.overdue
                                 : ''
                             }
@@ -461,7 +458,7 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
                 <div>
                   {error && (
                     <div className={styles.errorMessage} role="alert">
-                      {error}
+                      <i className="fas fa-exclamation-circle"></i> {error}
                     </div>
                   )}
                   <div className={styles.field}>
