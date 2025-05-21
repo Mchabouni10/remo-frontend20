@@ -1,5 +1,4 @@
 // src/components/Calculator/WorkItem/WorkItem.jsx
-// src/components/Calculator/WorkItem/WorkItem.jsx
 import React, { useCallback, useState, useRef } from 'react';
 import SingleSurfaceInput from '../Surface-Unit/SingleSurfaceInput';
 import RoomSurfaceInput from '../Surface-Unit/RoomSurfaceInput';
@@ -76,13 +75,16 @@ export default function WorkItem({
   // Determine measurement type based on MEASUREMENT_TYPES
   const getDefaultMeasurementType = (type) => {
     if (!type) {
-      console.warn('getDefaultMeasurementType: No type provided');
       return null; // No measurement type until a valid type is selected
     }
     if (type in MEASUREMENT_TYPES) {
       return MEASUREMENT_TYPES[type];
     }
-    console.warn(`getDefaultMeasurementType: Type "${type}" not found in MEASUREMENT_TYPES, defaulting to single-surface`);
+    // In development, throw an error to catch missing measurement types
+    if (process.env.NODE_ENV === 'development') {
+      throw new Error(`getDefaultMeasurementType: Type "${type}" not found in MEASUREMENT_TYPES`);
+    }
+    console.error(`getDefaultMeasurementType: Type "${type}" not found in MEASUREMENT_TYPES, defaulting to single-surface`);
     return 'single-surface';
   };
 
@@ -99,36 +101,31 @@ export default function WorkItem({
           const workItems = [...category.workItems];
           const item = { ...workItems[workIndex] };
 
-          if (field === 'type') {
-            if (!value) {
-              console.warn('updateWorkItem: Type cannot be empty', { name: item.name });
-              return prev; // Prevent empty type
-            }
+          if (['materialCost', 'laborCost'].includes(field)) {
+            item[field] = value === '' ? '' : Math.max(0, parseFloat(value) || 0).toFixed(2);
+          } else if (field === 'type') {
             item[field] = value;
             item.subtype = DEFAULT_SUBTYPES[value] || '';
             const measurementType = getDefaultMeasurementType(value);
-            item.surfaces = measurementType
-              ? [{
-                  measurementType,
-                  ...(measurementType === 'single-surface' ? { width: '10', height: '10', sqft: 100, manualSqft: false } : {}),
-                  ...(measurementType === 'linear-foot' ? { linearFt: '10' } : {}),
-                  ...(measurementType === 'by-unit' ? { units: '1', sqft: 1 } : {}),
-                  ...(measurementType === 'room-surface' ? {
-                    length: '12',
-                    width: '10',
-                    roomShape: 'rectangular',
-                    roomHeight: '8',
-                    doors: [{ size: '3x7', width: 3, height: 7, area: 21 }],
-                    windows: [{ size: '3x4', width: 3, height: 4, area: 12 }],
-                    closets: [{ size: '4x7', width: 4, height: 7, area: 28 }],
-                    sqft: 184,
-                  } : {}),
-                }]
-              : [];
-            item.materialCost = item.materialCost ?? '1.00';
-            item.laborCost = item.laborCost ?? '1.00';
-          } else if (['materialCost', 'laborCost'].includes(field)) {
-            item[field] = value === '' ? '' : Math.max(0, parseFloat(value) || 0).toFixed(2);
+            console.debug(`updateWorkItem: Setting measurementType to "${measurementType}" for type "${value}"`);
+            item.surfaces = measurementType ? [{
+              measurementType,
+              ...(measurementType === 'single-surface' ? { width: '10', height: '10', sqft: '100.00', manualSqft: false } : {}),
+              ...(measurementType === 'room-surface' ? {
+                length: '12',
+                width: '10',
+                roomShape: 'rectangular',
+                roomHeight: '8',
+                doors: [{ size: '3x7', width: 3, height: 7, area: 21 }],
+                windows: [{ size: '3x4', width: 3, height: 4, area: 12 }],
+                closets: [{ size: '4x7', width: 4, height: 7, area: 28 }],
+                sqft: '184.00',
+              } : {}),
+              ...(measurementType === 'linear-foot' ? { linearFt: '10', sqft: '10.00' } : {}),
+              ...(measurementType === 'by-unit' ? { units: '1', sqft: '1.00' } : {}),
+            }] : [];
+            item.materialCost = item.materialCost ?? '0.00';
+            item.laborCost = item.laborCost ?? '0.00';
           } else {
             item[field] = value;
           }
@@ -153,22 +150,18 @@ export default function WorkItem({
   }, [disabled, catIndex, workIndex, setCategories]);
 
   const addSurface = useCallback(() => {
-    if (disabled || !workItem.type) {
-      console.warn('addSurface: Cannot add surface without a valid type', workItem);
-      return;
-    }
+    if (disabled || !workItem.type) return;
     setCategories((prev) => {
       const newCategories = [...prev];
       const category = { ...newCategories[catIndex] };
       const workItems = [...category.workItems];
       const item = { ...workItems[workIndex] };
       const measurementType = getDefaultMeasurementType(item.type);
+      console.debug(`addSurface: Adding surface with measurementType "${measurementType}" for type "${item.type}"`);
 
       item.surfaces = [...(item.surfaces || []), {
         measurementType,
-        ...(measurementType === 'single-surface' ? { width: '10', height: '10', sqft: 100, manualSqft: false } : {}),
-        ...(measurementType === 'linear-foot' ? { linearFt: '10' } : {}),
-        ...(measurementType === 'by-unit' ? { units: '1', sqft: 1 } : {}),
+        ...(measurementType === 'single-surface' ? { width: '10', height: '10', sqft: '100.00', manualSqft: false } : {}),
         ...(measurementType === 'room-surface' ? {
           length: '12',
           width: '10',
@@ -177,8 +170,10 @@ export default function WorkItem({
           doors: [{ size: '3x7', width: 3, height: 7, area: 21 }],
           windows: [{ size: '3x4', width: 3, height: 4, area: 12 }],
           closets: [{ size: '4x7', width: 4, height: 7, area: 28 }],
-          sqft: 184,
+          sqft: '184.00',
         } : {}),
+        ...(measurementType === 'linear-foot' ? { linearFt: '10', sqft: '10.00' } : {}),
+        ...(measurementType === 'by-unit' ? { units: '1', sqft: '1.00' } : {}),
       }];
       workItems[workIndex] = item;
       category.workItems = workItems;
@@ -206,19 +201,21 @@ export default function WorkItem({
     : 'Labor Cost per Sqft ($)';
 
   const totalMaterialCost = workItem.surfaces?.reduce((sum, surf) => {
+    if (!surf) return sum;
     const qty = surf.measurementType === 'linear-foot'
       ? parseFloat(surf.linearFt) || 0
       : surf.measurementType === 'by-unit'
-      ? parseFloat(surf.units) || parseFloat(surf.sqft) || 0
+      ? parseFloat(surf.units) || 0
       : parseFloat(surf.sqft) || 0;
     return sum + qty * materialCost;
   }, 0) || 0;
 
   const totalLaborCost = workItem.surfaces?.reduce((sum, surf) => {
+    if (!surf) return sum;
     const qty = surf.measurementType === 'linear-foot'
       ? parseFloat(surf.linearFt) || 0
       : surf.measurementType === 'by-unit'
-      ? parseFloat(surf.units) || parseFloat(surf.sqft) || 0
+      ? parseFloat(surf.units) || 0
       : parseFloat(surf.sqft) || 0;
     return sum + qty * laborCost;
   }, 0) || 0;
@@ -226,11 +223,13 @@ export default function WorkItem({
   const totalCost = (totalMaterialCost + totalLaborCost).toFixed(2);
 
   const totalUnits = workItem.surfaces?.reduce((sum, surf) => {
-    return sum + (surf.measurementType === 'linear-foot'
+    if (!surf) return sum;
+    const qty = surf.measurementType === 'linear-foot'
       ? parseFloat(surf.linearFt) || 0
       : surf.measurementType === 'by-unit'
-      ? parseFloat(surf.units) || parseFloat(surf.sqft) || 0
-      : parseFloat(surf.sqft) || 0);
+      ? parseFloat(surf.units) || 0
+      : parseFloat(surf.sqft) || 0;
+    return sum + qty;
   }, 0) || 0;
 
   const unitLabel = primaryMeasurementType === 'linear-foot'
@@ -267,7 +266,7 @@ export default function WorkItem({
             type="text"
             value={workItem.name || ''}
             onChange={(e) => updateWorkItem('name', e.target.value)}
-            placeholder="Work Item Name (e.g., Trims)"
+            placeholder="Work Item Name"
             className={styles.input}
             disabled={disabled}
             aria-label="Work item name"
@@ -281,9 +280,8 @@ export default function WorkItem({
             className={styles.select}
             disabled={disabled || !workItem.category || !categoryKey}
             aria-label="Work item type"
-            required
           >
-            <option value="" disabled>Select Type</option>
+            <option value="">Select Type</option>
             {availableTypes.map((type) => (
               <option key={type} value={type}>
                 {type
@@ -328,6 +326,10 @@ export default function WorkItem({
         <div className={styles.surfaces}>
           {workItem.surfaces?.length > 0 ? (
             workItem.surfaces.map((surf, surfIndex) => {
+              if (!surf || !surf.measurementType) {
+                console.warn(`Invalid surface at index ${surfIndex} for type "${workItem.type}"`, surf);
+                return null;
+              }
               const SurfaceInputComponent = getSurfaceInputComponent(surf.measurementType);
               return (
                 <SurfaceInputComponent
@@ -341,32 +343,34 @@ export default function WorkItem({
                   disabled={disabled}
                 />
               );
-            })
+            }).filter(Boolean)
           ) : (
             (() => {
               const measurementType = getDefaultMeasurementType(workItem.type);
               const SurfaceInputComponent = getSurfaceInputComponent(measurementType);
+              const surface = {
+                measurementType,
+                ...(measurementType === 'single-surface' ? { width: '10', height: '10', sqft: '100.00', manualSqft: false } : {}),
+                ...(measurementType === 'room-surface' ? {
+                  length: '12',
+                  width: '10',
+                  roomShape: 'rectangular',
+                  roomHeight: '8',
+                  doors: [{ size: '3x7', width: 3, height: 7, area: 21 }],
+                  windows: [{ size: '3x4', width: 3, height: 4, area: 12 }],
+                  closets: [{ size: '4x7', width: 4, height: 7, area: 28 }],
+                  sqft: '184.00',
+                } : {}),
+                ...(measurementType === 'linear-foot' ? { linearFt: '10', sqft: '10.00' } : {}),
+                ...(measurementType === 'by-unit' ? { units: '1', sqft: '1.00' } : {}),
+              };
+              console.debug(`Rendering default surface for type "${workItem.type}" with measurementType "${measurementType}"`);
               return (
                 <SurfaceInputComponent
                   catIndex={catIndex}
                   workIndex={workIndex}
                   surfIndex={0}
-                  surface={{
-                    measurementType,
-                    ...(measurementType === 'single-surface' ? { width: '10', height: '10', sqft: 100, manualSqft: false } : {}),
-                    ...(measurementType === 'linear-foot' ? { linearFt: '10' } : {}),
-                    ...(measurementType === 'by-unit' ? { units: '1', sqft: 1 } : {}),
-                    ...(measurementType === 'room-surface' ? {
-                      length: '12',
-                      width: '10',
-                      roomShape: 'rectangular',
-                      roomHeight: '8',
-                      doors: [{ size: '3x7', width: 3, height: 7, area: 21 }],
-                      windows: [{ size: '3x4', width: 3, height: 4, area: 12 }],
-                      closets: [{ size: '4x7', width: 4, height: 7, area: 28 }],
-                      sqft: 184,
-                    } : {}),
-                  }}
+                  surface={surface}
                   setCategories={setCategories}
                   showRemove={false}
                   disabled={disabled}
@@ -459,7 +463,7 @@ export default function WorkItem({
       )}
 
       {workItem.type && (
-        <div className={styles.costDisplay}>
+        <div className={styles.costDisplay} aria-describedby="cost-details">
           <span className={styles.cost}>
             Material: ${totalMaterialCost.toFixed(2)}
           </span>

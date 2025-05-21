@@ -176,7 +176,7 @@ export default function CategoryList({
           return;
         }
         setCategories((prev) => [
-          { name: categoryName, key: categoryKey, workItems: [] }, // Removed number property
+          { name: categoryName, key: categoryKey, workItems: [], number: prev.length + 1 },
           ...prev,
         ]);
         setSelectedCategory('');
@@ -259,6 +259,7 @@ export default function CategoryList({
             {categories.map((cat, catIndex) => (
               <div key={cat.key} className={styles.category}>
                 <div className={styles.categoryHeader}>
+                  <span className={styles.categoryNumber}>{cat.number}</span>
                   <button
                     className={styles.toggleButton}
                     onClick={() => toggleCategory(catIndex)}
@@ -279,14 +280,14 @@ export default function CategoryList({
                     className={styles.categoryInput}
                     placeholder="Room or Phase Name"
                     disabled={disabled}
-                    aria-label={`Category ${cat.name} name`}
+                    aria-label={`Category ${cat.number} name`}
                   />
                   {!disabled && (
                     <button
                       onClick={() => removeCategory(catIndex)}
                       className={styles.removeButton}
                       title="Remove Category"
-                      aria-label={`Remove category ${cat.name}`}
+                      aria-label={`Remove category ${cat.number}`}
                     >
                       <i className="fas fa-trash-alt"></i>
                     </button>

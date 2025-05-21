@@ -1,5 +1,4 @@
 //src/components/Calculator/Surface-Unit/LinearFootInput.jsx
-// src/components/Calculator/Surface-Unit/LinearFootInput.jsx
 import React from 'react';
 import styles from './LinearFootInput.module.css';
 
@@ -14,8 +13,6 @@ export default function LinearFootInput({
 }) {
   const updateSurface = (field, value) => {
     if (disabled) return;
-    // Allow empty string during input, but ensure valid number on blur or save
-    const parsedValue = value === '' ? '' : Math.max(1, parseFloat(value) || 1); // Minimum 1 linear foot
     setCategories((prevCategories) =>
       prevCategories.map((cat, i) => {
         if (i === catIndex) {
@@ -23,11 +20,11 @@ export default function LinearFootInput({
             if (j === workIndex) {
               const updatedSurfaces = item.surfaces.map((surf, k) => {
                 if (k === surfIndex) {
-                  return {
-                    ...surf,
-                    measurementType: 'linear-foot',
-                    linearFt: parsedValue,
-                  };
+                  const updated = { ...surf, measurementType: 'linear-foot' };
+                  if (field === 'linearFt') {
+                    updated.linearFt = value === '' ? '' : Math.max(0, parseFloat(value) || 0);
+                  }
+                  return updated;
                 }
                 return surf;
               });
@@ -40,12 +37,6 @@ export default function LinearFootInput({
         return cat;
       })
     );
-  };
-
-  const handleBlur = () => {
-    if (surface.linearFt === '' || parseFloat(surface.linearFt) < 1) {
-      updateSurface('linearFt', '1'); // Enforce minimum 1 linear foot on blur
-    }
   };
 
   const removeSurface = () => {
@@ -83,20 +74,19 @@ export default function LinearFootInput({
         <input
           type="number"
           placeholder="Linear Feet"
-          value={surface.linearFt === '' ? '' : parseFloat(surface.linearFt) || ''}
+          value={surface.linearFt || ''}
           onChange={(e) => updateSurface('linearFt', e.target.value)}
-          onBlur={handleBlur}
           className={styles.input}
-          min="1"
+          min="0"
           step="0.1"
           disabled={disabled}
-          title="Enter the total linear feet (minimum 1)"
+          title="Enter the total linear feet"
           aria-label="Linear feet"
         />
       </div>
-      <span className={styles.sqft}>
-        <i className={`fas fa-ruler ${styles.sqftIcon}`}></i>
-        {(parseFloat(surface.linearFt) || 0).toFixed(2)} linear ft
+      <span className={styles.units}>
+        <i className={`fas fa-ruler ${styles.unitsIcon}`}></i>
+        {(parseFloat(surface.linearFt) || 0).toFixed(2)} ft
       </span>
       {showRemove && !disabled && (
         <button

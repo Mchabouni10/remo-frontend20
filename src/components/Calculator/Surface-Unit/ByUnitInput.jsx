@@ -23,7 +23,6 @@ export default function ByUnitInput({
                   const updated = { ...surf, measurementType: 'by-unit' };
                   if (field === 'units') {
                     updated.units = value === '' ? '' : Math.max(0, parseFloat(value) || 0);
-                    updated.sqft = updated.units || 0;
                   }
                   return updated;
                 }
@@ -85,9 +84,9 @@ export default function ByUnitInput({
           aria-label="Units"
         />
       </div>
-      <span className={styles.sqft}>
-        <i className={`fas fa-square-full ${styles.sqftIcon}`}></i>
-        {(parseFloat(surface.sqft) || 0).toFixed(2)} units
+      <span className={styles.units}>
+        <i className={`fas fa-box ${styles.unitsIcon}`}></i>
+        {(parseFloat(surface.units) || 0).toFixed(0)} units
       </span>
       {showRemove && !disabled && (
         <button

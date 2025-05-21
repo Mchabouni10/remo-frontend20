@@ -1,5 +1,5 @@
 //src/components/Calculator/Surface-Unit/RoomSurfaceInput.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import styles from './RoomSurfaceInput.module.css';
 
 export default function RoomSurfaceInput({
@@ -14,6 +14,8 @@ export default function RoomSurfaceInput({
   const [roomShape, setRoomShape] = useState(surface.roomShape || 'rectangular');
   const [lastAddedExclusion, setLastAddedExclusion] = useState(null);
   const [showUndo, setShowUndo] = useState(false);
+  const [errors, setErrors] = useState({});
+  const inputTimeoutRef = useRef(null);
 
   const DOOR_SIZES = [
     { label: '3x7 ft (Standard)', value: '3x7', width: 3, height: 7, area: 21 },
@@ -41,66 +43,85 @@ export default function RoomSurfaceInput({
     }
   }, [showUndo]);
 
-  const updateSurface = (field, value, index = null, exclusionType = null) => {
-    if (disabled) return;
-    setCategories((prevCategories) =>
-      prevCategories.map((cat, i) => {
-        if (i === catIndex) {
-          const updatedWorkItems = cat.workItems.map((item, j) => {
-            if (j === workIndex) {
-              const updatedSurfaces = item.surfaces.map((surf, k) => {
-                if (k === surfIndex) {
-                  const updated = { ...surf, measurementType: 'room-surface' };
-                  if (['length', 'width', 'customHeight'].includes(field)) {
-                    updated[field] = value === '' ? '' : Math.max(0, parseFloat(value) || 0);
-                  } else if (exclusionType && index !== null) {
-                    const exclusions = updated[exclusionType] || [];
-                    exclusions[index] = { ...exclusions[index], [field]: value };
-                    if (field === 'size' && value !== 'custom') {
-                      const sizeData = (
-                        exclusionType === 'doors' ? DOOR_SIZES :
-                        exclusionType === 'windows' ? WINDOW_SIZES :
-                        CLOSET_SIZES
-                      ).find(s => s.value === value);
-                      exclusions[index].width = sizeData.width;
-                      exclusions[index].height = sizeData.height;
-                      exclusions[index].area = sizeData.area;
-                    } else if (field === 'width' || field === 'height') {
-                      const width = parseFloat(exclusions[index].width) || 0;
-                      const height = parseFloat(exclusions[index].height) || 0;
-                      exclusions[index].area = width * height;
-                    }
-                    updated[exclusionType] = exclusions;
-                  } else {
-                    updated[field] = value;
-                  }
-                  const length = updated.length || 0;
-                  const width = updated.roomShape === 'square' ? length : updated.width || 0;
-                  const height = updated.roomHeight === 'custom' ? (updated.customHeight || 8) : parseFloat(updated.roomHeight || 8);
-                  const perimeter = updated.roomShape === 'square' ? 4 * length : 2 * (length + width);
-                  const wallArea = perimeter * height;
-                  const ceilingArea = length * width;
-                  const exclusions =
-                    (updated.doors || []).reduce((sum, d) => sum + (d.area || 0), 0) +
-                    (updated.windows || []).reduce((sum, w) => sum + (w.area || 0), 0) +
-                    (updated.closets || []).reduce((sum, c) => sum + (c.area || 0), 0);
-                  updated.sqft = Math.max(0, wallArea + ceilingArea - exclusions);
-                  return updated;
-                }
-                return surf;
-              });
-              return { ...item, surfaces: updatedSurfaces };
-            }
-            return item;
-          });
-          return { ...cat, workItems: updatedWorkItems };
-        }
-        return cat;
-      })
-    );
-  };
+  const calculateSqft = useCallback((surfaceData) => {
+    const length = parseFloat(surfaceData.length) || 0;
+    const width = surfaceData.roomShape === 'square' ? length : parseFloat(surfaceData.width) || 0;
+    const height = surfaceData.roomHeight === 'custom' ? (parseFloat(surfaceData.customHeight) || 8) : parseFloat(surfaceData.roomHeight || 8);
+    const perimeter = surfaceData.roomShape === 'square' ? 4 * length : 2 * (length + width);
+    const wallArea = perimeter * height;
+    const ceilingArea = length * width;
+    const exclusions =
+      (surfaceData.doors || []).reduce((sum, d) => sum + (parseFloat(d.area) || 0), 0) +
+      (surfaceData.windows || []).reduce((sum, w) => sum + (parseFloat(w.area) || 0), 0) +
+      (surfaceData.closets || []).reduce((sum, c) => sum + (parseFloat(c.area) || 0), 0);
+    const sqft = Math.max(0, wallArea + ceilingArea - exclusions);
 
-  const addExclusion = (type) => {
+    // Validate inputs
+    const newErrors = {};
+    if (length <= 0) newErrors.length = 'Length must be greater than 0';
+    if (surfaceData.roomShape === 'rectangular' && width <= 0) newErrors.width = 'Width must be greater than 0';
+    if (height <= 0) newErrors.height = 'Height must be greater than 0';
+    if (sqft === 0 && (wallArea + ceilingArea > 0)) newErrors.exclusions = 'Exclusions exceed room area';
+    setErrors(newErrors);
+
+    return sqft;
+  }, []);
+
+  const updateSurface = useCallback((field, value, index = null, exclusionType = null) => {
+    if (disabled) return;
+    if (inputTimeoutRef.current) {
+      clearTimeout(inputTimeoutRef.current);
+    }
+    inputTimeoutRef.current = setTimeout(() => {
+      setCategories((prevCategories) =>
+        prevCategories.map((cat, i) => {
+          if (i === catIndex) {
+            const updatedWorkItems = cat.workItems.map((item, j) => {
+              if (j === workIndex) {
+                const updatedSurfaces = item.surfaces.map((surf, k) => {
+                  if (k === surfIndex) {
+                    const updated = { ...surf, measurementType: 'room-surface' };
+                    if (['length', 'width', 'customHeight'].includes(field)) {
+                      updated[field] = value === '' ? '' : Math.max(0, parseFloat(value) || 0);
+                    } else if (exclusionType && index !== null) {
+                      const exclusions = updated[exclusionType] || [];
+                      exclusions[index] = { ...exclusions[index], [field]: value };
+                      if (field === 'size' && value !== 'custom') {
+                        const sizeData = (
+                          exclusionType === 'doors' ? DOOR_SIZES :
+                          exclusionType === 'windows' ? WINDOW_SIZES :
+                          CLOSET_SIZES
+                        ).find(s => s.value === value);
+                        exclusions[index].width = sizeData.width;
+                        exclusions[index].height = sizeData.height;
+                        exclusions[index].area = sizeData.area;
+                      } else if (field === 'width' || field === 'height') {
+                        const width = parseFloat(exclusions[index].width) || 0;
+                        const height = parseFloat(exclusions[index].height) || 0;
+                        exclusions[index].area = width * height;
+                      }
+                      updated[exclusionType] = exclusions;
+                    } else {
+                      updated[field] = value;
+                    }
+                    updated.sqft = calculateSqft(updated);
+                    return updated;
+                  }
+                  return surf;
+                });
+                return { ...item, surfaces: updatedSurfaces };
+              }
+              return item;
+            });
+            return { ...cat, workItems: updatedWorkItems };
+          }
+          return cat;
+        })
+      );
+    }, 50);
+  }, [disabled, catIndex, workIndex, surfIndex, setCategories, calculateSqft]);
+
+  const addExclusion = useCallback((type) => {
     if (disabled) return;
     setCategories((prevCategories) =>
       prevCategories.map((cat, i) => {
@@ -120,17 +141,7 @@ export default function RoomSurfaceInput({
                   updated[type] = [...(updated[type] || []), newExclusion];
                   setLastAddedExclusion({ type, index: updated[type].length - 1 });
                   setShowUndo(true);
-                  const length = updated.length || 0;
-                  const width = updated.roomShape === 'square' ? length : updated.width || 0;
-                  const height = updated.roomHeight === 'custom' ? (updated.customHeight || 8) : parseFloat(updated.roomHeight || 8);
-                  const perimeter = updated.roomShape === 'square' ? 4 * length : 2 * (length + width);
-                  const wallArea = perimeter * height;
-                  const ceilingArea = length * width;
-                  const exclusions =
-                    (updated.doors || []).reduce((sum, d) => sum + (d.area || 0), 0) +
-                    (updated.windows || []).reduce((sum, w) => sum + (w.area || 0), 0) +
-                    (updated.closets || []).reduce((sum, c) => sum + (c.area || 0), 0);
-                  updated.sqft = Math.max(0, wallArea + ceilingArea - exclusions);
+                  updated.sqft = calculateSqft(updated);
                   return updated;
                 }
                 return surf;
@@ -144,9 +155,9 @@ export default function RoomSurfaceInput({
         return cat;
       })
     );
-  };
+  }, [disabled, catIndex, workIndex, surfIndex, setCategories, calculateSqft]);
 
-  const removeExclusion = (type, index) => {
+  const removeExclusion = useCallback((type, index) => {
     if (disabled) return;
     setCategories((prevCategories) =>
       prevCategories.map((cat, i) => {
@@ -157,17 +168,7 @@ export default function RoomSurfaceInput({
                 if (k === surfIndex) {
                   const updated = { ...surf };
                   updated[type] = updated[type] ? updated[type].filter((_, idx) => idx !== index) : [];
-                  const length = updated.length || 0;
-                  const width = updated.roomShape === 'square' ? length : updated.width || 0;
-                  const height = updated.roomHeight === 'custom' ? (updated.customHeight || 8) : parseFloat(updated.roomHeight || 8);
-                  const perimeter = updated.roomShape === 'square' ? 4 * length : 2 * (length + width);
-                  const wallArea = perimeter * height;
-                  const ceilingArea = length * width;
-                  const exclusions =
-                    (updated.doors || []).reduce((sum, d) => sum + (d.area || 0), 0) +
-                    (updated.windows || []).reduce((sum, w) => sum + (w.area || 0), 0) +
-                    (updated.closets || []).reduce((sum, c) => sum + (c.area || 0), 0);
-                  updated.sqft = Math.max(0, wallArea + ceilingArea - exclusions);
+                  updated.sqft = calculateSqft(updated);
                   return updated;
                 }
                 return surf;
@@ -182,25 +183,25 @@ export default function RoomSurfaceInput({
       })
     );
     setShowUndo(false);
-  };
+  }, [disabled, catIndex, workIndex, surfIndex, setCategories, calculateSqft]);
 
-  const undoAddExclusion = () => {
+  const undoAddExclusion = useCallback(() => {
     if (disabled || !lastAddedExclusion) return;
     removeExclusion(lastAddedExclusion.type, lastAddedExclusion.index);
     setLastAddedExclusion(null);
     setShowUndo(false);
-  };
+  }, [disabled, lastAddedExclusion, removeExclusion]);
 
-  const handleRoomShapeChange = (shape) => {
+  const handleRoomShapeChange = useCallback((shape) => {
     if (disabled) return;
     setRoomShape(shape);
     updateSurface('roomShape', shape);
     if (shape === 'square') {
       updateSurface('width', '');
     }
-  };
+  }, [disabled, updateSurface]);
 
-  const removeSurface = () => {
+  const removeSurface = useCallback(() => {
     if (disabled) return;
     setCategories((prevCategories) =>
       prevCategories.map((cat, i) => {
@@ -215,19 +216,19 @@ export default function RoomSurfaceInput({
         return cat;
       })
     );
-  };
+  }, [disabled, catIndex, workIndex, surfIndex, setCategories]);
 
   return (
     <div className={styles.surfaceRow}>
       <div className={styles.inputWrapper}>
-        <i className={`fas fa-ruler-combined ${styles.inputIcon}`}></i>
+        <i className={`fas fa-home ${styles.inputIcon}`}></i>
         <input
           type="text"
-          value="Room Surface"
+          value="Room Area"
           className={styles.input}
           disabled
-          title="Measurement type"
-          aria-label="Measurement type"
+          title="Measurement type: Room Area in square feet"
+          aria-label="Measurement type: Room Area"
         />
       </div>
       <div className={styles.roomPaintingContainer}>
@@ -238,10 +239,10 @@ export default function RoomSurfaceInput({
             <select
               value={roomShape}
               onChange={(e) => handleRoomShapeChange(e.target.value)}
-              className={styles.input}
+              className={`${styles.input} ${errors.roomShape ? styles.error : ''}`}
               disabled={disabled}
               title="Select the room's floor plan shape"
-              aria-label="Room shape"
+              aria-label="Room shape selection"
             >
               <option value="rectangular">Rectangular Room</option>
               <option value="square">Square Room</option>
@@ -254,13 +255,14 @@ export default function RoomSurfaceInput({
               placeholder={roomShape === 'square' ? 'Side Length (ft)' : 'Room Length (ft)'}
               value={surface.length || ''}
               onChange={(e) => updateSurface('length', e.target.value)}
-              className={styles.input}
+              className={`${styles.input} ${errors.length ? styles.error : ''}`}
               min="0"
               step="0.1"
               disabled={disabled}
               title="Enter the room's length or side length in feet (e.g., 12)"
-              aria-label="Room length"
+              aria-label="Room length in feet"
             />
+            {errors.length && <span className={styles.errorMessage}>{errors.length}</span>}
           </div>
           {roomShape === 'rectangular' && (
             <div className={styles.inputWrapper}>
@@ -270,13 +272,14 @@ export default function RoomSurfaceInput({
                 placeholder="Room Width (ft)"
                 value={surface.width || ''}
                 onChange={(e) => updateSurface('width', e.target.value)}
-                className={styles.input}
+                className={`${styles.input} ${errors.width ? styles.error : ''}`}
                 min="0"
                 step="0.1"
                 disabled={disabled}
                 title="Enter the room's width in feet (e.g., 10)"
-                aria-label="Room width"
+                aria-label="Room width in feet"
               />
+              {errors.width && <span className={styles.errorMessage}>{errors.width}</span>}
             </div>
           )}
           <div className={styles.inputWrapper}>
@@ -284,10 +287,10 @@ export default function RoomSurfaceInput({
             <select
               value={surface.roomHeight || '8'}
               onChange={(e) => updateSurface('roomHeight', e.target.value)}
-              className={styles.input}
+              className={`${styles.input} ${errors.height ? styles.error : ''}`}
               disabled={disabled}
               title="Select the room's ceiling height"
-              aria-label="Room height"
+              aria-label="Room height selection"
             >
               <option value="8">8 ft (Standard)</option>
               <option value="10">10 ft</option>
@@ -302,24 +305,26 @@ export default function RoomSurfaceInput({
                 placeholder="Custom Height (ft)"
                 value={surface.customHeight || ''}
                 onChange={(e) => updateSurface('customHeight', e.target.value)}
-                className={styles.input}
+                className={`${styles.input} ${errors.height ? styles.error : ''}`}
                 min="0"
                 step="0.1"
                 disabled={disabled}
                 title="Enter a custom ceiling height in feet (e.g., 9)"
-                aria-label="Custom room height"
+                aria-label="Custom room height in feet"
               />
+              {errors.height && <span className={styles.errorMessage}>{errors.height}</span>}
             </div>
           )}
         </div>
         <div className={styles.inputGroup}>
           <span className={styles.groupLabel}>Exclusions (Non-Painted Areas)</span>
+          {errors.exclusions && <span className={styles.errorMessage}>{errors.exclusions}</span>}
           {showUndo && lastAddedExclusion && (
             <button
               onClick={undoAddExclusion}
               className={styles.undoButton}
               title={`Undo adding ${lastAddedExclusion.type.slice(0, -1)}`}
-              aria-label={`Undo adding ${lastAddedExclusion.type.slice(0, -1)}`}
+              aria-label={`Undo adding ${lastAddedExclusion.type.slice(0, -1)} exclusion`}
             >
               <i className="fas fa-undo"></i> Undo Add {lastAddedExclusion.type.slice(0, -1)}
             </button>
@@ -334,7 +339,7 @@ export default function RoomSurfaceInput({
                   className={styles.input}
                   disabled={disabled}
                   title="Select door size or choose Custom"
-                  aria-label={`Door ${idx + 1} size`}
+                  aria-label={`Door ${idx + 1} size selection`}
                 >
                   {DOOR_SIZES.map(size => (
                     <option key={size.value} value={size.value}>{size.label}</option>
@@ -355,7 +360,7 @@ export default function RoomSurfaceInput({
                       step="0.1"
                       disabled={disabled}
                       title="Enter custom door width in feet (e.g., 3)"
-                      aria-label={`Door ${idx + 1} custom width`}
+                      aria-label={`Door ${idx + 1} custom width in feet`}
                     />
                   </div>
                   <div className={styles.inputWrapper}>
@@ -370,7 +375,7 @@ export default function RoomSurfaceInput({
                       step="0.1"
                       disabled={disabled}
                       title="Enter custom door height in feet (e.g., 7)"
-                      aria-label={`Door ${idx + 1} custom height`}
+                      aria-label={`Door ${idx + 1} custom height in feet`}
                     />
                   </div>
                 </>
@@ -380,7 +385,7 @@ export default function RoomSurfaceInput({
                   onClick={() => removeExclusion('doors', idx)}
                   className={styles.removeExclusionButton}
                   title="Remove this door"
-                  aria-label={`Remove door ${idx + 1}`}
+                  aria-label={`Remove door ${idx + 1} exclusion`}
                 >
                   <i className="fas fa-minus-circle"></i>
                 </button>
@@ -392,7 +397,8 @@ export default function RoomSurfaceInput({
               onClick={() => addExclusion('doors')}
               className={styles.addExclusionButton}
               title="Add another door"
-              aria-label="Add door"
+              aria-label="Add door exclusion"
+              disabled={errors.length || (roomShape === 'rectangular' && errors.width)}
             >
               <i className="fas fa-plus"></i> Add Door
             </button>
@@ -407,7 +413,7 @@ export default function RoomSurfaceInput({
                   className={styles.input}
                   disabled={disabled}
                   title="Select window size or choose Custom"
-                  aria-label={`Window ${idx + 1} size`}
+                  aria-label={`Window ${idx + 1} size selection`}
                 >
                   {WINDOW_SIZES.map(size => (
                     <option key={size.value} value={size.value}>{size.label}</option>
@@ -428,7 +434,7 @@ export default function RoomSurfaceInput({
                       step="0.1"
                       disabled={disabled}
                       title="Enter custom window width in feet (e.g., 3)"
-                      aria-label={`Window ${idx + 1} custom width`}
+                      aria-label={`Window ${idx + 1} custom width in feet`}
                     />
                   </div>
                   <div className={styles.inputWrapper}>
@@ -443,7 +449,7 @@ export default function RoomSurfaceInput({
                       step="0.1"
                       disabled={disabled}
                       title="Enter custom window height in feet (e.g., 4)"
-                      aria-label={`Window ${idx + 1} custom height`}
+                      aria-label={`Window ${idx + 1} custom height in feet`}
                     />
                   </div>
                 </>
@@ -453,7 +459,7 @@ export default function RoomSurfaceInput({
                   onClick={() => removeExclusion('windows', idx)}
                   className={styles.removeExclusionButton}
                   title="Remove this window"
-                  aria-label={`Remove window ${idx + 1}`}
+                  aria-label={`Remove window ${idx + 1} exclusion`}
                 >
                   <i className="fas fa-minus-circle"></i>
                 </button>
@@ -465,7 +471,8 @@ export default function RoomSurfaceInput({
               onClick={() => addExclusion('windows')}
               className={styles.addExclusionButton}
               title="Add another window"
-              aria-label="Add window"
+              aria-label="Add window exclusion"
+              disabled={errors.length || (roomShape === 'rectangular' && errors.width)}
             >
               <i className="fas fa-plus"></i> Add Window
             </button>
@@ -480,7 +487,7 @@ export default function RoomSurfaceInput({
                   className={styles.input}
                   disabled={disabled}
                   title="Select closet opening size or choose Custom"
-                  aria-label={`Closet ${idx + 1} size`}
+                  aria-label={`Closet ${idx + 1} size selection`}
                 >
                   {CLOSET_SIZES.map(size => (
                     <option key={size.value} value={size.value}>{size.label}</option>
@@ -501,7 +508,7 @@ export default function RoomSurfaceInput({
                       step="0.1"
                       disabled={disabled}
                       title="Enter custom closet opening width in feet (e.g., 4)"
-                      aria-label={`Closet ${idx + 1} custom width`}
+                      aria-label={`Closet ${idx + 1} custom width in feet`}
                     />
                   </div>
                   <div className={styles.inputWrapper}>
@@ -516,7 +523,7 @@ export default function RoomSurfaceInput({
                       step="0.1"
                       disabled={disabled}
                       title="Enter custom closet opening height in feet (e.g., 7)"
-                      aria-label={`Closet ${idx + 1} custom height`}
+                      aria-label={`Closet ${idx + 1} custom height in feet`}
                     />
                   </div>
                 </>
@@ -526,7 +533,7 @@ export default function RoomSurfaceInput({
                   onClick={() => removeExclusion('closets', idx)}
                   className={styles.removeExclusionButton}
                   title="Remove this closet opening"
-                  aria-label={`Remove closet ${idx + 1}`}
+                  aria-label={`Remove closet ${idx + 1} exclusion`}
                 >
                   <i className="fas fa-minus-circle"></i>
                 </button>
@@ -538,23 +545,24 @@ export default function RoomSurfaceInput({
               onClick={() => addExclusion('closets')}
               className={styles.addExclusionButton}
               title="Add another closet opening"
-              aria-label="Add closet"
+              aria-label="Add closet exclusion"
+              disabled={errors.length || (roomShape === 'rectangular' && errors.width)}
             >
               <i className="fas fa-plus"></i> Add Closet
             </button>
           )}
         </div>
       </div>
-      <span className={styles.sqft}>
-        <i className={`fas fa-square-full ${styles.sqftIcon}`}></i>
+      <span className={styles.units} aria-live="polite">
+        <i className={`fas fa-home ${styles.unitsIcon}`}></i>
         {(parseFloat(surface.sqft) || 0).toFixed(2)} sqft
       </span>
       {showRemove && !disabled && (
         <button
           onClick={removeSurface}
           className={styles.removeSurfaceButton}
-          title="Remove this surface"
-          aria-label="Remove surface"
+          title="Remove this room area"
+          aria-label="Remove room area"
         >
           <i className="fas fa-trash-alt"></i>
         </button>

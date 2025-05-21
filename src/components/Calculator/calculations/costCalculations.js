@@ -1,6 +1,23 @@
 // src/components/calculator/calculations/costCalculations.js
-// src/components/calculator/calculations/costCalculations.js
-import { getUnits } from '../utils/calculatorUtils';
+import { getUnits, getUnitLabel } from '../utils/calculatorUtils';
+import { MEASUREMENT_TYPES } from '../data/workTypes';
+
+export function calculateWorkCost(item) {
+  if (!item || typeof item !== 'object' || !item.type) {
+    console.warn('calculateWorkCost: Invalid or missing item', item);
+    return 0;
+  }
+  const measurementType = MEASUREMENT_TYPES[item.type] || 'single-surface';
+  const materialCostPerUnit = parseFloat(item.materialCost) || 0;
+  const laborCostPerUnit = parseFloat(item.laborCost) || 0;
+  const totalUnits = getUnits(item);
+  if (totalUnits === 0) {
+    console.debug(`calculateWorkCost: Zero units for item type "${item.type}" with measurementType "${measurementType}"`, item);
+  }
+  const cost = (materialCostPerUnit + laborCostPerUnit) * totalUnits;
+  console.debug(`calculateWorkCost: Type "${item.type}", Units: ${totalUnits} ${getUnitLabel(item)}, Cost: $${cost.toFixed(2)}`);
+  return cost;
+}
 
 export function calculateTotal(categories = [], taxRate = 0, transportationFee = 0, wasteFactor = 0, miscFees = [], markup = 0, laborDiscount = 0) {
   if (!Array.isArray(categories)) {
@@ -17,28 +34,18 @@ export function calculateTotal(categories = [], taxRate = 0, transportationFee =
       return;
     }
     cat.workItems.forEach((item, itemIndex) => {
-      if (!item.type) {
-        console.warn(`calculateTotal: Skipping item at category ${index}, item ${itemIndex} with no type`, item);
+      if (!item || !item.type) {
+        console.warn(`calculateTotal: Invalid item at category ${index}, item ${itemIndex}`, item);
         return;
       }
-
+      const measurementType = MEASUREMENT_TYPES[item.type] || 'single-surface';
       const units = getUnits(item) || 0;
       const itemMaterialCost = parseFloat(item.materialCost) || 0;
       const itemLaborCost = parseFloat(item.laborCost) || 0;
-
-      // Only include costs if units are non-zero or item has valid surfaces
-      if (itemMaterialCost > 0 && units > 0) {
-        materialCost += itemMaterialCost * units;
-      }
-      if (itemLaborCost > 0 && units > 0) {
-        laborCost += itemLaborCost * units;
-      }
-
-      if (units === 0 && (itemMaterialCost > 0 || itemLaborCost > 0) && item.surfaces?.length > 0) {
-        console.debug(
-          `calculateTotal: Item at category ${index}, item ${itemIndex} has zero units but non-zero costs`,
-          { name: item.name, type: item.type, measurementType: item.surfaces[0]?.measurementType, surfaces: item.surfaces }
-        );
+      materialCost += itemMaterialCost * units;
+      laborCost += itemLaborCost * units;
+      if (units === 0) {
+        console.warn(`calculateTotal: Zero units for item at category ${index}, item ${itemIndex}, type "${item.type}", measurementType "${measurementType}"`, item);
       }
     });
   });

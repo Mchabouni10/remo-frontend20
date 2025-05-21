@@ -210,19 +210,18 @@ export const WORK_TYPES = {
     ],
   },
   electrical: {
-    surfaceBased: [
-      'electrical-panel-upgrade',
-      'electrical-wiring',
-      'electrical-ceiling-fan-installation',
-      'electrical-recessed-lighting',
-    ],
+    surfaceBased: [],
     linearFtBased: [
+      'electrical-wiring',
       'electrical-conduit-installation',
       'electrical-cable-run',
       'electrical-baseboard-heater',
       'electrical-under-cabinet-lighting',
     ],
     unitBased: [
+      'electrical-panel-upgrade',
+      'electrical-ceiling-fan-installation',
+      'electrical-recessed-lighting',
       'electrical-outlet-installation',
       'electrical-switch-installation',
       'electrical-light-fixture-installation',
@@ -252,12 +251,11 @@ export const WORK_TYPES = {
     ],
   },
   plumbing: {
-    surfaceBased: [
+    surfaceBased: [],
+    linearFtBased: [
       'plumbing-pipe-replacement',
       'plumbing-water-line-installation',
       'plumbing-drain-line-installation',
-    ],
-    linearFtBased: [
       'plumbing-piping-installation',
       'plumbing-sewer-line',
       'plumbing-gas-line',
@@ -725,7 +723,7 @@ export const MEASUREMENT_TYPES = {
   // Bathroom
   'bathroom-flooring': 'single-surface',
   'bathroom-tiles': 'single-surface',
-  'bathroom-shower-t “‘tiles': 'single-surface',
+  'bathroom-shower-tiles': 'single-surface',
   'bathroom-walls': 'room-surface',
   'bathroom-ceiling': 'room-surface',
   'bathroom-vanity': 'linear-foot',
@@ -860,7 +858,7 @@ export const MEASUREMENT_TYPES = {
   'electrical-under-cabinet-lighting': 'linear-foot',
   'electrical-outlet-installation': 'by-unit',
   'electrical-switch-installation': 'by-unit',
-  'electrical-light-fixture-installation': 'by-unit',
+  'electrical Oceans-installation': 'by-unit',
   'electrical-smoke-detector-installation': 'by-unit',
   'electrical-carbon-monoxide-detector': 'by-unit',
   'electrical-circuit-breaker': 'by-unit',

@@ -1,105 +1,157 @@
 //src/components/Calculator/utils/calculatorUtils.js
 import { WORK_TYPES, MEASUREMENT_TYPES } from '../data/workTypes';
 
-// Get units for an item
+// Helper function to get all work types as a flat array
+export const getAllWorkTypes = () => {
+  const allTypes = [];
+  Object.values(WORK_TYPES).forEach((category) => {
+    allTypes.push(...category.surfaceBased, ...category.linearFtBased, ...category.unitBased);
+  });
+  return [...new Set(allTypes)]; // Ensure unique types
+};
+
+// Infer type from name if missing
+export const inferTypeFromName = (name) => {
+  if (!name || typeof name !== 'string') {
+    console.warn('inferTypeFromName: Invalid or missing name', name);
+    return null;
+  }
+  const normalizedName = name.trim().toLowerCase().replace(/\s+/g, '-');
+  const allTypes = getAllWorkTypes();
+
+  // Check exact match
+  if (allTypes.includes(normalizedName)) {
+    console.debug(`inferTypeFromName: Matched type "${normalizedName}" for name "${name}"`);
+    return normalizedName;
+  }
+
+  // Keyword-based matching
+  if (/install|installation|outlet|switch|fixture|fan|detector|breaker|doorbell|charger|plug/i.test(name)) {
+    const type = 'electrical-light-fixture-installation'; // Default to a common electrical type
+    console.debug(`inferTypeFromName: Inferred type "${type}" for name "${name}" (electrical match)`);
+    return type;
+  }
+  if (/paint|painting|wall|ceiling|drywall/i.test(name)) {
+    const type = 'general-painting';
+    console.debug(`inferTypeFromName: Inferred type "${type}" for name "${name}" (painting match)`);
+    return type;
+  }
+  if (/floor|flooring|tile|carpet|hardwood|vinyl/i.test(name)) {
+    const type = 'general-flooring';
+    console.debug(`inferTypeFromName: Inferred type "${type}" for name "${name}" (flooring match)`);
+    return type;
+  }
+  if (/kitchen|countertop|sink|faucet|cabinet/i.test(name)) {
+    const type = 'kitchen-flooring';
+    console.debug(`inferTypeFromName: Inferred type "${type}" for name "${name}" (kitchen match)`);
+    return type;
+  }
+  if (/bathroom|shower|toilet|vanity|bathtub/i.test(name)) {
+    const type = 'bathroom-flooring';
+    console.debug(`inferTypeFromName: Inferred type "${type}" for name "${name}" (bathroom match)`);
+    return type;
+  }
+
+  console.warn(`inferTypeFromName: Could not infer valid type for name "${name}", returning null`);
+  return null;
+};
+
+// Calculate total units for a work item
 export function getUnits(item) {
   if (!item || typeof item !== 'object') {
     console.warn('getUnits: Invalid item', item);
     return 0;
   }
-  const type = item.type;
+  let type = item.type;
+  if (!type && item.name) {
+    type = inferTypeFromName(item.name);
+    if (type) {
+      console.debug(`getUnits: Inferred type "${type}" from name "${item.name}"`);
+    }
+  }
   if (!type) {
-    console.warn('getUnits: No valid type provided', item);
+    console.warn('getUnits: No valid type or name provided', item);
     return 0;
   }
-
+  const measurementType = MEASUREMENT_TYPES[type] || 'single-surface';
   if (!(type in MEASUREMENT_TYPES)) {
-    console.warn(`getUnits: Unknown type "${type}" not in MEASUREMENT_TYPES`, item);
+    console.warn(`getUnits: Type "${type}" not found in MEASUREMENT_TYPES, defaulting to "${measurementType}"`);
+  }
+
+  const surfaces = Array.isArray(item.surfaces) ? item.surfaces : [];
+  if (surfaces.length === 0) {
+    console.debug(`getUnits: No surfaces for type "${type}" with measurementType "${measurementType}"`, item);
     return 0;
   }
 
-  // Initialize surfaces if missing
-  const surfaces = Array.isArray(item.surfaces) ? item.surfaces : [];
-
-  // Check surfaceBased
-  if (Object.values(WORK_TYPES).some(cat => cat.surfaceBased.includes(type))) {
-    const total = surfaces.reduce((sum, surf, index) => {
-      if (!surf || !surf.measurementType || surf.measurementType !== 'single-surface' || isNaN(parseFloat(surf.sqft))) {
-        console.warn(`getUnits: Invalid surface at index ${index} for surfaceBased type "${type}"`, { surf, measurementType: surf?.measurementType });
-        return sum;
-      }
-      const sqft = parseFloat(surf.sqft) || 0;
-      return sum + sqft;
-    }, 0);
-    if (total === 0 && surfaces.length > 0) {
-      console.debug(`getUnits: Zero units for surfaceBased item type "${type}"`, { item, surfaces });
+  const total = surfaces.reduce((sum, surf, index) => {
+    if (!surf || !surf.measurementType) {
+      console.warn(`getUnits: Invalid surface at index ${index} for type "${type}"`, surf);
+      return sum;
     }
-    return total;
-  }
-
-  // Check linearFtBased
-  if (Object.values(WORK_TYPES).some(cat => cat.linearFtBased.includes(type))) {
-    const total = surfaces.reduce((sum, surf, index) => {
-      if (!surf || !surf.measurementType || surf.measurementType !== 'linear-foot') {
-        console.warn(`getUnits: Invalid surface at index ${index} for linearFtBased type "${type}"`, { surf, measurementType: surf?.measurementType });
-        return sum;
-      }
-      const linearFt = parseFloat(surf.linearFt);
-      if (isNaN(linearFt) || linearFt <= 0) {
-        console.warn(`getUnits: Invalid or non-positive linearFt at index ${index} for linearFtBased type "${type}"`, { surf, linearFt });
-        return sum;
-      }
-      return sum + linearFt;
-    }, 0);
-    if (total === 0 && surfaces.length > 0) {
-      console.debug(`getUnits: Zero units for linearFtBased item type "${type}"`, { item, surfaces });
+    if (surf.measurementType !== measurementType) {
+      console.warn(`getUnits: Surface measurementType "${surf.measurementType}" does not match item measurementType "${measurementType}" at index ${index}`, surf);
     }
-    return total;
-  }
-
-  // Check unitBased
-  if (Object.values(WORK_TYPES).some(cat => cat.unitBased.includes(type))) {
-    const total = surfaces.reduce((sum, surf, index) => {
-      if (!surf || !surf.measurementType || surf.measurementType !== 'by-unit') {
-        console.warn(`getUnits: Invalid surface at index ${index} for unitBased type "${type}"`, { surf, measurementType: surf?.measurementType });
+    let qty = 0;
+    if (measurementType === 'single-surface' || measurementType === 'room-surface') {
+      qty = parseFloat(surf.sqft) || 0;
+      if (isNaN(qty)) {
+        console.warn(`getUnits: Invalid sqft at index ${index} for type "${type}"`, surf);
         return sum;
       }
-      const units = parseFloat(surf.units) || parseFloat(surf.sqft) || 0;
-      if (isNaN(units) || units <= 0) {
-        console.warn(`getUnits: Invalid or non-positive units/sqft at index ${index} for unitBased type "${type}"`, { surf, units });
+    } else if (measurementType === 'linear-foot') {
+      qty = parseFloat(surf.linearFt) || 0;
+      if (isNaN(qty)) {
+        console.warn(`getUnits: Invalid linearFt at index ${index} for type "${type}"`, surf);
         return sum;
       }
-      return sum + units;
-    }, 0);
-    if (total === 0 && surfaces.length > 0) {
-      console.debug(`getUnits: Zero units for unitBased item type "${type}"`, { item, surfaces });
+    } else if (measurementType === 'by-unit') {
+      qty = parseFloat(surf.units) || 0;
+      if (isNaN(qty)) {
+        console.warn(`getUnits: Invalid units at index ${index} for type "${type}"`, surf);
+        return sum;
+      }
     }
-    return total;
-  }
+    return sum + qty;
+  }, 0);
 
-  console.warn(`getUnits: Type "${type}" not found in WORK_TYPES`, item);
-  return 0;
+  if (total === 0) {
+    console.debug(`getUnits: Zero units for type "${type}" with measurementType "${measurementType}"`, item);
+  }
+  return total;
 }
 
-// Get unit label for an item type
-export function getUnitLabel(type) {
+// Get unit label for a work item
+export function getUnitLabel(item) {
+  if (!item || typeof item !== 'object') {
+    console.warn('getUnitLabel: Invalid item', item);
+    return 'unit';
+  }
+  let type = item.type;
+  if (!type && item.name) {
+    type = inferTypeFromName(item.name);
+    if (type) {
+      console.debug(`getUnitLabel: Inferred type "${type}" from name "${item.name}"`);
+    }
+  }
   if (!type) {
-    console.warn('getUnitLabel: No type provided');
-    return 'units';
+    console.warn('getUnitLabel: No valid type or name provided', item);
+    return 'unit';
   }
+  const measurementType = MEASUREMENT_TYPES[type] || 'single-surface';
   if (!(type in MEASUREMENT_TYPES)) {
-    console.warn(`getUnitLabel: Unknown type "${type}" not in MEASUREMENT_TYPES`);
-    return 'units';
+    console.warn(`getUnitLabel: Type "${type}" not found in MEASUREMENT_TYPES, defaulting to "${measurementType}"`);
   }
-  if (Object.values(WORK_TYPES).some(cat => cat.surfaceBased.includes(type))) {
-    return 'sqft';
+  switch (measurementType) {
+    case 'single-surface':
+    case 'room-surface':
+      return 'sqft';
+    case 'linear-foot':
+      return 'linear ft';
+    case 'by-unit':
+      return 'units';
+    default:
+      console.warn(`getUnitLabel: Unknown measurementType "${measurementType}" for type "${type}", defaulting to "unit"`);
+      return 'unit';
   }
-  if (Object.values(WORK_TYPES).some(cat => cat.linearFtBased.includes(type))) {
-    return 'linear ft';
-  }
-  if (Object.values(WORK_TYPES).some(cat => cat.unitBased.includes(type))) {
-    return 'units';
-  }
-  console.warn(`getUnitLabel: Type "${type}" not found in WORK_TYPES`);
-  return 'units';
 }
