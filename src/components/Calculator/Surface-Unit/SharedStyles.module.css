@@ -1,36 +1,24 @@
-.surfaceRow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md);
-  background: var(--surface);
-  border-radius: var(--radius-md);
-  margin-bottom: var(--spacing-sm);
-  box-shadow: 0 2px 4px var(--shadow);
-  transition: background 0.3s ease, box-shadow 0.2s ease;
-}
+/* Shared styles for input components */
 
-.surfaceRow:hover {
-  background: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 8px var(--shadow);
-}
-
+/* Input Wrapper */
 .inputWrapper {
   position: relative;
   flex: 1;
   min-width: 120px;
+  margin-bottom: var(--spacing-sm);
 }
 
+/* Input Field */
 .input {
   width: 100%;
   padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) 2.5rem;
-  border: 1px solid rgba(209, 213, 219, 0.3);
+  border: 1px solid var(--input-border);
   border-radius: var(--radius-sm);
   font-size: var(--font-size-sm);
-  background: var(--surface);
+  font-weight: var(--font-weight-medium);
+  background: var(--input-bg);
   color: var(--text);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
 }
 
 .input:focus {
@@ -41,12 +29,13 @@
 }
 
 .input:disabled {
-  background: rgba(233, 236, 239, 0.1);
-  border-color: rgba(226, 232, 240, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
   cursor: not-allowed;
   opacity: 0.6;
 }
 
+/* Input Icon */
 .inputIcon {
   position: absolute;
   left: var(--spacing-md);
@@ -54,8 +43,29 @@
   transform: translateY(-50%);
   font-size: var(--font-size-sm);
   color: var(--text-light);
+  transition: color 0.2s ease;
 }
 
+.input:focus + .inputIcon,
+.inputWrapper:hover .inputIcon {
+  color: var(--secondary);
+}
+
+/* Select Input */
+.input select {
+  appearance: none;
+  padding-right: 2rem;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23a1b3d1' viewBox='0 0 16 16'><path d='M8 10.5l4-4H4l4 4z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right var(--spacing-sm) center;
+}
+
+.input select:focus {
+  border-color: var(--secondary);
+  box-shadow: 0 0 6px var(--shadow);
+}
+
+/* Square Footage Display */
 .sqft {
   display: flex;
   align-items: center;
@@ -64,10 +74,10 @@
   font-weight: var(--font-weight-medium);
   color: var(--primary);
   padding: var(--spacing-sm);
-  background: rgba(233, 236, 239, 0.15);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: var(--radius-sm);
   min-width: 80px;
-  transition: background-color 0.3s ease;
+  transition: background 0.3s ease;
 }
 
 .sqftIcon {
@@ -75,59 +85,58 @@
   color: var(--text);
 }
 
-.removeSurfaceButton {
+/* Remove Surface Button */
+.button--fixed-size {
+  width: 36px; /* Square icon button for consistency */
+  height: 36px;
+  padding: 0;
+  font-size: var(--font-size-base);
+}
+
+.button--error {
   background: var(--error);
   color: var(--surface);
   border: none;
   border-radius: var(--radius-sm);
-  width: 32px;
-  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--font-size-base);
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.removeSurfaceButton:hover {
-  background: #c82333;
+.button--error:hover:not(:disabled) {
+  background: var(--error-dark, var(--error));
   transform: scale(1.1);
+  box-shadow: 0 0 8px var(--shadow);
 }
 
-.removeSurfaceButton:disabled {
+.button--error:disabled {
   background: var(--text-light);
   cursor: not-allowed;
+  opacity: 0.6;
   transform: none;
 }
 
-.input[type="select"],
-.input select {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background: var(--surface);
-  padding-right: 2rem;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23666' viewBox='0 0 16 16'><path d='M8 10.5l4-4H4l4 4z'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right var(--spacing-sm) center;
-  font-size: var(--font-size-base);
-  border: 2px solid var(--primary);
+/* Accessibility */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
-.input select:focus {
-  outline: none;
-  border-color: var(--secondary);
-  box-shadow: 0 0 6px var(--shadow);
-}
-
-@media (max-width: 768px) {
-  .surfaceRow {
-    flex-direction: column;
-    gap: var(--spacing-md);
-    padding: var(--spacing-md);
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .input {
+    border: 2px solid var(--text);
   }
 
+  .button--error {
+    border: 2px solid var(--surface);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
   .inputWrapper {
     flex: 1 1 100%;
     min-width: 0;
@@ -141,23 +150,10 @@
     flex: 1 1 100%;
     justify-content: flex-start;
   }
-
-  .removeSurfaceButton {
-    margin-left: auto;
-  }
 }
 
-:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-}
-
-@media (prefers-contrast: high) {
-  .input {
-    border: 2px solid var(--text);
-  }
-
-  .removeSurfaceButton {
-    border: 2px solid var(--surface);
-  }
+/* Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }

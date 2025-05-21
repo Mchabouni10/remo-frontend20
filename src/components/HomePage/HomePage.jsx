@@ -15,6 +15,8 @@ export default function HomePage() {
   const location = useLocation();
   const initialCustomerInfo = location.pathname === '/home/new-customer-project' ? {} : location.state?.customerInfo || {};
 
+  const validPaymentMethods = ['Credit', 'Debit', 'Check', 'Cash', 'Zelle', 'Deposit'];
+
   const [customer, setCustomer] = useState({
     firstName: initialCustomerInfo.firstName || '',
     lastName: initialCustomerInfo.lastName || '',
@@ -37,8 +39,10 @@ export default function HomePage() {
     taxRate: 0,
     transportationFee: 0,
     wasteFactor: 0,
+    laborDiscount: 0,
     miscFees: [],
     deposit: 0,
+    depositMethod: 'Cash',
     payments: [],
     markup: 0,
   });
@@ -80,8 +84,10 @@ export default function HomePage() {
             taxRate: project.settings?.taxRate || 0,
             transportationFee: project.settings?.transportationFee || 0,
             wasteFactor: project.settings?.wasteFactor || 0,
+            laborDiscount: project.settings?.laborDiscount || 0,
             miscFees: project.settings?.miscFees || [],
             deposit: project.settings?.deposit || 0,
+            depositMethod: project.settings?.depositMethod || 'Cash',
             payments: project.settings?.payments || [],
             markup: project.settings?.markup || 0,
           });
@@ -121,6 +127,25 @@ export default function HomePage() {
       return;
     }
 
+    // Validate payment methods
+    const invalidPayments = (settings.payments || []).filter(
+      payment => !validPaymentMethods.includes(payment.method)
+    );
+    if (invalidPayments.length > 0) {
+      alert(`Invalid payment methods detected: ${invalidPayments.map(p => p.method).join(', ')}. Please use: ${validPaymentMethods.join(', ')}`);
+      return;
+    }
+
+    if (!validPaymentMethods.includes(settings.depositMethod)) {
+      alert(`Invalid deposit method: ${settings.depositMethod}. Please use: ${validPaymentMethods.join(', ')}`);
+      return;
+    }
+
+    if (!validPaymentMethods.includes(customer.paymentType)) {
+      alert(`Invalid customer payment type: ${customer.paymentType}. Please use: ${validPaymentMethods.join(', ')}`);
+      return;
+    }
+
     const projectData = {
       customerInfo: {
         ...customer,
@@ -134,18 +159,21 @@ export default function HomePage() {
       categories,
       settings: {
         ...settings,
+        laborDiscount: settings.laborDiscount || 0,
+        deposit: Number(settings.deposit) || 0,
+        depositMethod: settings.depositMethod || 'Cash',
         payments: (settings.payments || []).map(payment => ({
           ...payment,
           date: payment.date instanceof Date ? payment.date.toISOString().split('T')[0] : payment.date,
-          amount: Number(payment.amount),
-          method: payment.method || 'Cash',
+          amount: Number(payment.amount) || 0,
+          method: validPaymentMethods.includes(payment.method) ? payment.method : 'Cash',
           note: payment.note || '',
           isPaid: Boolean(payment.isPaid),
         })),
       },
     };
 
-    console.log('Project data to save:', JSON.stringify(projectData, null, 2));
+    console.log('Sending project data to server:', JSON.stringify(projectData, null, 2));
     setLoading(true);
     try {
       if (isEditMode && projectId) {
@@ -162,7 +190,11 @@ export default function HomePage() {
       }
     } catch (err) {
       console.error('Error saving/updating project:', err);
-      alert('Failed to save/update project. Check console for details.');
+      let errorMessage = 'Failed to save/update project. Please try again.';
+      if (err.response?.data?.error) {
+        errorMessage = `Server error: ${err.response.data.error}`;
+      }
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -191,8 +223,10 @@ export default function HomePage() {
         taxRate: 0,
         transportationFee: 0,
         wasteFactor: 0,
+        laborDiscount: 0,
         miscFees: [],
         deposit: 0,
+        depositMethod: 'Cash',
         payments: [],
         markup: 0,
       });

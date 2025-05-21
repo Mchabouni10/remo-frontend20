@@ -19,7 +19,6 @@ export default function SingleSurfaceInput({
     const h = parseFloat(height) || 0;
     const sqft = w * h;
 
-    // Validate inputs
     const newErrors = {};
     if (w <= 0 && width !== '') newErrors.width = 'Width must be greater than 0';
     if (h <= 0 && height !== '') newErrors.height = 'Height must be greater than 0';
@@ -117,12 +116,12 @@ export default function SingleSurfaceInput({
 
   return (
     <div className={styles.surfaceRow}>
-      <div className={styles.inputWrapper}>
-        <i className={`fas fa-square ${styles.inputIcon}`}></i>
+      <div className="input-wrapper">
+        <i className={`fas fa-square input-icon`}></i>
         <input
           type="text"
           value="Surface Area"
-          className={styles.input}
+          className="input"
           disabled
           title="Measurement type: Surface Area in square feet"
           aria-label="Measurement type: Surface Area"
@@ -136,70 +135,70 @@ export default function SingleSurfaceInput({
           disabled={disabled}
           aria-label="Toggle manual square footage input"
         />
-        <i className={`fas ${surface.manualSqft ? 'fa-ruler' : 'fa-calculator'} ${styles.icon}`}></i>
+        <i className={`fas ${surface.manualSqft ? 'fa-ruler' : 'fa-calculator'} icon`}></i>
         <span>Manual</span>
       </label>
       {surface.manualSqft ? (
-        <div className={styles.inputWrapper}>
-          <i className={`fas fa-square ${styles.inputIcon}`}></i>
+        <div className="input-wrapper">
+          <i className={`fas fa-square input-icon`}></i>
           <input
             type="number"
             placeholder="Square Feet"
             value={surface.sqft || ''}
             onChange={(e) => updateSurface('sqft', e.target.value)}
-            className={`${styles.input} ${errors.sqft ? styles.error : ''}`}
+            className={`input ${errors.sqft ? 'input--error' : ''}`}
             min="0"
             step="0.1"
             disabled={disabled}
-            title="Enter the total square footage manually (e.g., 100)"
+            title="Enter the total square footage manually"
             aria-label="Manual square footage in square feet"
           />
-          {errors.sqft && <span className={styles.errorMessage}>{errors.sqft}</span>}
+          {errors.sqft && <span className="error-message">{errors.sqft}</span>}
         </div>
       ) : (
         <>
-          <div className={styles.inputWrapper}>
-            <i className={`fas fa-arrows-alt-h ${styles.inputIcon}`}></i>
+          <div className="input-wrapper">
+            <i className={`fas fa-arrows-alt-h input-icon`}></i>
             <input
               type="number"
               placeholder="Width (ft)"
               value={surface.width || ''}
               onChange={(e) => updateSurface('width', e.target.value)}
-              className={`${styles.input} ${errors.width ? styles.error : ''}`}
+              className={`input ${errors.width ? 'input--error' : ''}`}
               min="0"
               step="0.1"
               disabled={disabled}
-              title="Enter the surface width in feet (e.g., 10)"
+              title="Enter the surface width in feet"
               aria-label="Surface width in feet"
             />
-            {errors.width && <span className={styles.errorMessage}>{errors.width}</span>}
+            {errors.width && <span className="error-message">{errors.width}</span>}
           </div>
-          <div className={styles.inputWrapper}>
-            <i className={`fas fa-arrows-alt-v ${styles.inputIcon}`}></i>
+          <div className="input-wrapper">
+            <i className={`fas fa-arrows-alt-v input-icon`}></i>
             <input
               type="number"
               placeholder="Height (ft)"
               value={surface.height || ''}
               onChange={(e) => updateSurface('height', e.target.value)}
-              className={`${styles.input} ${errors.height ? styles.error : ''}`}
+              className={`input ${errors.height ? 'input--error' : ''}`}
               min="0"
               step="0.1"
               disabled={disabled}
-              title="Enter the surface height in feet (e.g., 10)"
+              title="Enter the surface height in feet"
               aria-label="Surface height in feet"
             />
-            {errors.height && <span className={styles.errorMessage}>{errors.height}</span>}
+            {errors.height && <span className="error-message">{errors.height}</span>}
           </div>
         </>
       )}
-      <span className={styles.units} aria-live="polite">
-        <i className={`fas fa-square ${styles.unitsIcon}`}></i>
+      <span className="units">
+        <i className={`fas fa-square units-icon`}></i>
         {(parseFloat(surface.sqft) || 0).toFixed(2)} sqft
       </span>
       {showRemove && !disabled && (
         <button
           onClick={removeSurface}
-          className={styles.removeSurfaceButton}
+          className="button button--error"
           title="Remove this surface area"
           aria-label="Remove surface area"
         >

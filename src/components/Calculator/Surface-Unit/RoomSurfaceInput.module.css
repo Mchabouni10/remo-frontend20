@@ -1,13 +1,33 @@
 @import './SharedStyles.module.css';
 
-.roomPaintingContainer {
+.surfaceRow {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm);
-  background: rgba(233, 236, 239, 0.05);
-  border-radius: var(--radius-sm);
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-md);
+  box-shadow: 0 4px 12px var(--shadow);
+  transition: var(--transition);
+  animation: fadeIn 0.5s ease-out;
+}
+
+.surfaceRow:hover {
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 6px 16px var(--shadow);
+}
+
+.roomContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
   width: 100%;
+  padding: var(--spacing-md);
+  background: rgba(233, 236, 239, 0.05);
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 2px 4px var(--shadow);
 }
 
 .inputGroup {
@@ -15,16 +35,19 @@
   flex-wrap: wrap;
   gap: var(--spacing-sm);
   width: 100%;
-  margin-bottom: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  border-left: 3px solid var(--primary);
 }
 
 .groupLabel {
   display: block;
   width: 100%;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-light);
-  margin-bottom: var(--spacing-xs);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  color: var(--primary);
+  margin-bottom: var(--spacing-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .exclusionRow {
@@ -32,75 +55,102 @@
   align-items: center;
   gap: var(--spacing-sm);
   flex-wrap: wrap;
-  margin-bottom: var(--spacing-xs);
+  padding: var(--spacing-sm);
+  background: rgba(233, 236, 239, 0.1);
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
 }
 
-.addExclusionButton {
-  background: var(--primary);
-  color: var(--surface);
-  border: none;
-  border-radius: var(--radius-sm);
+.exclusionRow:hover {
+  background: rgba(233, 236, 239, 0.2);
+  box-shadow: 0 2px 4px var(--shadow);
+}
+
+.button--fixed-size {
+  width: 100px; /* Smaller fixed width for consistency */
+  justify-content: center;
   padding: var(--spacing-sm);
   font-size: var(--font-size-sm);
-  cursor: pointer;
+}
+
+.toggleLabel {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
-  transition: background 0.2s ease, transform 0.2s ease;
-}
-
-.addExclusionButton:hover {
-  background: #0056b3;
-  transform: scale(1.05);
-}
-
-.addExclusionButton:disabled {
-  background: var(--text-light);
-  cursor: not-allowed;
-  transform: none;
-}
-
-.removeExclusionButton {
-  background: none;
-  border: none;
-  color: var(--error);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text);
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  background: rgba(233, 236, 239, 0.1);
   cursor: pointer;
+  transition: var(--transition);
+}
+
+.toggleLabel:hover {
+  background: rgba(233, 236, 239, 0.2);
+  box-shadow: 0 2px 4px var(--shadow);
+}
+
+.toggleLabel input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--secondary);
+}
+
+.toggleLabel input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.toggleLabel .icon {
   font-size: var(--font-size-base);
-  transition: color 0.2s ease, transform 0.2s ease;
-}
-
-.removeExclusionButton:hover {
-  color: #c82333;
-  transform: scale(1.1);
-}
-
-.removeExclusionButton:disabled {
   color: var(--text-light);
-  cursor: not-allowed;
-  transform: none;
+  transition: var(--transition);
 }
 
-.undoButton {
-  background: var(--secondary);
-  color: var(--surface);
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: var(--spacing-sm);
-  font-size: var(--font-size-sm);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  transition: background 0.2s ease, transform 0.2s ease;
+.toggleLabel:hover .icon {
+  color: var(--secondary);
 }
 
-.undoButton:hover {
-  background: #e0a800;
-  transform: scale(1.05);
-}
+@media (max-width: 768px) {
+  .surfaceRow {
+    flex-direction: column;
+    padding: var(--spacing-md);
+  }
 
-.undoButton:disabled {
-  background: var(--text-light);
-  cursor: not-allowed;
-  transform: none;
+  .roomContainer {
+    padding: var(--spacing-sm);
+  }
+
+  .inputGroup {
+    flex-direction: column;
+  }
+
+  .input-wrapper {
+    width: 100%;
+  }
+
+  .exclusionRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .button {
+    align-self: stretch;
+  }
+
+  .button--fixed-size {
+    width: 100%; /* Full width on mobile */
+  }
+
+  .toggleLabel {
+    justify-content: flex-start;
+  }
+
+  .units {
+    justify-content: flex-start;
+  }
 }

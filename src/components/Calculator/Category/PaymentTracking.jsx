@@ -4,6 +4,8 @@ import { calculateTotal } from '../calculations/costCalculations';
 import styles from './PaymentTracking.module.css';
 
 export default function PaymentTracking({ settings, setSettings, categories, disabled = false }) {
+  const validMethods = ['Credit', 'Debit', 'Check', 'Cash', 'Zelle', 'Deposit'];
+
   const [newPayment, setNewPayment] = useState({
     date: new Date().toISOString().split('T')[0],
     amount: '',
@@ -40,20 +42,39 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
   }, [categories, settings]);
 
   const grandTotal = totals.total;
-  const totalPaid = useMemo(() => {
+  const deposit = parseFloat(settings.deposit) || 0;
+  const depositMethod = settings.depositMethod || 'Deposit';
+
+  const paymentsWithDeposit = useMemo(() => {
     const payments = Array.isArray(settings.payments) ? settings.payments : [];
-    return payments.reduce((sum, payment) => sum + (payment.isPaid ? parseFloat(payment.amount) || 0 : 0), 0) +
-           (parseFloat(settings.deposit) || 0);
-  }, [settings.payments, settings.deposit]);
+    if (deposit > 0) {
+      return [
+        {
+          date: new Date().toISOString(),
+          amount: deposit,
+          method: depositMethod,
+          note: 'Deposit payment',
+          isPaid: true,
+          status: 'Paid',
+        },
+        ...payments,
+      ];
+    }
+    return payments;
+  }, [settings.payments, deposit, depositMethod]);
+
+  const totalPaid = useMemo(() => {
+    return paymentsWithDeposit.reduce((sum, payment) => sum + (payment.isPaid ? parseFloat(payment.amount) || 0 : 0), 0);
+  }, [paymentsWithDeposit]);
 
   const amountRemaining = Math.max(0, grandTotal - totalPaid);
-  const amountDue = (settings.payments || []).reduce((sum, payment) => sum + (!payment.isPaid ? parseFloat(payment.amount) || 0 : 0), 0);
+  const amountDue = paymentsWithDeposit.reduce((sum, payment) => sum + (!payment.isPaid ? parseFloat(payment.amount) || 0 : 0), 0);
   const overduePayments = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
-    return (Array.isArray(settings.payments) ? settings.payments : []).filter(
+    return paymentsWithDeposit.filter(
       (payment) => !payment.isPaid && payment.date.split('T')[0] < today
     ).reduce((sum, payment) => sum + (parseFloat(payment.amount) || 0), 0);
-  }, [settings.payments]);
+  }, [paymentsWithDeposit]);
 
   const overpaid = totalPaid > grandTotal ? totalPaid - grandTotal : 0;
 
@@ -73,6 +94,9 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
     if (isNaN(amount) || amount <= 0) {
       return 'Payment amount must be greater than zero.';
     }
+    if (!validMethods.includes(payment.method)) {
+      return 'Please select a valid payment method.';
+    }
     return null;
   };
 
@@ -80,7 +104,7 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
     if (disabled) return;
     setSettings((prev) => ({
       ...prev,
-      [field]: parseFloat(value) || 0,
+      [field]: field === 'deposit' ? parseFloat(value) || 0 : value,
     }));
   };
 
@@ -101,7 +125,7 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
       const payment = {
         date: new Date(newPayment.date).toISOString(),
         amount: parseFloat(newPayment.amount),
-        method: newPayment.method,
+        method: validMethods.includes(newPayment.method) ? newPayment.method : 'Cash',
         note: newPayment.note.trim(),
         isPaid: newPayment.isPaid,
       };
@@ -128,12 +152,12 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
   };
 
   const togglePaymentStatus = (index) => {
-    if (disabled) return;
+    if (disabled || index === 0) return;
     try {
       setSettings((prev) => ({
         ...prev,
         payments: prev.payments.map((payment, i) =>
-          i === index ? { ...payment, isPaid: !payment.isPaid } : payment
+          i === index - (deposit > 0 ? 1 : 0) ? { ...payment, isPaid: !payment.isPaid } : payment
         ),
       }));
     } catch (err) {
@@ -143,11 +167,11 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
   };
 
   const removePayment = (index) => {
-    if (disabled) return;
+    if (disabled || index === 0) return;
     try {
       setSettings((prev) => ({
         ...prev,
-        payments: prev.payments.filter((_, i) => i !== index),
+        payments: prev.payments.filter((_, i) => i !== index - (deposit > 0 ? 1 : 0)),
       }));
     } catch (err) {
       console.error('Error removing payment:', err);
@@ -156,8 +180,8 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
   };
 
   const startEditing = (index) => {
-    if (disabled) return;
-    const payment = settings.payments[index];
+    if (disabled || index === 0) return;
+    const payment = paymentsWithDeposit[index];
     setEditingIndex(index);
     setEditedPayment({
       ...payment,
@@ -174,7 +198,7 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
   };
 
   const saveEdit = (index) => {
-    if (disabled) return;
+    if (disabled || index === 0) return;
 
     const validationError = validatePayment(editedPayment);
     if (validationError) {
@@ -186,8 +210,13 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
       setSettings((prev) => ({
         ...prev,
         payments: prev.payments.map((payment, i) =>
-          i === index
-            ? { ...editedPayment, date: new Date(editedPayment.date).toISOString(), amount: parseFloat(editedPayment.amount) }
+          i === index - (deposit > 0 ? 1 : 0)
+            ? {
+                ...editedPayment,
+                date: new Date(editedPayment.date).toISOString(),
+                amount: parseFloat(editedPayment.amount),
+                method: validMethods.includes(editedPayment.method) ? editedPayment.method : 'Cash',
+              }
             : payment
         ),
       }));
@@ -245,6 +274,19 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
               disabled={disabled}
               aria-label="Deposit Amount"
             />
+            <select
+              value={depositMethod}
+              onChange={(e) => handleSettingsChange('depositMethod', e.target.value)}
+              disabled={disabled}
+              aria-label="Deposit Payment Method"
+            >
+              <option value="Cash">Cash</option>
+              <option value="Credit">Credit</option>
+              <option value="Debit">Debit</option>
+              <option value="Check">Check</option>
+              <option value="Zelle">Zelle</option>
+              <option value="Deposit">Deposit</option>
+            </select>
           </div>
 
           <div className={styles.summary}>
@@ -266,7 +308,6 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
             )}
           </div>
 
-          {/* Payment Entries Section */}
           <div className={styles.paymentList}>
             <div className={styles.subSectionHeader}>
               <button
@@ -285,7 +326,7 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
             </div>
             {expandedSections.paymentEntries && (
               <>
-                {(settings.payments || []).length === 0 ? (
+                {paymentsWithDeposit.length === 0 ? (
                   <p>No payments recorded yet.</p>
                 ) : (
                   <table className={styles.paymentTable} aria-label="Payment Entries">
@@ -300,7 +341,7 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
                       </tr>
                     </thead>
                     <tbody>
-                      {(settings.payments || []).map((payment, index) => (
+                      {paymentsWithDeposit.map((payment, index) => (
                         editingIndex === index ? (
                           <tr key={index}>
                             <td>
@@ -338,6 +379,7 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
                                 <option value="Debit">Debit</option>
                                 <option value="Check">Check</option>
                                 <option value="Zelle">Zelle</option>
+                                <option value="Deposit">Deposit</option>
                               </select>
                             </td>
                             <td>
@@ -401,7 +443,7 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
                                 type="checkbox"
                                 checked={payment.isPaid}
                                 onChange={() => togglePaymentStatus(index)}
-                                disabled={disabled}
+                                disabled={disabled || index === 0}
                                 aria-label={`Toggle ${payment.isPaid ? 'Paid' : 'Due'} Status`}
                               />
                               {payment.isPaid ? ' Paid' : ' Due'}
@@ -412,6 +454,7 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
                                   onClick={() => startEditing(index)}
                                   className={styles.editButton}
                                   title="Edit Payment"
+                                  disabled={index === 0}
                                   aria-label="Edit Payment"
                                 >
                                   <i className="fas fa-edit"></i>
@@ -420,6 +463,7 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
                                   onClick={() => removePayment(index)}
                                   className={styles.removeButton}
                                   title="Remove Payment"
+                                  disabled={index === 0}
                                   aria-label="Remove Payment"
                                 >
                                   <i className="fas fa-trash-alt"></i>
@@ -436,7 +480,6 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
             )}
           </div>
 
-          {/* Add Payment Section */}
           {!disabled && (
             <div className={styles.newPayment}>
               <div className={styles.subSectionHeader}>
@@ -499,6 +542,7 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
                       <option value="Debit">Debit</option>
                       <option value="Check">Check</option>
                       <option value="Zelle">Zelle</option>
+                      <option value="Deposit">Deposit</option>
                     </select>
                   </div>
                   <div className={styles.field}>

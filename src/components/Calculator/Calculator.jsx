@@ -4,7 +4,6 @@ import CategoryList from './Category/CategoryList';
 import LaborPricingSheet from './LaborPricingSheet/LaborPricingSheet';
 import CostSummary from './Category/CostSummary';
 import PaymentTracking from './Category/PaymentTracking';
-import CostBreakdown from './CostBreakdown/CostBreakdown';
 import styles from './Calculator.module.css';
 
 export default function Calculator({ categories, setCategories, settings, setSettings, disabled = false }) {
@@ -52,7 +51,6 @@ export default function Calculator({ categories, setCategories, settings, setSet
         setSettings={setSettings}
         disabled={disabled}
       />
-      <CostBreakdown categories={categories} settings={settings} />
     </div>
   );
 }

@@ -58,25 +58,25 @@ export default function ByUnitInput({
 
   return (
     <div className={styles.surfaceRow}>
-      <div className={styles.inputWrapper}>
-        <i className={`fas fa-ruler-combined ${styles.inputIcon}`}></i>
+      <div className="input-wrapper">
+        <i className={`fas fa-ruler-combined input-icon`}></i>
         <input
           type="text"
           value="By Unit"
-          className={styles.input}
+          className="input"
           disabled
-          title="Measurement type"
-          aria-label="Measurement type"
+          title="Measurement type: By Unit"
+          aria-label="Measurement type: By Unit"
         />
       </div>
-      <div className={styles.inputWrapper}>
-        <i className={`fas fa-boxes ${styles.inputIcon}`}></i>
+      <div className="input-wrapper">
+        <i className={`fas fa-boxes input-icon`}></i>
         <input
           type="number"
           placeholder="Units"
           value={surface.units || ''}
           onChange={(e) => updateSurface('units', e.target.value)}
-          className={styles.input}
+          className="input"
           min="0"
           step="1"
           disabled={disabled}
@@ -84,14 +84,14 @@ export default function ByUnitInput({
           aria-label="Units"
         />
       </div>
-      <span className={styles.units}>
-        <i className={`fas fa-box ${styles.unitsIcon}`}></i>
+      <span className="units">
+        <i className={`fas fa-box units-icon`}></i>
         {(parseFloat(surface.units) || 0).toFixed(0)} units
       </span>
       {showRemove && !disabled && (
         <button
           onClick={removeSurface}
-          className={styles.removeSurfaceButton}
+          className="button button--error"
           title="Remove this surface"
           aria-label="Remove surface"
         >

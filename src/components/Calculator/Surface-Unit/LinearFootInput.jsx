@@ -58,25 +58,25 @@ export default function LinearFootInput({
 
   return (
     <div className={styles.surfaceRow}>
-      <div className={styles.inputWrapper}>
-        <i className={`fas fa-ruler-combined ${styles.inputIcon}`}></i>
+      <div className="input-wrapper">
+        <i className={`fas fa-ruler-combined input-icon`}></i>
         <input
           type="text"
           value="Linear Foot"
-          className={styles.input}
+          className="input"
           disabled
-          title="Measurement type"
-          aria-label="Measurement type"
+          title="Measurement type: Linear Foot"
+          aria-label="Measurement type: Linear Foot"
         />
       </div>
-      <div className={styles.inputWrapper}>
-        <i className={`fas fa-ruler-horizontal ${styles.inputIcon}`}></i>
+      <div className="input-wrapper">
+        <i className={`fas fa-ruler-horizontal input-icon`}></i>
         <input
           type="number"
           placeholder="Linear Feet"
           value={surface.linearFt || ''}
           onChange={(e) => updateSurface('linearFt', e.target.value)}
-          className={styles.input}
+          className="input"
           min="0"
           step="0.1"
           disabled={disabled}
@@ -84,14 +84,14 @@ export default function LinearFootInput({
           aria-label="Linear feet"
         />
       </div>
-      <span className={styles.units}>
-        <i className={`fas fa-ruler ${styles.unitsIcon}`}></i>
+      <span className="units">
+        <i className={`fas fa-ruler units-icon`}></i>
         {(parseFloat(surface.linearFt) || 0).toFixed(2)} ft
       </span>
       {showRemove && !disabled && (
         <button
           onClick={removeSurface}
-          className={styles.removeSurfaceButton}
+          className="button button--error"
           title="Remove this surface"
           aria-label="Remove surface"
         >
