@@ -4,6 +4,12 @@ import { calculateTotal } from '../calculations/costCalculations';
 import styles from './PaymentTracking.module.css';
 
 export default function PaymentTracking({ settings, setSettings, categories, disabled = false }) {
+  console.log('PaymentTracking rendered with props:', {
+    settings: JSON.stringify(settings, null, 2),
+    categories: JSON.stringify(categories, null, 2),
+    disabled,
+  });
+
   const validMethods = ['Credit', 'Debit', 'Check', 'Cash', 'Zelle', 'Deposit'];
 
   const [newPayment, setNewPayment] = useState({
@@ -23,6 +29,10 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
   const [error, setError] = useState(null);
 
   const totals = useMemo(() => {
+    console.log('Calculating totals with:', {
+      categories: JSON.stringify(categories, null, 2),
+      settings: JSON.stringify(settings, null, 2),
+    });
     const result = calculateTotal(
       categories,
       settings.taxRate || 0,
@@ -32,91 +42,155 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
       settings.markup || 0,
       settings.laborDiscount || 0
     );
-    return {
+    const totals = {
       ...result,
       total: result.total || 0,
       materialCost: result.materialCost || 0,
       laborCost: result.laborCost || 0,
       laborDiscount: result.laborDiscount || 0,
     };
+    console.log('Calculated totals:', JSON.stringify(totals, null, 2));
+    return totals;
   }, [categories, settings]);
 
   const grandTotal = totals.total;
   const deposit = parseFloat(settings.deposit) || 0;
   const depositMethod = settings.depositMethod || 'Deposit';
+  console.log('Deposit details:', { deposit, depositMethod });
 
   const paymentsWithDeposit = useMemo(() => {
+    console.log('Computing paymentsWithDeposit with:', {
+      payments: JSON.stringify(settings.payments, null, 2),
+      deposit,
+      depositMethod,
+    });
     const payments = Array.isArray(settings.payments) ? settings.payments : [];
-    if (deposit > 0) {
-      return [
-        {
-          date: new Date().toISOString(),
-          amount: deposit,
-          method: depositMethod,
-          note: 'Deposit payment',
-          isPaid: true,
-          status: 'Paid',
-        },
-        ...payments,
-      ];
+    if (deposit >= 0.01) {
+      const depositPayment = {
+        date: new Date().toISOString(),
+        amount: deposit,
+        method: depositMethod,
+        note: 'Deposit payment',
+        isPaid: true,
+        status: 'Paid',
+      };
+      console.log('Including deposit payment:', JSON.stringify(depositPayment, null, 2));
+      return [depositPayment, ...payments];
     }
+    console.log('No deposit payment included (deposit < 0.01)');
     return payments;
   }, [settings.payments, deposit, depositMethod]);
 
   const totalPaid = useMemo(() => {
-    return paymentsWithDeposit.reduce((sum, payment) => sum + (payment.isPaid ? parseFloat(payment.amount) || 0 : 0), 0);
+    console.log('Calculating totalPaid from payments:', JSON.stringify(paymentsWithDeposit, null, 2));
+    const total = paymentsWithDeposit.reduce((sum, payment) => {
+      const amount = parseFloat(payment.amount) || 0;
+      const increment = payment.isPaid ? amount : 0;
+      console.log(`Payment: ${JSON.stringify(payment)}, isPaid: ${payment.isPaid}, increment: ${increment}`);
+      return sum + increment;
+    }, 0);
+    console.log('Total paid:', total);
+    return total;
   }, [paymentsWithDeposit]);
 
   const amountRemaining = Math.max(0, grandTotal - totalPaid);
-  const amountDue = paymentsWithDeposit.reduce((sum, payment) => sum + (!payment.isPaid ? parseFloat(payment.amount) || 0 : 0), 0);
+  const amountDue = paymentsWithDeposit.reduce((sum, payment) => {
+    const amount = parseFloat(payment.amount) || 0;
+    const increment = !payment.isPaid ? amount : 0;
+    console.log(`Calculating amountDue, payment: ${JSON.stringify(payment)}, increment: ${increment}`);
+    return sum + increment;
+  }, 0);
   const overduePayments = useMemo(() => {
+    console.log('Calculating overduePayments');
     const today = new Date().toISOString().split('T')[0];
-    return paymentsWithDeposit.filter(
+    const overdue = paymentsWithDeposit.filter(
       (payment) => !payment.isPaid && payment.date.split('T')[0] < today
-    ).reduce((sum, payment) => sum + (parseFloat(payment.amount) || 0), 0);
+    ).reduce((sum, payment) => {
+      const amount = parseFloat(payment.amount) || 0;
+      console.log(`Overdue payment: ${JSON.stringify(payment)}, amount: ${amount}`);
+      return sum + amount;
+    }, 0);
+    console.log('Overdue payments total:', overdue);
+    return overdue;
   }, [paymentsWithDeposit]);
 
   const overpaid = totalPaid > grandTotal ? totalPaid - grandTotal : 0;
+  console.log('Summary:', { grandTotal, totalPaid, amountRemaining, amountDue, overduePayments, overpaid });
 
   const toggleSection = (section) => {
+    console.log(`Toggling section: ${section}`);
     setExpandedSections((prev) => ({
       ...prev,
       [section]: !prev[section],
     }));
     setError(null);
+    console.log('New expandedSections:', JSON.stringify(expandedSections, null, 2));
   };
 
   const validatePayment = (payment) => {
+    console.log('Validating payment:', JSON.stringify(payment, null, 2));
     if (!payment.date || isNaN(Date.parse(payment.date))) {
+      console.warn('Invalid payment date');
       return 'Please select a valid date.';
     }
     const amount = parseFloat(payment.amount);
-    if (isNaN(amount) || amount <= 0) {
-      return 'Payment amount must be greater than zero.';
+    if (isNaN(amount) || amount < 0.01) {
+      console.warn(`Invalid payment amount: ${amount}`);
+      return 'Payment amount must be at least $0.01.';
     }
     if (!validMethods.includes(payment.method)) {
+      console.warn(`Invalid payment method: ${payment.method}`);
       return 'Please select a valid payment method.';
     }
+    console.log('Payment validation passed');
     return null;
   };
 
   const handleSettingsChange = (field, value) => {
-    if (disabled) return;
-    setSettings((prev) => ({
-      ...prev,
-      [field]: field === 'deposit' ? parseFloat(value) || 0 : value,
-    }));
+    if (disabled) {
+      console.log('Settings change blocked: component is disabled');
+      return;
+    }
+    console.log(`handleSettingsChange called: field=${field}, value=${value}`);
+    if (field === 'deposit') {
+      const numericValue = parseFloat(value) || 0;
+      if (numericValue > 0 && numericValue < 0.01) {
+        console.warn(`Invalid deposit: ${numericValue}, must be 0 or >= 0.01`);
+        setError('Deposit must be 0 or at least $0.01.');
+        return;
+      }
+      console.log(`Updating deposit to: ${numericValue}`);
+      setError(null);
+    }
+    setSettings((prev) => {
+      const newSettings = {
+        ...prev,
+        [field]: field === 'deposit' ? parseFloat(value) || 0 : value,
+      };
+      console.log('New settings:', JSON.stringify(newSettings, null, 2));
+      return newSettings;
+    });
   };
 
   const handleNewPaymentChange = (field, value) => {
-    setNewPayment((prev) => ({ ...prev, [field]: value }));
+    console.log(`handleNewPaymentChange called: field=${field}, value=${value}`);
+    setNewPayment((prev) => {
+      const newPayment = { ...prev, [field]: value };
+      console.log('New payment state:', JSON.stringify(newPayment, null, 2));
+      return newPayment;
+    });
   };
 
   const addPayment = () => {
-    if (disabled) return;
+    if (disabled) {
+      console.log('addPayment blocked: component is disabled');
+      return;
+    }
+    console.log('addPayment called with newPayment:', JSON.stringify(newPayment, null, 2));
 
     const validationError = validatePayment(newPayment);
     if (validationError) {
+      console.warn('Payment validation failed:', validationError);
       setError(validationError);
       return;
     }
@@ -129,10 +203,13 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
         note: newPayment.note.trim(),
         isPaid: newPayment.isPaid,
       };
-      setSettings((prev) => ({
-        ...prev,
-        payments: [...(prev.payments || []), payment],
-      }));
+      console.log('Adding payment:', JSON.stringify(payment, null, 2));
+      setSettings((prev) => {
+        const newPayments = [...(prev.payments || []), payment];
+        const newSettings = { ...prev, payments: newPayments };
+        console.log('Updated settings with new payment:', JSON.stringify(newSettings, null, 2));
+        return newSettings;
+      });
       setNewPayment({
         date: new Date().toISOString().split('T')[0],
         amount: '',
@@ -145,6 +222,7 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
         addPayment: false,
       }));
       setError(null);
+      console.log('Payment added successfully');
     } catch (err) {
       console.error('Error adding payment:', err);
       setError('Failed to add payment. Please try again.');
@@ -152,14 +230,20 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
   };
 
   const togglePaymentStatus = (index) => {
-    if (disabled || index === 0) return;
+    if (disabled || index === 0) {
+      console.log('togglePaymentStatus blocked:', { disabled, index });
+      return;
+    }
+    console.log(`togglePaymentStatus called for index: ${index}`);
     try {
-      setSettings((prev) => ({
-        ...prev,
-        payments: prev.payments.map((payment, i) =>
-          i === index - (deposit > 0 ? 1 : 0) ? { ...payment, isPaid: !payment.isPaid } : payment
-        ),
-      }));
+      setSettings((prev) => {
+        const newPayments = prev.payments.map((payment, i) =>
+          i === index - (deposit >= 0.01 ? 1 : 0) ? { ...payment, isPaid: !payment.isPaid } : payment
+        );
+        const newSettings = { ...prev, payments: newPayments };
+        console.log('Updated settings after toggling payment status:', JSON.stringify(newSettings, null, 2));
+        return newSettings;
+      });
     } catch (err) {
       console.error('Error toggling payment status:', err);
       setError('Failed to update payment status. Please try again.');
@@ -167,12 +251,18 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
   };
 
   const removePayment = (index) => {
-    if (disabled || index === 0) return;
+    if (disabled || index === 0) {
+      console.log('removePayment blocked:', { disabled, index });
+      return;
+    }
+    console.log(`removePayment called for index: ${index}`);
     try {
-      setSettings((prev) => ({
-        ...prev,
-        payments: prev.payments.filter((_, i) => i !== index - (deposit > 0 ? 1 : 0)),
-      }));
+      setSettings((prev) => {
+        const newPayments = prev.payments.filter((_, i) => i !== index - (deposit >= 0.01 ? 1 : 0));
+        const newSettings = { ...prev, payments: newPayments };
+        console.log('Updated settings after removing payment:', JSON.stringify(newSettings, null, 2));
+        return newSettings;
+      });
     } catch (err) {
       console.error('Error removing payment:', err);
       setError('Failed to remove payment. Please try again.');
@@ -180,7 +270,11 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
   };
 
   const startEditing = (index) => {
-    if (disabled || index === 0) return;
+    if (disabled || index === 0) {
+      console.log('startEditing blocked:', { disabled, index });
+      return;
+    }
+    console.log(`startEditing called for index: ${index}`);
     const payment = paymentsWithDeposit[index];
     setEditingIndex(index);
     setEditedPayment({
@@ -188,29 +282,39 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
       date: new Date(payment.date).toISOString().split('T')[0],
     });
     setError(null);
+    console.log('Editing payment:', JSON.stringify(editedPayment, null, 2));
   };
 
   const handleEditChange = (field, value) => {
-    setEditedPayment((prev) => ({
-      ...prev,
-      [field]: field === 'amount' ? parseFloat(value) || '' : value,
-    }));
+    console.log(`handleEditChange called: field=${field}, value=${value}`);
+    setEditedPayment((prev) => {
+      const newEditedPayment = {
+        ...prev,
+        [field]: field === 'amount' ? parseFloat(value) || '' : value,
+      };
+      console.log('New edited payment:', JSON.stringify(newEditedPayment, null, 2));
+      return newEditedPayment;
+    });
   };
 
   const saveEdit = (index) => {
-    if (disabled || index === 0) return;
+    if (disabled || index === 0) {
+      console.log('saveEdit blocked:', { disabled, index });
+      return;
+    }
+    console.log(`saveEdit called for index: ${index}`);
 
     const validationError = validatePayment(editedPayment);
     if (validationError) {
+      console.warn('Edited payment validation failed:', validationError);
       setError(validationError);
       return;
     }
 
     try {
-      setSettings((prev) => ({
-        ...prev,
-        payments: prev.payments.map((payment, i) =>
-          i === index - (deposit > 0 ? 1 : 0)
+      setSettings((prev) => {
+        const newPayments = prev.payments.map((payment, i) =>
+          i === index - (deposit >= 0.01 ? 1 : 0)
             ? {
                 ...editedPayment,
                 date: new Date(editedPayment.date).toISOString(),
@@ -218,11 +322,15 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
                 method: validMethods.includes(editedPayment.method) ? editedPayment.method : 'Cash',
               }
             : payment
-        ),
-      }));
+        );
+        const newSettings = { ...prev, payments: newPayments };
+        console.log('Updated settings after saving edit:', JSON.stringify(newSettings, null, 2));
+        return newSettings;
+      });
       setEditingIndex(null);
       setEditedPayment(null);
       setError(null);
+      console.log('Payment edit saved successfully');
     } catch (err) {
       console.error('Error saving payment:', err);
       setError('Failed to save payment. Please try again.');
@@ -230,9 +338,11 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
   };
 
   const cancelEdit = () => {
+    console.log('cancelEdit called');
     setEditingIndex(null);
     setEditedPayment(null);
     setError(null);
+    console.log('Editing cancelled');
   };
 
   return (
@@ -273,6 +383,7 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
               step="0.01"
               disabled={disabled}
               aria-label="Deposit Amount"
+              placeholder="0.00"
             />
             <select
               value={depositMethod}
@@ -569,7 +680,7 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
                   <button
                     onClick={addPayment}
                     className={styles.addButton}
-                    disabled={disabled || !newPayment.amount || parseFloat(newPayment.amount) <= 0}
+                    disabled={disabled || !newPayment.amount || parseFloat(newPayment.amount) < 0.01}
                     aria-label="Add Payment"
                   >
                     <i className="fas fa-plus"></i> Add Payment
