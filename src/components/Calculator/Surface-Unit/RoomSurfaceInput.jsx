@@ -1,6 +1,28 @@
-//src/components/Calculator/Surface-Unit/RoomSurfaceInput.jsx
+// src/components/Calculator/Surface-Unit/RoomSurfaceInput.jsx
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import styles from './RoomSurfaceInput.module.css';
+
+// Static arrays defined outside the component
+const DOOR_SIZES = [
+  { label: '3x7 ft (Standard)', value: '3x7', width: 3, height: 7, area: 21 },
+  { label: '3x8 ft', value: '3x8', width: 3, height: 8, area: 24 },
+  { label: '6x7 ft (Double)', value: '6x7', width: 6, height: 7, area: 42 },
+  { label: 'Custom', value: 'custom', width: 0, height: 0, area: 0 },
+];
+
+const WINDOW_SIZES = [
+  { label: '3x4 ft (Standard)', value: '3x4', width: 3, height: 4, area: 12 },
+  { label: '4x4 ft', value: '4x4', width: 4, height: 4, area: 16 },
+  { label: '2x3 ft (Small)', value: '2x3', width: 2, height: 3, area: 6 },
+  { label: 'Custom', value: 'custom', width: 0, height: 0, area: 0 },
+];
+
+const CLOSET_SIZES = [
+  { label: '4x7 ft (Standard)', value: '4x7', width: 4, height: 7, area: 28 },
+  { label: '6x7 ft (Wide)', value: '6x7', width: 6, height: 7, area: 42 },
+  { label: '2x7 ft (Narrow)', value: '2x7', width: 2, height: 7, area: 14 },
+  { label: 'Custom', value: 'custom', width: 0, height: 0, area: 0 },
+];
 
 export default function RoomSurfaceInput({
   catIndex,
@@ -16,25 +38,6 @@ export default function RoomSurfaceInput({
   const [showUndo, setShowUndo] = useState(false);
   const [errors, setErrors] = useState({});
   const inputTimeoutRef = useRef(null);
-
-  const DOOR_SIZES = [
-    { label: '3x7 ft (Standard)', value: '3x7', width: 3, height: 7, area: 21 },
-    { label: '3x8 ft', value: '3x8', width: 3, height: 8, area: 24 },
-    { label: '6x7 ft (Double)', value: '6x7', width: 6, height: 7, area: 42 },
-    { label: 'Custom', value: 'custom', width: 0, height: 0, area: 0 },
-  ];
-  const WINDOW_SIZES = [
-    { label: '3x4 ft (Standard)', value: '3x4', width: 3, height: 4, area: 12 },
-    { label: '4x4 ft', value: '4x4', width: 4, height: 4, area: 16 },
-    { label: '2x3 ft (Small)', value: '2x3', width: 2, height: 3, area: 6 },
-    { label: 'Custom', value: 'custom', width: 0, height: 0, area: 0 },
-  ];
-  const CLOSET_SIZES = [
-    { label: '4x7 ft (Standard)', value: '4x7', width: 4, height: 7, area: 28 },
-    { label: '6x7 ft (Wide)', value: '6x7', width: 6, height: 7, area: 42 },
-    { label: '2x7 ft (Narrow)', value: '2x7', width: 2, height: 7, area: 14 },
-    { label: 'Custom', value: 'custom', width: 0, height: 0, area: 0 },
-  ];
 
   useEffect(() => {
     if (showUndo) {
@@ -120,7 +123,7 @@ export default function RoomSurfaceInput({
         })
       );
     }, 50);
-  }, [disabled, catIndex, workIndex, surfIndex, setCategories, calculateSqft, DOOR_SIZES, WINDOW_SIZES, CLOSET_SIZES]);
+  }, [disabled, catIndex, workIndex, surfIndex, setCategories, calculateSqft]);
 
   const addExclusion = useCallback((type) => {
     if (disabled) return;
@@ -156,7 +159,7 @@ export default function RoomSurfaceInput({
         return cat;
       })
     );
-  }, [disabled, catIndex, workIndex, surfIndex, setCategories, calculateSqft, DOOR_SIZES, WINDOW_SIZES, CLOSET_SIZES]);
+  }, [disabled, catIndex, workIndex, surfIndex, setCategories, calculateSqft]);
 
   const removeExclusion = useCallback((type, index) => {
     if (disabled) return;
@@ -400,7 +403,7 @@ export default function RoomSurfaceInput({
               {!disabled && (
                 <button
                   onClick={() => removeExclusion('doors', idx)}
-                  className="button button--error button--fixed-size"
+                  className="button button--error"
                   title="Remove this door"
                   aria-label={`Remove door ${idx + 1}`}
                 >
@@ -409,17 +412,6 @@ export default function RoomSurfaceInput({
               )}
             </div>
           ))}
-          {!disabled && (
-            <button
-              onClick={() => addExclusion('doors')}
-              className="button button--primary button--fixed-size"
-              title="Add another door"
-              aria-label="Add door exclusion"
-              disabled={errors.length || (roomShape === 'rectangular' && errors.width)}
-            >
-              <i className="fas fa-plus"></i> Door
-            </button>
-          )}
           {(surface.windows || []).map((window, idx) => (
             <div key={`window-${idx}`} className={styles.exclusionRow}>
               <div className="input-wrapper">
@@ -474,7 +466,7 @@ export default function RoomSurfaceInput({
               {!disabled && (
                 <button
                   onClick={() => removeExclusion('windows', idx)}
-                  className="button button--error button--fixed-size"
+                  className="button button--error"
                   title="Remove this window"
                   aria-label={`Remove window ${idx + 1}`}
                 >
@@ -483,17 +475,6 @@ export default function RoomSurfaceInput({
               )}
             </div>
           ))}
-          {!disabled && (
-            <button
-              onClick={() => addExclusion('windows')}
-              className="button button--primary button--fixed-size"
-              title="Add another window"
-              aria-label="Add window exclusion"
-              disabled={errors.length || (roomShape === 'rectangular' && errors.width)}
-            >
-              <i className="fas fa-plus"></i> Window
-            </button>
-          )}
           {(surface.closets || []).map((closet, idx) => (
             <div key={`closet-${idx}`} className={styles.exclusionRow}>
               <div className="input-wrapper">
@@ -548,7 +529,7 @@ export default function RoomSurfaceInput({
               {!disabled && (
                 <button
                   onClick={() => removeExclusion('closets', idx)}
-                  className="button button--error button--fixed-size"
+                  className="button button--error"
                   title="Remove this closet opening"
                   aria-label={`Remove closet ${idx + 1}`}
                 >
@@ -558,15 +539,35 @@ export default function RoomSurfaceInput({
             </div>
           ))}
           {!disabled && (
-            <button
-              onClick={() => addExclusion('closets')}
-              className="button button--primary button--fixed-size"
-              title="Add another closet opening"
-              aria-label="Add closet exclusion"
-              disabled={errors.length || (roomShape === 'rectangular' && errors.width)}
-            >
-              <i className="fas fa-plus"></i> Closet
-            </button>
+            <div className={styles.exclusionButtons}>
+              <button
+                onClick={() => addExclusion('doors')}
+                className={styles.addDoorButton}
+                title="Add another door"
+                aria-label="Add door exclusion"
+                disabled={errors.length || (roomShape === 'rectangular' && errors.width)}
+              >
+                <i className="fas fa-door-closed"></i> Add Door
+              </button>
+              <button
+                onClick={() => addExclusion('windows')}
+                className={styles.addWindowButton}
+                title="Add another window"
+                aria-label="Add window exclusion"
+                disabled={errors.length || (roomShape === 'rectangular' && errors.width)}
+              >
+                <i className="fas fa-window-maximize"></i> Add Window
+              </button>
+              <button
+                onClick={() => addExclusion('closets')}
+                className={styles.addClosetButton}
+                title="Add another closet opening"
+                aria-label="Add closet exclusion"
+                disabled={errors.length || (roomShape === 'rectangular' && errors.width)}
+              >
+                <i className="fas fa-warehouse"></i> Add Closet
+              </button>
+            </div>
           )}
         </div>
       </div>
@@ -577,7 +578,7 @@ export default function RoomSurfaceInput({
       {showRemove && !disabled && (
         <button
           onClick={removeSurface}
-          className="button button--error button--fixed-size"
+          className="button button--error"
           title="Remove this room area"
           aria-label="Remove room area"
         >

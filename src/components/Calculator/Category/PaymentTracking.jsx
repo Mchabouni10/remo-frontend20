@@ -10,7 +10,7 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
     disabled,
   });
 
-  const validMethods = ['Credit', 'Debit', 'Check', 'Cash', 'Zelle', 'Deposit'];
+  const validMethods = ['Credit', 'Debit', 'Check', 'Cash', 'Zelle'];
 
   const [newPayment, setNewPayment] = useState({
     date: new Date().toISOString().split('T')[0],
@@ -19,6 +19,8 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
     note: '',
     isPaid: false,
   });
+  const [newDepositAmount, setNewDepositAmount] = useState('');
+  const [newDepositMethod, setNewDepositMethod] = useState('Cash');
   const [editingIndex, setEditingIndex] = useState(null);
   const [editedPayment, setEditedPayment] = useState(null);
   const [expandedSections, setExpandedSections] = useState({
@@ -54,32 +56,13 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
   }, [categories, settings]);
 
   const grandTotal = totals.total;
-  const deposit = parseFloat(settings.deposit) || 0;
-  const depositMethod = settings.depositMethod || 'Deposit';
-  console.log('Deposit details:', { deposit, depositMethod });
 
   const paymentsWithDeposit = useMemo(() => {
     console.log('Computing paymentsWithDeposit with:', {
       payments: JSON.stringify(settings.payments, null, 2),
-      deposit,
-      depositMethod,
     });
-    const payments = Array.isArray(settings.payments) ? settings.payments : [];
-    if (deposit >= 0.01) {
-      const depositPayment = {
-        date: new Date().toISOString(),
-        amount: deposit,
-        method: depositMethod,
-        note: 'Deposit payment',
-        isPaid: true,
-        status: 'Paid',
-      };
-      console.log('Including deposit payment:', JSON.stringify(depositPayment, null, 2));
-      return [depositPayment, ...payments];
-    }
-    console.log('No deposit payment included (deposit < 0.01)');
-    return payments;
-  }, [settings.payments, deposit, depositMethod]);
+    return Array.isArray(settings.payments) ? settings.payments : [];
+  }, [settings.payments]);
 
   const totalPaid = useMemo(() => {
     console.log('Calculating totalPaid from payments:', JSON.stringify(paymentsWithDeposit, null, 2));
@@ -146,30 +129,49 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
     return null;
   };
 
-  const handleSettingsChange = (field, value) => {
+  const addDeposit = () => {
     if (disabled) {
-      console.log('Settings change blocked: component is disabled');
+      console.log('addDeposit blocked: component is disabled');
       return;
     }
-    console.log(`handleSettingsChange called: field=${field}, value=${value}`);
-    if (field === 'deposit') {
-      const numericValue = parseFloat(value) || 0;
-      if (numericValue > 0 && numericValue < 0.01) {
-        console.warn(`Invalid deposit: ${numericValue}, must be 0 or >= 0.01`);
-        setError('Deposit must be 0 or at least $0.01.');
-        return;
-      }
-      console.log(`Updating deposit to: ${numericValue}`);
-      setError(null);
+    const amount = parseFloat(newDepositAmount);
+    if (isNaN(amount) || amount < 0.01) {
+      setError('Please enter a valid deposit amount');
+      return;
     }
+
     setSettings((prev) => {
-      const newSettings = {
-        ...prev,
-        [field]: field === 'deposit' ? parseFloat(value) || 0 : value,
-      };
-      console.log('New settings:', JSON.stringify(newSettings, null, 2));
+      const payments = prev.payments || [];
+      const newPayments = payments[0]?.note === 'Deposit payment'
+        ? [
+            {
+              date: new Date().toISOString(),
+              amount,
+              method: newDepositMethod,
+              note: 'Deposit payment',
+              isPaid: true,
+            },
+            ...payments.slice(1),
+          ]
+        : [
+            {
+              date: new Date().toISOString(),
+              amount,
+              method: newDepositMethod,
+              note: 'Deposit payment',
+              isPaid: true,
+            },
+            ...payments,
+          ];
+
+      const newSettings = { ...prev, payments: newPayments };
+      console.log('Updated settings with new deposit:', JSON.stringify(newSettings, null, 2));
       return newSettings;
     });
+
+    setNewDepositAmount('');
+    setNewDepositMethod('Cash');
+    setError(null);
   };
 
   const handleNewPaymentChange = (field, value) => {
@@ -205,7 +207,10 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
       };
       console.log('Adding payment:', JSON.stringify(payment, null, 2));
       setSettings((prev) => {
-        const newPayments = [...(prev.payments || []), payment];
+        const newPayments = [...(prev.payments || [])];
+        // Insert after deposit if it exists
+        const insertIndex = prev.payments[0]?.note === 'Deposit payment' ? 1 : 0;
+        newPayments.splice(insertIndex, 0, payment);
         const newSettings = { ...prev, payments: newPayments };
         console.log('Updated settings with new payment:', JSON.stringify(newSettings, null, 2));
         return newSettings;
@@ -230,15 +235,15 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
   };
 
   const togglePaymentStatus = (index) => {
-    if (disabled || index === 0) {
-      console.log('togglePaymentStatus blocked:', { disabled, index });
+    if (disabled) {
+      console.log('togglePaymentStatus blocked: component is disabled');
       return;
     }
     console.log(`togglePaymentStatus called for index: ${index}`);
     try {
       setSettings((prev) => {
         const newPayments = prev.payments.map((payment, i) =>
-          i === index - (deposit >= 0.01 ? 1 : 0) ? { ...payment, isPaid: !payment.isPaid } : payment
+          i === index ? { ...payment, isPaid: !payment.isPaid } : payment
         );
         const newSettings = { ...prev, payments: newPayments };
         console.log('Updated settings after toggling payment status:', JSON.stringify(newSettings, null, 2));
@@ -251,14 +256,19 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
   };
 
   const removePayment = (index) => {
-    if (disabled || index === 0) {
-      console.log('removePayment blocked:', { disabled, index });
+    if (disabled) {
+      console.log('removePayment blocked: component is disabled');
       return;
+    }
+    if (index === 0 && paymentsWithDeposit[0]?.note === 'Deposit payment') {
+      if (!window.confirm('Are you sure you want to remove the deposit payment?')) {
+        return;
+      }
     }
     console.log(`removePayment called for index: ${index}`);
     try {
       setSettings((prev) => {
-        const newPayments = prev.payments.filter((_, i) => i !== index - (deposit >= 0.01 ? 1 : 0));
+        const newPayments = prev.payments.filter((_, i) => i !== index);
         const newSettings = { ...prev, payments: newPayments };
         console.log('Updated settings after removing payment:', JSON.stringify(newSettings, null, 2));
         return newSettings;
@@ -270,8 +280,8 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
   };
 
   const startEditing = (index) => {
-    if (disabled || index === 0) {
-      console.log('startEditing blocked:', { disabled, index });
+    if (disabled) {
+      console.log('startEditing blocked: component is disabled');
       return;
     }
     console.log(`startEditing called for index: ${index}`);
@@ -298,8 +308,8 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
   };
 
   const saveEdit = (index) => {
-    if (disabled || index === 0) {
-      console.log('saveEdit blocked:', { disabled, index });
+    if (disabled) {
+      console.log('saveEdit blocked: component is disabled');
       return;
     }
     console.log(`saveEdit called for index: ${index}`);
@@ -314,7 +324,7 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
     try {
       setSettings((prev) => {
         const newPayments = prev.payments.map((payment, i) =>
-          i === index - (deposit >= 0.01 ? 1 : 0)
+          i === index
             ? {
                 ...editedPayment,
                 date: new Date(editedPayment.date).toISOString(),
@@ -373,31 +383,56 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
           )}
           <div className={styles.field}>
             <label>
-              <i className="fas fa-hand-holding-usd"></i> Deposit ($):
+              <i className="fas fa-hand-holding-usd"></i> Initial Deposit:
             </label>
-            <input
-              type="number"
-              value={settings.deposit || ''}
-              onChange={(e) => handleSettingsChange('deposit', e.target.value)}
-              min="0"
-              step="0.01"
-              disabled={disabled}
-              aria-label="Deposit Amount"
-              placeholder="0.00"
-            />
-            <select
-              value={depositMethod}
-              onChange={(e) => handleSettingsChange('depositMethod', e.target.value)}
-              disabled={disabled}
-              aria-label="Deposit Payment Method"
-            >
-              <option value="Cash">Cash</option>
-              <option value="Credit">Credit</option>
-              <option value="Debit">Debit</option>
-              <option value="Check">Check</option>
-              <option value="Zelle">Zelle</option>
-              <option value="Deposit">Deposit</option>
-            </select>
+            {settings.payments?.length > 0 && settings.payments[0]?.note === 'Deposit payment' ? (
+              <div className={styles.depositInfo}>
+                <span>
+                  ${settings.payments[0].amount.toFixed(2)} ({settings.payments[0].method})
+                </span>
+                <button
+                  onClick={() => removePayment(0)}
+                  className={styles.removeButton}
+                  disabled={disabled}
+                  aria-label="Remove deposit"
+                >
+                  <i className="fas fa-trash-alt"></i>
+                </button>
+              </div>
+            ) : (
+              <>
+                <input
+                  type="number"
+                  value={newDepositAmount}
+                  onChange={(e) => setNewDepositAmount(e.target.value)}
+                  min="0.01"
+                  step="0.01"
+                  disabled={disabled}
+                  aria-label="Deposit amount"
+                  placeholder="0.00"
+                />
+                <select
+                  value={newDepositMethod}
+                  onChange={(e) => setNewDepositMethod(e.target.value)}
+                  disabled={disabled}
+                  aria-label="Deposit method"
+                >
+                  {validMethods.map((method) => (
+                    <option key={method} value={method}>
+                      {method}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={addDeposit}
+                  className={styles.addButton}
+                  disabled={disabled || !newDepositAmount || parseFloat(newDepositAmount) < 0.01}
+                  aria-label="Add deposit"
+                >
+                  <i className="fas fa-plus"></i> Add Deposit
+                </button>
+              </>
+            )}
           </div>
 
           <div className={styles.summary}>
@@ -407,15 +442,25 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
             {totals.laborDiscount > 0 && (
               <p><strong>Labor Discount:</strong> -${totals.laborDiscount.toFixed(2)}</p>
             )}
-            <p><strong>Deposit:</strong> ${(settings.deposit || 0).toFixed(2)}</p>
+            <p>
+              <strong>Deposit:</strong> $
+              {(settings.payments?.[0]?.note === 'Deposit payment'
+                ? settings.payments[0].amount
+                : 0
+              ).toFixed(2)}
+            </p>
             <p><strong>Total Paid:</strong> ${totalPaid.toFixed(2)}</p>
             <p><strong>Amount Remaining:</strong> ${amountRemaining.toFixed(2)}</p>
             <p><strong>Amount Due:</strong> ${amountDue.toFixed(2)}</p>
             {overduePayments > 0 && (
-              <p className={styles.overdue}><strong>Overdue:</strong> ${overduePayments.toFixed(2)}</p>
+              <p className={styles.overdue}>
+                <strong>Overdue:</strong> ${overduePayments.toFixed(2)}
+              </p>
             )}
             {overpaid > 0 && (
-              <p className={styles.overdue}><strong>Overpaid by:</strong> ${overpaid.toFixed(2)}</p>
+              <p className={styles.overdue}>
+                <strong>Overpaid by:</strong> ${overpaid.toFixed(2)}
+              </p>
             )}
           </div>
 
@@ -485,12 +530,11 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
                                 disabled={disabled}
                                 aria-label="Payment Method"
                               >
-                                <option value="Cash">Cash</option>
-                                <option value="Credit">Credit</option>
-                                <option value="Debit">Debit</option>
-                                <option value="Check">Check</option>
-                                <option value="Zelle">Zelle</option>
-                                <option value="Deposit">Deposit</option>
+                                {validMethods.map((method) => (
+                                  <option key={method} value={method}>
+                                    {method}
+                                  </option>
+                                ))}
                               </select>
                             </td>
                             <td>
@@ -545,7 +589,12 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
                                 : ''
                             }
                           >
-                            <td>{new Date(payment.date).toLocaleDateString()}</td>
+                            <td>
+                              {new Date(payment.date).toLocaleDateString()}
+                              {index === 0 && payment.note === 'Deposit payment' && (
+                                <span className={styles.depositIndicator}> (Deposit)</span>
+                              )}
+                            </td>
                             <td>${(parseFloat(payment.amount) || 0).toFixed(2)}</td>
                             <td>{payment.method}</td>
                             <td>{payment.note || '-'}</td>
@@ -554,7 +603,7 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
                                 type="checkbox"
                                 checked={payment.isPaid}
                                 onChange={() => togglePaymentStatus(index)}
-                                disabled={disabled || index === 0}
+                                disabled={disabled}
                                 aria-label={`Toggle ${payment.isPaid ? 'Paid' : 'Due'} Status`}
                               />
                               {payment.isPaid ? ' Paid' : ' Due'}
@@ -565,7 +614,6 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
                                   onClick={() => startEditing(index)}
                                   className={styles.editButton}
                                   title="Edit Payment"
-                                  disabled={index === 0}
                                   aria-label="Edit Payment"
                                 >
                                   <i className="fas fa-edit"></i>
@@ -574,7 +622,6 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
                                   onClick={() => removePayment(index)}
                                   className={styles.removeButton}
                                   title="Remove Payment"
-                                  disabled={index === 0}
                                   aria-label="Remove Payment"
                                 >
                                   <i className="fas fa-trash-alt"></i>
@@ -648,12 +695,11 @@ export default function PaymentTracking({ settings, setSettings, categories, dis
                       disabled={disabled}
                       aria-label="Payment Method"
                     >
-                      <option value="Cash">Cash</option>
-                      <option value="Credit">Credit</option>
-                      <option value="Debit">Debit</option>
-                      <option value="Check">Check</option>
-                      <option value="Zelle">Zelle</option>
-                      <option value="Deposit">Deposit</option>
+                      {validMethods.map((method) => (
+                        <option key={method} value={method}>
+                          {method}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   <div className={styles.field}>

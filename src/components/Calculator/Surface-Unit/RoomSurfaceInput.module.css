@@ -1,3 +1,4 @@
+/* src/components/Calculator/Surface-Unit/RoomSurfaceInput.module.css */
 @import './SharedStyles.module.css';
 
 .surfaceRow {
@@ -66,11 +67,82 @@
   box-shadow: 0 2px 4px var(--shadow);
 }
 
-.button--fixed-size {
-  width: 100px; /* Smaller fixed width for consistency */
-  justify-content: center;
-  padding: var(--spacing-sm);
+/* Container for exclusion buttons */
+.exclusionButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-sm) 0;
+}
+
+/* Shared styles for add buttons */
+.addDoorButton,
+.addWindowButton,
+.addClosetButton {
+  background-color: #1a252f; /* Darker background */
+  color: #ffffff; /* Bright white text */
+  border: 1px solid #1a252f;
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
   font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  width: 120px; /* Fixed width for consistency */
+  justify-content: center;
+}
+
+/* Hover state */
+.addDoorButton:hover:not(:disabled),
+.addWindowButton:hover:not(:disabled),
+.addClosetButton:hover:not(:disabled) {
+  background-color: #2980b9; /* Vibrant blue for hover */
+  transform: translateY(-2px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Disabled state */
+.addDoorButton:disabled,
+.addWindowButton:disabled,
+.addClosetButton:disabled {
+  background-color: #95a5a6; /* Muted gray */
+  color: #d0d9db; /* Light gray text */
+  border-color: #95a5a6;
+  cursor: not-allowed;
+  opacity: 0.7;
+  transform: none;
+}
+
+/* Icon styling */
+.addDoorButton i,
+.addWindowButton i,
+.addClosetButton i {
+  font-size: var(--font-size-base);
+  color: #ffffff; /* Match text color */
+  transition: color 0.2s ease;
+}
+
+.addDoorButton:hover:not(:disabled) i,
+.addWindowButton:hover:not(:disabled) i,
+.addClosetButton:hover:not(:disabled) i {
+  color: #ffffff; /* Keep icon white on hover */
+}
+
+.addDoorButton:disabled i,
+.addWindowButton:disabled i,
+.addClosetButton:disabled i {
+  color: #d0d9db; /* Match disabled text */
+}
+
+/* Specific icon adjustments */
+.addDoorButton i.fa-door-closed,
+.addWindowButton i.fa-window-maximize,
+.addClosetButton i.fa-warehouse {
+  margin-right: var(--spacing-xs);
 }
 
 .toggleLabel {
@@ -138,12 +210,19 @@
     align-items: stretch;
   }
 
-  .button {
-    align-self: stretch;
+  .exclusionButtons {
+    flex-direction: column;
+    align-items: stretch;
   }
 
-  .button--fixed-size {
+  .addDoorButton,
+  .addWindowButton,
+  .addClosetButton {
     width: 100%; /* Full width on mobile */
+  }
+
+  .button {
+    align-self: stretch;
   }
 
   .toggleLabel {

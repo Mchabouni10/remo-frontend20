@@ -40,6 +40,7 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
   const today = safeParseDate(new Date()) || new Date();
   const [busyDatesDetails, setBusyDatesDetails] = React.useState([]);
   const [isBusyDatesOpen, setIsBusyDatesOpen] = React.useState(false);
+  const [dateErrors, setDateErrors] = React.useState({ startDate: '', finishDate: '' });
 
   React.useEffect(() => {
     const fetchBusyDates = async () => {
@@ -98,6 +99,15 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
     const parsedDate = safeParseDate(date);
     if (!parsedDate) {
       setCustomer({ ...customer, [field]: null });
+      setDateErrors({ ...dateErrors, [field]: 'Invalid date' });
+      return;
+    }
+    if (field === 'startDate' && customer.finishDate && parsedDate > safeParseDate(customer.finishDate)) {
+      setDateErrors({ ...dateErrors, startDate: 'Start date cannot be after finish date' });
+      return;
+    }
+    if (field === 'finishDate' && customer.startDate && parsedDate < safeParseDate(customer.startDate)) {
+      setDateErrors({ ...dateErrors, finishDate: 'Finish date cannot be before start date' });
       return;
     }
     if (isDateBusy(parsedDate)) {
@@ -107,15 +117,8 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
         .join('\n');
       alert(`Warning: ${parsedDate.toLocaleDateString()} overlaps with:\n${conflictDetails}`);
     }
-    if (field === 'startDate') {
-      setCustomer({
-        ...customer,
-        startDate: parsedDate,
-        finishDate: customer.finishDate && parsedDate > safeParseDate(customer.finishDate) ? null : customer.finishDate,
-      });
-    } else {
-      setCustomer({ ...customer, [field]: parsedDate });
-    }
+    setCustomer({ ...customer, [field]: parsedDate });
+    setDateErrors({ ...dateErrors, [field]: '' });
   };
 
   const handleZipChange = (value) => {
@@ -374,7 +377,7 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
             filterDate={(date) => date >= today}
             highlightDates={getBusyDateRanges()}
             renderDayContents={renderDayContents}
-            className={`${styles.dateInput} ${!customer.startDate && !disabled && styles.error}`}
+            className={`${styles.dateInput} ${(!customer.startDate || dateErrors.startDate) && !disabled && styles.error}`}
             disabled={disabled}
             placeholderText="Select start date"
             dateFormat="MM/dd/yyyy"
@@ -383,6 +386,9 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
             showPopperArrow={false}
             popperClassName={styles.calendarPopper}
           />
+          {dateErrors.startDate && !disabled && (
+            <span className={styles.errorMessage}>{dateErrors.startDate}</span>
+          )}
         </div>
 
         <div className={styles.field}>
@@ -396,7 +402,7 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
             filterDate={(date) => date >= (getDateValue(customer.startDate) || today)}
             highlightDates={getBusyDateRanges()}
             renderDayContents={renderDayContents}
-            className={styles.dateInput}
+            className={`${styles.dateInput} ${dateErrors.finishDate && !disabled && styles.error}`}
             disabled={!customer.startDate || disabled}
             placeholderText="Select finish date"
             dateFormat="MM/dd/yyyy"
@@ -405,6 +411,9 @@ export default function CustomerInfo({ customer, setCustomer, disabled = false }
             showPopperArrow={false}
             popperClassName={styles.calendarPopper}
           />
+          {dateErrors.finishDate && !disabled && (
+            <span className={styles.errorMessage}>{dateErrors.finishDate}</span>
+          )}
         </div>
 
         <div className={styles.field}>

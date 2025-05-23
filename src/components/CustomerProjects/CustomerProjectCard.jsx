@@ -1,3 +1,4 @@
+//src/components/CustomerProjects/CustomerProjectCard.jsx
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -12,6 +13,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import CostBreakdown from "../Calculator/CostBreakdown/CostBreakdown";
 import { calculateTotal } from "../Calculator/calculations/costCalculations";
+import { calculateTotalPaid } from "../Calculator/utils/paymentCalculations";
 import styles from "./CustomerProjectCard.module.css";
 
 export default function CustomerProjectCard({
@@ -30,19 +32,19 @@ export default function CustomerProjectCard({
     project.settings?.transportationFee || 0,
     project.settings?.wasteFactor || 0,
     project.settings?.miscFees || [],
-    project.settings?.markup || 0
+    project.settings?.markup || 0,
+    project.settings?.laborDiscount || 0
   );
   const grandTotal = totals.total || 0;
-  const deposit = project.settings?.deposit || 0;
-  const amountPaid = project.settings?.amountPaid || 0;
-  const amountRemaining = Math.max(0, grandTotal - (deposit + amountPaid));
-  const progress = grandTotal > 0 ? (((deposit + amountPaid) / grandTotal) * 100).toFixed(0) : 0;
+  const totalPaid = calculateTotalPaid(project.settings);
+  const amountRemaining = Math.max(0, grandTotal - totalPaid);
+  const progress = grandTotal > 0 ? ((totalPaid / grandTotal) * 100).toFixed(2) : 0;
 
   const getStatus = () => {
     const today = new Date();
     const startDate = new Date(project.customerInfo?.startDate);
     const finishDate = new Date(project.customerInfo?.finishDate);
-    if (amountRemaining === 0 && finishDate < today) return "Completed";
+    if (amountRemaining <= 0 && finishDate < today) return "Completed";
     if (finishDate < today && amountRemaining > 0) return "Overdue";
     if (startDate > today) return "Pending";
     if (startDate <= today && finishDate >= today) return "In Progress";

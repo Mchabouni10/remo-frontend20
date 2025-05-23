@@ -1,4 +1,4 @@
-// CustomerProjects/CustomerProjects.jsx
+//src/components/CustomerProjects/CustomerProjects.jsx
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -17,8 +17,9 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { deleteProject } from "../../services/projectService";
 import { calculateTotal } from "../Calculator/calculations/costCalculations";
+import { calculateTotalPaid } from "../Calculator/utils/paymentCalculations";
 import { formatPhoneNumber } from "../Calculator/utils/customerhelper";
-import CostBreakdown from "../Calculator/CostBreakdown/CostBreakdown"; // Assuming this is in the same directory or adjust path
+import CostBreakdown from "../Calculator/CostBreakdown/CostBreakdown";
 import styles from "./CustomerProjects.module.css";
 
 export default function CustomerProjects() {
@@ -62,17 +63,14 @@ export default function CustomerProjects() {
       project.settings?.transportationFee || 0,
       project.settings?.wasteFactor || 0,
       project.settings?.miscFees || [],
-      project.settings?.markup || 0
+      project.settings?.markup || 0,
+      project.settings?.laborDiscount || 0
     );
     const grandTotal = totals.total || 0;
-    const deposit = project.settings?.deposit || 0;
-    const amountPaid = project.settings?.amountPaid || 0;
-    const amountRemaining = Math.max(
-      0,
-      Math.max(0, grandTotal - deposit) - amountPaid
-    );
+    const totalPaid = calculateTotalPaid(project.settings);
+    const amountRemaining = Math.max(0, grandTotal - totalPaid);
 
-    if (amountRemaining === 0 && finishDate < today) return "Completed";
+    if (amountRemaining <= 0 && finishDate < today) return "Completed";
     if (finishDate < today && amountRemaining > 0) return "Overdue";
     if (startDate > today) return "Pending";
     if (startDate <= today && finishDate >= today) return "In Progress";
@@ -90,31 +88,27 @@ export default function CustomerProjects() {
       project.settings?.transportationFee || 0,
       project.settings?.wasteFactor || 0,
       project.settings?.miscFees || [],
-      project.settings?.markup || 0
+      project.settings?.markup || 0,
+      project.settings?.laborDiscount || 0
     );
+    const totalPaid = calculateTotalPaid(project.settings);
+    const amountRemaining = Math.max(0, totals.total - totalPaid);
     const summary = `
       Project: ${project.customerInfo?.projectName || "Unnamed Project"}
-      Customer: ${project.customerInfo?.firstName} ${
-      project.customerInfo?.lastName
-    }
+      Customer: ${project.customerInfo?.firstName} ${project.customerInfo?.lastName}
       Phone: ${formatPhoneNumber(project.customerInfo?.phone)}
       Start Date: ${formatDate(project.customerInfo?.startDate)}
       Finish Date: ${formatDate(project.customerInfo?.finishDate)}
       Grand Total: $${totals.total.toFixed(2)}
-      Amount Remaining: $${Math.max(
-        0,
-        Math.max(0, totals.total - (project.settings?.deposit || 0)) -
-          (project.settings?.amountPaid || 0)
-      ).toFixed(2)}
+      Total Paid: $${totalPaid.toFixed(2)}
+      Amount Remaining: $${amountRemaining.toFixed(2)}
       Status: ${getProjectStatus(project)}
     `;
     const blob = new Blob([summary], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `${
-      project.customerInfo?.projectName || "project"
-    }_summary.txt`;
+    link.download = `${project.customerInfo?.projectName || "project"}_summary.txt`;
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -125,9 +119,7 @@ export default function CustomerProjects() {
     <main className={styles.mainContent}>
       <div className={styles.container}>
         <h1 className={styles.title}>
-          <div>{`${customerInfo.firstName || "Customer"} ${
-            customerInfo.lastName || ""
-          } Projects`}</div>
+          <div>{`${customerInfo.firstName || "Customer"} ${customerInfo.lastName || ""} Projects`}</div>
           <div>Phone Number: {formatPhoneNumber(customerInfo.phone)}</div>
         </h1>
         <button
@@ -200,16 +192,12 @@ export default function CustomerProjects() {
                     project.settings?.transportationFee || 0,
                     project.settings?.wasteFactor || 0,
                     project.settings?.miscFees || [],
-                    project.settings?.markup || 0
+                    project.settings?.markup || 0,
+                    project.settings?.laborDiscount || 0
                   );
                   const grandTotal = totals.total || 0;
-                  const deposit = project.settings?.deposit || 0;
-                  const amountPaid = project.settings?.amountPaid || 0;
-                  const adjustedTotal = Math.max(0, grandTotal - deposit);
-                  const amountRemaining = Math.max(
-                    0,
-                    adjustedTotal - amountPaid
-                  );
+                  const totalPaid = calculateTotalPaid(project.settings);
+                  const amountRemaining = Math.max(0, grandTotal - totalPaid);
                   const status = getProjectStatus(project);
                   const isExpanded = expandedProject === project._id;
 
@@ -226,41 +214,26 @@ export default function CustomerProjects() {
                               icon={isExpanded ? faChevronUp : faChevronDown}
                             />
                           </button>
-                          {project.customerInfo?.projectName ||
-                            "Unnamed Project"}
+                          {project.customerInfo?.projectName || "Unnamed Project"}
                         </td>
                         <td>{formatDate(project.customerInfo?.startDate)}</td>
                         <td>{formatDate(project.customerInfo?.finishDate)}</td>
                         <td>
-                          <span
-                            className={`${styles.status} ${
-                              styles[status.toLowerCase()]
-                            }`}
-                          >
+                          <span className={`${styles.status} ${styles[status.toLowerCase()]}`}>
                             {status}
                           </span>
                         </td>
                         <td
                           className={`${styles.currency} ${
-                            amountRemaining > 0
-                              ? styles.amountDue
-                              : styles.amountPaid
+                            amountRemaining > 0 ? styles.amountDue : styles.amountPaid
                           }`}
-                          title={`Deposit: $${deposit.toFixed(
-                            2
-                          )}, Paid: $${amountPaid.toFixed(2)}`}
+                          title={`Total Paid: $${totalPaid.toFixed(2)}`}
                         >
                           ${amountRemaining.toFixed(2)}
                           {amountRemaining > 0 ? (
-                            <span className={styles.statusIndicator}>
-                              {" "}
-                              (Due)
-                            </span>
+                            <span className={styles.statusIndicator}> (Due)</span>
                           ) : (
-                            <span className={styles.statusIndicator}>
-                              {" "}
-                              (Paid)
-                            </span>
+                            <span className={styles.statusIndicator}> (Paid)</span>
                           )}
                         </td>
                         <td className={styles.grandTotal}>
@@ -302,33 +275,23 @@ export default function CustomerProjects() {
                           <td colSpan="7">
                             <div className={styles.projectDetails}>
                               <h3>Project Details</h3>
-                              {/* Customer Info for this Project */}
                               <div className={styles.detailSection}>
                                 <h4>Customer Info</h4>
                                 <p>
                                   <strong>Address:</strong>{" "}
                                   {project.customerInfo.street || "N/A"}{" "}
-                                  {project.customerInfo.unit
-                                    ? `, ${project.customerInfo.unit}`
-                                    : ""}
-                                  , {project.customerInfo.state || "N/A"}{" "}
-                                  {project.customerInfo.zipCode || "N/A"}
+                                  {project.customerInfo.unit ? `, ${project.customerInfo.unit}` : ""},{" "}
+                                  {project.customerInfo.state || "N/A"} {project.customerInfo.zipCode || "N/A"}
                                 </p>
                                 <p>
-                                  <strong>Email:</strong>{" "}
-                                  {project.customerInfo.email || "N/A"}
+                                  <strong>Email:</strong> {project.customerInfo.email || "N/A"}
                                 </p>
                                 <p>
-                                  <strong>Notes:</strong>{" "}
-                                  {project.customerInfo.notes || "None"}
+                                  <strong>Notes:</strong> {project.customerInfo.notes || "None"}
                                 </p>
                               </div>
-                              {/* Cost Breakdown */}
                               <div className={styles.detailSection}>
-                                <CostBreakdown
-                                  categories={project.categories}
-                                  settings={project.settings}
-                                />
+                                <CostBreakdown categories={project.categories} settings={project.settings} />
                               </div>
                             </div>
                           </td>
@@ -339,7 +302,6 @@ export default function CustomerProjects() {
                 })}
               </tbody>
             </table>
-            {/* Summary Totals */}
             <div className={styles.totalsSection}>
               <p>Total Projects: {projects.length}</p>
               <p>
@@ -354,7 +316,8 @@ export default function CustomerProjects() {
                         p.settings?.transportationFee || 0,
                         p.settings?.wasteFactor || 0,
                         p.settings?.miscFees || [],
-                        p.settings?.markup || 0
+                        p.settings?.markup || 0,
+                        p.settings?.laborDiscount || 0
                       ).total || 0),
                     0
                   )
@@ -370,16 +333,11 @@ export default function CustomerProjects() {
                       p.settings?.transportationFee || 0,
                       p.settings?.wasteFactor || 0,
                       p.settings?.miscFees || [],
-                      p.settings?.markup || 0
+                      p.settings?.markup || 0,
+                      p.settings?.laborDiscount || 0
                     );
-                    return (
-                      sum +
-                      Math.max(
-                        0,
-                        Math.max(0, totals.total - (p.settings?.deposit || 0)) -
-                          (p.settings?.amountPaid || 0)
-                      )
-                    );
+                    const totalPaid = calculateTotalPaid(p.settings);
+                    return sum + Math.max(0, totals.total - totalPaid);
                   }, 0)
                   .toFixed(2)}
               </p>

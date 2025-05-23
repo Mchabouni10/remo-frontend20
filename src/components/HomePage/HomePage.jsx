@@ -15,7 +15,7 @@ export default function HomePage() {
   const location = useLocation();
   const initialCustomerInfo = location.pathname === '/home/new-customer-project' ? {} : location.state?.customerInfo || {};
 
-  const validPaymentMethods = ['Credit', 'Debit', 'Check', 'Cash', 'Zelle', 'Deposit'];
+  const validPaymentMethods = ['Credit', 'Debit', 'Check', 'Cash', 'Zelle'];
 
   const [customer, setCustomer] = useState({
     firstName: initialCustomerInfo.firstName || '',
@@ -41,8 +41,6 @@ export default function HomePage() {
     wasteFactor: 0,
     laborDiscount: 0,
     miscFees: [],
-    deposit: 0,
-    depositMethod: 'Cash',
     payments: [],
     markup: 0,
   });
@@ -86,8 +84,6 @@ export default function HomePage() {
             wasteFactor: project.settings?.wasteFactor || 0,
             laborDiscount: project.settings?.laborDiscount || 0,
             miscFees: project.settings?.miscFees || [],
-            deposit: project.settings?.deposit || 0,
-            depositMethod: project.settings?.depositMethod || 'Cash',
             payments: project.settings?.payments || [],
             markup: project.settings?.markup || 0,
           });
@@ -127,20 +123,6 @@ export default function HomePage() {
       return;
     }
 
-    // Validate payment methods
-    const invalidPayments = (settings.payments || []).filter(
-      payment => !validPaymentMethods.includes(payment.method)
-    );
-    if (invalidPayments.length > 0) {
-      alert(`Invalid payment methods detected: ${invalidPayments.map(p => p.method).join(', ')}. Please use: ${validPaymentMethods.join(', ')}`);
-      return;
-    }
-
-    if (!validPaymentMethods.includes(settings.depositMethod)) {
-      alert(`Invalid deposit method: ${settings.depositMethod}. Please use: ${validPaymentMethods.join(', ')}`);
-      return;
-    }
-
     if (!validPaymentMethods.includes(customer.paymentType)) {
       alert(`Invalid customer payment type: ${customer.paymentType}. Please use: ${validPaymentMethods.join(', ')}`);
       return;
@@ -158,11 +140,13 @@ export default function HomePage() {
       },
       categories,
       settings: {
-        ...settings,
+        taxRate: settings.taxRate || 0,
+        transportationFee: settings.transportationFee || 0,
+        wasteFactor: settings.wasteFactor || 0,
         laborDiscount: settings.laborDiscount || 0,
-        deposit: Number(settings.deposit) || 0,
-        depositMethod: settings.depositMethod || 'Cash',
-        payments: (settings.payments || []).map(payment => ({
+        miscFees: settings.miscFees || [],
+        markup: settings.markup || 0,
+        payments: (settings.payments || []).map((payment) => ({
           ...payment,
           date: payment.date instanceof Date ? payment.date.toISOString().split('T')[0] : payment.date,
           amount: Number(payment.amount) || 0,
@@ -225,8 +209,6 @@ export default function HomePage() {
         wasteFactor: 0,
         laborDiscount: 0,
         miscFees: [],
-        deposit: 0,
-        depositMethod: 'Cash',
         payments: [],
         markup: 0,
       });
@@ -242,7 +224,7 @@ export default function HomePage() {
   };
 
   const toggleCustomerInfo = () => {
-    setIsCustomerInfoVisible(prev => !prev);
+    setIsCustomerInfoVisible((prev) => !prev);
   };
 
   if (loading) {
