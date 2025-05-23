@@ -6,7 +6,7 @@
   background: var(--surface);
   border-radius: var(--radius-lg);
   box-shadow: 0 6px 20px var(--shadow);
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .header {
@@ -42,7 +42,7 @@
 }
 
 .pricingButton:hover:not(:disabled) {
-  background: #2980b9;
+  background: var(--secondary-dark, var(--secondary)); /* Fallback to --secondary if --secondary-dark is undefined */
   transform: translateY(-2px);
   box-shadow: 0 5px 15px var(--shadow);
 }

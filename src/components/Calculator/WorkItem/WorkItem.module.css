@@ -1,46 +1,73 @@
-
+/* Work item card */
 .workCard {
-  padding: 1rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: #fff;
-  margin-bottom: 1rem;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  padding: var(--spacing-md);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  margin-bottom: var(--spacing-md);
+  box-shadow: 0 2px 6px var(--shadow);
+  transition: var(--transition);
 }
 
+.workCard:hover {
+  box-shadow: 0 4px 12px var(--shadow), 0 0 4px var(--glow);
+}
+
+/* Work item row */
 .workItemRow {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
 }
 
+/* Label for work item row */
 .workItemRow label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #333;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text);
   min-width: 100px;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--spacing-xs);
 }
 
+/* Input wrapper */
 .inputWrapper {
   position: relative;
   flex: 1;
 }
 
+/* Input and select fields */
 .input,
 .select {
   width: 100%;
-  padding: 0.5rem 0.75rem 0.5rem 2rem;
-  font-size: 0.875rem;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
-  background: #fff;
-  color: #333;
+  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) 2.5rem;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-sm);
+  background: var(--input-bg);
+  color: var(--text);
+  transition: var(--transition), border-color 0.2s ease;
 }
 
+.input:focus,
+.select:focus {
+  outline: none;
+  border-color: var(--secondary);
+  box-shadow: 0 0 6px var(--glow);
+}
+
+.input:disabled,
+.select:disabled {
+  background: var(--input-bg);
+  border-color: var(--input-border);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Pricing field input/select constraints */
 .pricingField .select {
   max-width: 120px;
 }
@@ -49,157 +76,220 @@
   max-width: 100px;
 }
 
-.input:focus,
-.select:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 4px rgba(59, 130, 246, 0.5);
-}
-
-.input:disabled,
-.select:disabled {
-  background: #f9fafb;
-  border-color: #e2e8f0;
-  opacity: 0.7;
-}
-
+/* Input icon */
 .inputIcon {
   position: absolute;
-  left: 0.75rem;
+  left: var(--spacing-md);
   top: 50%;
   transform: translateY(-50%);
-  font-size: 0.875rem;
-  color: #6b7280;
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+  transition: color 0.2s ease;
 }
 
+.input:focus + .inputIcon,
+.select:focus + .inputIcon,
+.inputWrapper:hover .inputIcon {
+  color: var(--secondary);
+}
+
+/* Surfaces section */
 .surfaces {
-  margin-top: 0.75rem;
+  margin-top: var(--spacing-sm);
   display: flex;
   flex-direction: column;
 }
 
+/* Add surface button */
 .addSurfaceButton {
-  padding: 0.5rem 0.75rem;
-  background: #3b82f6;
-  color: #fff;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--secondary);
+  color: var(--surface);
   border: none;
-  border-radius: 4px;
-  font-size: 0.875rem;
-  font-weight: 600;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  font-family: var(--font-family-futuristic);
   align-self: flex-start;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: var(--spacing-xs);
+  transition: var(--transition);
 }
 
-.addSurfaceButton:hover {
-  background: #2563eb;
+.addSurfaceButton:hover:not(:disabled) {
+  background: var(--secondary-dark, var(--secondary));
+  transform: translateY(-2px);
+  box-shadow: 0 2px 6px var(--glow);
+}
+
+.addSurfaceButton:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--glow);
 }
 
 .addSurfaceButton:disabled {
-  background: #6b7280;
+  background: var(--text-light);
+  color: var(--surface);
   cursor: not-allowed;
+  opacity: 0.6;
 }
 
+/* Pricing section */
 .pricingSection {
-  margin-top: 0.75rem;
-  padding: 0.75rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 4px;
-  background: #f9fafb;
+  margin-top: var(--spacing-sm);
+  padding: var(--spacing-md);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-sm);
+  background: var(--input-bg);
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--spacing-sm);
 }
 
+/* Pricing field */
 .pricingField {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--spacing-xs);
 }
 
+/* Pricing field label */
 .pricingField label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #333;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text);
   min-width: 160px;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--spacing-xs);
 }
 
+/* Cost wrapper */
 .costWrapper {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--spacing-xs);
   flex: 1;
 }
 
+/* Notes section */
 .notesSection {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-top: 0.75rem;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
 }
 
+/* Remove button */
 .removeButton {
-  padding: 0.5rem 0.75rem;
-  background: #dc2626;
-  color: #fff;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--error);
+  color: var(--surface);
   border: none;
-  border-radius: 4px;
-  font-size: 0.875rem;
-  font-weight: 600;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  font-family: var(--font-family-futuristic);
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: var(--spacing-xs);
+  transition: var(--transition);
 }
 
-.removeButton:hover {
-  background: #b91c1c;
+.removeButton:hover:not(:disabled) {
+  background: var(--error-dark, var(--error));
+  transform: translateY(-2px);
+  box-shadow: 0 2px 6px var(--glow);
 }
 
+.removeButton:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--glow);
+}
+
+.removeButton:disabled {
+  background: var(--text-light);
+  color: var(--surface);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Work label */
 .workLabel {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #dc2626;
-  margin-bottom: 0.75rem;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  color: var(--error);
+  margin-bottom: var(--spacing-sm);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--spacing-xs);
 }
 
 .workLabel::before {
-  content: '\f0ae';
-  font-family: 'Font Awesome 5 Free';
-  font-weight: 900;
-  font-size: 0.875rem;
-  color: #dc2626;
+  content: '⚙️'; /* Unicode gear icon as fallback */
+  font-size: var(--font-size-sm);
+  color: var(--error);
 }
 
+/* Cost display */
 .costDisplay {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: var(--spacing-xs);
   align-items: center;
-  margin-top: 0.75rem;
-  padding: 0.5rem;
-  background: #f1f5f9;
-  border-radius: 4px;
+  margin-top: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
 }
 
+
+
+/* Cost and units */
 .cost,
 .units {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #1e40af;
-  padding: 0.5rem;
-  background: #e2e8f0;
-  border-radius: 4px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text);
+  padding: var(--spacing-sm);
+  background: rgba(30, 64, 175, 0.1); 
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
 }
 
+.cost:hover,
+.units:hover {
+  background: rgba(30, 64, 175, 0.2);
+}
+
+/* Accessibility */
+:focus-visible {
+  outline: 2px solid var(--secondary);
+  outline-offset: 2px;
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .workCard,
+  .pricingSection {
+    border: 2px solid var(--text);
+  }
+
+  .input,
+  .select {
+    border: 2px solid var(--text);
+  }
+
+  .addSurfaceButton,
+  .removeButton {
+    border: 2px solid var(--surface);
+  }
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
   .workItemRow,
   .pricingField,
@@ -207,7 +297,7 @@
   .costDisplay {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.5rem;
+    gap: var(--spacing-xs);
   }
 
   .pricingField label {
@@ -218,16 +308,12 @@
   .pricingField .select,
   .pricingField .input {
     max-width: none;
+    width: 100%;
   }
 
   .costWrapper {
     flex-direction: column;
     align-items: flex-start;
-    width: 100%;
-  }
-
-  .input,
-  .select {
     width: 100%;
   }
 

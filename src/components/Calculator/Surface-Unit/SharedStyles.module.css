@@ -1,4 +1,5 @@
 /* Shared styles for input components */
+/* Shared styles for input components */
 
 /* Input Wrapper */
 .inputWrapper {
@@ -18,19 +19,19 @@
   font-weight: var(--font-weight-medium);
   background: var(--input-bg);
   color: var(--text);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
+  transition: var(--transition), border-color 0.2s ease;
 }
 
 .input:focus {
   outline: none;
   border-color: var(--secondary);
-  box-shadow: 0 0 6px var(--shadow);
-  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 6px var(--glow);
+  background: var(--input-bg);
 }
 
 .input:disabled {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: var(--input-bg);
+  border-color: var(--input-border);
   cursor: not-allowed;
   opacity: 0.6;
 }
@@ -55,14 +56,14 @@
 .input select {
   appearance: none;
   padding-right: 2rem;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23a1b3d1' viewBox='0 0 16 16'><path d='M8 10.5l4-4H4l4 4z'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='var(--text-light)' viewBox='0 0 16 16'><path d='M8 10.5l4-4H4l4 4z'/></svg>");
   background-repeat: no-repeat;
   background-position: right var(--spacing-sm) center;
 }
 
 .input select:focus {
   border-color: var(--secondary);
-  box-shadow: 0 0 6px var(--shadow);
+  box-shadow: 0 0 6px var(--glow);
 }
 
 /* Square Footage Display */
@@ -74,10 +75,14 @@
   font-weight: var(--font-weight-medium);
   color: var(--primary);
   padding: var(--spacing-sm);
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(30, 64, 175, 0.1); /* Subtle blue tint */
   border-radius: var(--radius-sm);
   min-width: 80px;
-  transition: background 0.3s ease;
+  transition: var(--transition);
+}
+
+.sqft:hover {
+  background: rgba(30, 64, 175, 0.2);
 }
 
 .sqftIcon {
@@ -87,7 +92,7 @@
 
 /* Remove Surface Button */
 .button--fixed-size {
-  width: 36px; /* Square icon button for consistency */
+  width: 36px;
   height: 36px;
   padding: 0;
   font-size: var(--font-size-base);
@@ -102,13 +107,13 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  transition: var(--transition);
 }
 
 .button--error:hover:not(:disabled) {
   background: var(--error-dark, var(--error));
-  transform: scale(1.1);
-  box-shadow: 0 0 8px var(--shadow);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px var(--glow);
 }
 
 .button--error:disabled {
@@ -118,9 +123,81 @@
   transform: none;
 }
 
+.button--error:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--glow);
+}
+
+/* Surface Row */
+.surfaceRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-sm);
+  box-shadow: 0 4px 12px var(--shadow);
+  transition: var(--transition);
+  animation: fadeIn 0.5s ease-out;
+}
+
+.surfaceRow:hover {
+  background: rgba(34, 211, 238, 0.05); /* Subtle cyan tint */
+  box-shadow: 0 6px 16px var(--shadow), 0 0 4px var(--glow);
+}
+
+/* Toggle Label */
+.toggleLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text);
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  background: rgba(34, 211, 238, 0.1); /* Subtle cyan tint */
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.toggleLabel:hover {
+  background: rgba(34, 211, 238, 0.2);
+  box-shadow: 0 2px 4px var(--shadow);
+}
+
+.toggleLabel:focus-within {
+  box-shadow: 0 0 0 3px var(--glow);
+}
+
+.toggleLabel input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--secondary);
+}
+
+.toggleLabel input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.toggleLabel .icon {
+  font-size: var(--font-size-base);
+  color: var(--text-light);
+  transition: color 0.2s ease;
+}
+
+.toggleLabel:hover .icon {
+  color: var(--secondary);
+}
+
 /* Accessibility */
 :focus-visible {
-  outline: 2px solid var(--primary);
+  outline: 2px solid var(--secondary);
   outline-offset: 2px;
 }
 
@@ -132,6 +209,10 @@
 
   .button--error {
     border: 2px solid var(--surface);
+  }
+
+  .toggleLabel {
+    border: 2px solid var(--text);
   }
 }
 
@@ -149,6 +230,23 @@
   .sqft {
     flex: 1 1 100%;
     justify-content: flex-start;
+  }
+
+  .surfaceRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .inputWrapper {
+    width: 100%;
+  }
+
+  .toggleLabel {
+    justify-content: flex-start;
+  }
+
+  .button--error {
+    align-self: flex-end;
   }
 }
 

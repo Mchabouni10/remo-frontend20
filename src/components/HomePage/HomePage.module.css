@@ -23,7 +23,7 @@
   background-color: var(--surface);
   border-radius: var(--radius-lg);
   box-shadow: 0 6px 20px var(--shadow);
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
   overflow-x: hidden;
   box-sizing: border-box;
 }
@@ -34,7 +34,7 @@
   align-items: center;
   margin-bottom: var(--spacing-md);
   padding-bottom: var(--spacing-sm);
-  border-bottom: 1px solid rgba(226, 232, 240, 0.2);
+  border-bottom: 1px solid var(--input-border); /* Use variable for dark mode compatibility */
 }
 
 .title {
@@ -64,7 +64,7 @@
   align-items: center;
   justify-content: center;
   transition: left 0.5s ease, background 0.3s ease, transform 0.3s ease;
-  box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+  box-shadow: 0 0 10px var(--glow);
   animation: pulse 2s infinite;
   z-index: 101;
 }
@@ -80,7 +80,7 @@
 .toggleArrow:hover:not(:disabled) {
   background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
   transform: scale(1.05);
-  box-shadow: 0 0 15px rgba(0, 123, 255, 0.5);
+  box-shadow: 0 0 15px var(--glow);
 }
 
 .toggleArrow:disabled {
@@ -92,7 +92,7 @@
 
 .toggleArrow:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4);
+  box-shadow: 0 0 0 3px var(--glow);
 }
 
 .toggleIcon {
@@ -118,7 +118,7 @@
   min-width: 0;
   max-width: 100%;
   background-color: var(--surface);
-  border: 0.5px solid rgba(226, 232, 240, 0.2);
+  border: 0.5px solid var(--input-border); /* Use variable for dark mode */
   border-radius: var(--radius-md);
   padding: var(--spacing-xs);
   box-shadow: 0 4px 14px var(--shadow);
@@ -150,7 +150,7 @@
   min-width: 0;
   max-width: 100%;
   background-color: var(--surface);
-  border: 0.5px solid rgba(226, 232, 240, 0.2);
+  border: 0.5px solid var(--input-border); /* Use variable for dark mode */
   border-radius: var(--radius-md);
   padding: var(--spacing-xs);
   box-shadow: 0 4px 14px var(--shadow);
@@ -168,11 +168,11 @@
   width: 100%;
   max-width: 100%;
   background-color: var(--surface);
-  border: 0.5px solid rgba(226, 232, 240, 0.2);
+  border: 0.5px solid var(--input-border); /* Use variable for dark mode */
   border-radius: var(--radius-md);
   padding: var(--spacing-xs);
   box-shadow: 0 4px 14px var(--shadow);
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
   box-sizing: border-box;
   margin-top: var(--spacing-sm);
 }
@@ -183,7 +183,7 @@
   gap: var(--spacing-lg);
   margin-top: var(--spacing-md);
   padding-top: var(--spacing-md);
-  border-top: 1px solid rgba(226, 232, 240, 0.2);
+  border-top: 1px solid var(--input-border); /* Use variable for dark mode */
 }
 
 .saveButton,
@@ -225,7 +225,7 @@
 }
 
 .resetButton:hover:not(:disabled) {
-  background: #c53030;
+  background: var(--error-dark, #c53030); /* Fallback to hardcoded if --error-dark is undefined */
   transform: translateY(-2px);
   box-shadow: 0 5px 15px var(--shadow);
 }
@@ -241,7 +241,7 @@
 }
 
 .backButton:hover:not(:disabled) {
-  background: #6c757d;
+  background: var(--text-light-dark, #6c757d); /* Fallback to hardcoded if --text-light-dark is undefined */
   transform: translateY(-2px);
   box-shadow: 0 5px 15px var(--shadow);
 }
@@ -257,7 +257,7 @@
 }
 
 .editButton:hover:not(:disabled) {
-  background: #2e8b57;
+  background: var(--success-dark, #2e8b57); /* Fallback to hardcoded if --success-dark is undefined */
   transform: translateY(-2px);
   box-shadow: 0 5px 15px var(--shadow);
 }
@@ -281,9 +281,9 @@
 }
 
 @keyframes pulse {
-  0% { box-shadow: 0 0 10px rgba(0, 123, 255, 0.3); }
-  50% { box-shadow: 0 0 15px rgba(0, 123, 255, 0.5); }
-  100% { box-shadow: 0 0 10px rgba(0, 123, 255, 0.3); }
+  0% { box-shadow: 0 0 10px var(--glow); }
+  50% { box-shadow: 0 0 15px var(--glow); }
+  100% { box-shadow: 0 0 10px var(--glow); }
 }
 
 /* Responsive Adjustments */

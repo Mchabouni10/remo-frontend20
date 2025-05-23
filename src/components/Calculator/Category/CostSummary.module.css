@@ -1,4 +1,4 @@
-/* Section container */
+/* Previous styles unchanged */
 .section {
   background: var(--surface);
   border-radius: var(--radius-md);
@@ -8,29 +8,27 @@
   margin: var(--spacing-lg) 0;
 }
 
-/* Section header */
 .sectionHeader {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-sm) var(--spacing-md);
-  background: linear-gradient(to right, var(--primary) 0%, var(--primary-dark) 100%);
+  background: var(--input-bg);
   border-radius: var(--radius-md) var(--radius-md) 0 0;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: background-color 0.3s ease;
 }
 
 .sectionHeader:hover {
-  background: linear-gradient(to right, var(--primary-dark) 0%, var(--primary) 100%);
+  background: var(--input-border);
 }
 
-/* Toggle button */
 .toggleButton {
   background: none;
   border: none;
   cursor: pointer;
   font-size: var(--font-size-lg);
-  color: var(--surface);
+  color: var(--text);
   padding: var(--spacing-sm);
   transition: color 0.2s ease, transform 0.2s ease;
 }
@@ -43,15 +41,14 @@
 
 .toggleButton:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(var(--secondary), 0.3);
+  box-shadow: 0 0 0 3px var(--glow);
   border-radius: var(--radius-sm);
 }
 
-/* Section title */
 .sectionTitle {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
-  color: var(--surface);
+  color: var(--text);
   margin: 0;
   display: flex;
   align-items: center;
@@ -59,16 +56,20 @@
   font-family: var(--font-family);
 }
 
-/* Summary totals section */
+/* Updated totals section */
 .totals {
   padding: var(--spacing-lg);
-  background: linear-gradient(135deg, var(--surface) 0%, var(--background) 100%);
+  background: var(--surface);
   border-radius: 0 0 var(--radius-md) var(--radius-md);
-  box-shadow: inset 0 2px 8px var(--shadow);
+  box-shadow: 0 2px 8px var(--shadow), 0 0 4px var(--glow);
   animation: fadeIn 0.5s ease-out;
   position: relative;
-  role: region;
-  aria-label: Cost summary;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.totals:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--shadow), 0 0 8px var(--glow);
 }
 
 .totals:before {
@@ -78,10 +79,10 @@
   left: 0;
   width: 100%;
   height: 4px;
-  background: linear-gradient(to right, var(--secondary), var(--primary));
+  background: var(--secondary);
 }
 
-/* Totals grid layout */
+/* Remaining styles unchanged */
 .totalsGrid {
   display: grid;
   grid-template-columns: auto auto;
@@ -90,7 +91,6 @@
   color: var(--text);
 }
 
-/* Totals labels */
 .totalsLabel {
   font-weight: var(--font-weight-medium);
   color: var(--text);
@@ -98,7 +98,6 @@
   padding: var(--spacing-sm) 0;
 }
 
-/* Totals values */
 .totalsValue {
   font-weight: var(--font-weight-medium);
   color: var(--text);
@@ -112,30 +111,28 @@
   color: var(--secondary);
 }
 
-/* Labor discount styles */
 .laborDiscountLabel {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
+  font-weight: var(--font-weight-bold);
   color: var(--secondary);
 }
 
 .laborDiscount {
-  background: rgba(52, 152, 219, 0.1);
+  background: rgba(34, 211, 238, 0.1);
   color: var(--secondary);
   font-weight: var(--font-weight-bold);
   border-radius: var(--radius-sm);
   padding: var(--spacing-sm) var(--spacing-md);
-  text-shadow: 0 0 8px rgba(52, 152, 219, 0.4);
-  transition: transform 0.2s ease, background 0.2s ease;
+  transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
 .laborDiscount:hover {
   transform: scale(1.05);
-  background: rgba(52, 152, 219, 0.2);
+  background: rgba(34, 211, 238, 0.2);
 }
 
-/* Grand total styles */
 .grandTotalLabel {
   font-weight: var(--font-weight-bold);
   color: var(--primary);
@@ -148,12 +145,18 @@
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
   color: var(--primary);
+  background: rgba(30, 64, 175, 0.1);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
   text-align: left;
-  padding: var(--spacing-sm) 0;
-  text-shadow: 0 0 8px rgba(var(--primary), 0.3);
+  transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
-/* Total paid styles */
+.totalsValueGrand:hover {
+  transform: scale(1.05);
+  background: rgba(30, 64, 175, 0.2);
+}
+
 .totalPaidLabel {
   font-weight: var(--font-weight-bold);
   color: var(--success);
@@ -163,59 +166,59 @@
 }
 
 .totalPaid {
-  background: rgba(56, 161, 105, 0.1);
+  background: rgba(16, 185, 129, 0.1);
   color: var(--success);
   font-weight: var(--font-weight-bold);
-  font-size: 1.125rem;
+  font-size: var(--font-size-base);
   border-radius: var(--radius-sm);
   padding: var(--spacing-sm) var(--spacing-md);
-  transition: transform 0.2s ease, background 0.2s ease;
+  transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
 .totalPaid:hover {
   transform: scale(1.05);
-  background: rgba(56, 161, 105, 0.2);
+  background: rgba(16, 185, 129, 0.2);
 }
 
-/* Amount remaining styles */
 .amountRemainingLabel {
   font-weight: var(--font-weight-bold);
+  color: var(--success);
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
 }
 
 .amountRemaining {
-  background: rgba(56, 161, 105, 0.1);
+  background: rgba(16, 185, 129, 0.1);
   color: var(--success);
   font-weight: var(--font-weight-bold);
-  font-size: 1.125rem;
+  font-size: var(--font-size-base);
   border-radius: var(--radius-sm);
   padding: var(--spacing-sm) var(--spacing-md);
-  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+  transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
 }
 
 .amountRemainingNonZero {
-  background: rgba(229, 62, 62, 0.1);
+  background: rgba(255, 46, 99, 0.1);
   color: var(--error);
   animation: pulse 2s infinite;
 }
 
 .amountRemaining:hover {
   transform: scale(1.05);
-  background: rgba(56, 161, 105, 0.2);
+  background: rgba(16, 185, 129, 0.2);
 }
 
 .amountRemainingNonZero:hover {
-  background: rgba(229, 62, 62, 0.2);
+  background: rgba(255, 46, 99, 0.2);
 }
 
-/* Overpayment notice */
 .overpaymentNotice {
   margin-top: var(--spacing-md);
   padding: var(--spacing-sm);
-  background: rgba(229, 62, 62, 0.1);
+  background: rgba(255, 46, 99, 0.1);
   border-radius: var(--radius-sm);
+  border: 1px solid var(--error);
   color: var(--error);
   font-weight: var(--font-weight-medium);
   display: flex;
@@ -227,20 +230,18 @@
   aria-live: polite;
 }
 
-/* Pulse animation for overpayment and amount remaining */
 @keyframes pulse {
   0% {
     box-shadow: 0 2px 8px var(--shadow);
   }
   50% {
-    box-shadow: 0 2px 12px rgba(var(--error), 0.4);
+    box-shadow: 0 2px 12px rgba(255, 46, 99, 0.4);
   }
   100% {
     box-shadow: 0 2px 8px var(--shadow);
   }
 }
 
-/* Responsive design */
 @media (max-width: 768px) {
   .section {
     margin: var(--spacing-md) 0;

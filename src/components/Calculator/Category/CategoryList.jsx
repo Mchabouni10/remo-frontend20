@@ -63,8 +63,10 @@ export default function CategoryList({
         const normalizedNewKey = newKey.toLowerCase();
         if (
           newKey !== categories[catIndex].key &&
-          (WORK_TYPES && Object.keys(WORK_TYPES).some((k) => k.toLowerCase() === normalizedNewKey) ||
-           categories.some((cat, i) => i !== catIndex && cat.key.toLowerCase() === normalizedNewKey))
+          (
+            (WORK_TYPES && Object.keys(WORK_TYPES).some((k) => k.toLowerCase() === normalizedNewKey)) ||
+            categories.some((cat, i) => i !== catIndex && cat.key.toLowerCase() === normalizedNewKey)
+          )
         ) {
           setError('Category name already exists or conflicts with an existing category.');
           return;

@@ -858,7 +858,7 @@ export const MEASUREMENT_TYPES = {
   'electrical-under-cabinet-lighting': 'linear-foot',
   'electrical-outlet-installation': 'by-unit',
   'electrical-switch-installation': 'by-unit',
-  'electrical Oceans-installation': 'by-unit',
+  'electrical-light-fixture-installation': 'by-unit',
   'electrical-smoke-detector-installation': 'by-unit',
   'electrical-carbon-monoxide-detector': 'by-unit',
   'electrical-circuit-breaker': 'by-unit',

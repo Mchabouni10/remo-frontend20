@@ -18,12 +18,14 @@ export default function CustomersList() {
           <button
             onClick={() => setViewMode('table')}
             className={`${styles.toggleButton} ${viewMode === 'table' ? styles.active : ''}`}
+            aria-label="Switch to table view"
           >
             <FontAwesomeIcon icon={faTable} /> Table View
           </button>
           <button
             onClick={() => setViewMode('cards')}
             className={`${styles.toggleButton} ${viewMode === 'cards' ? styles.active : ''}`}
+            aria-label="Switch to card view"
           >
             <FontAwesomeIcon icon={faTh} /> Card View
           </button>
@@ -32,6 +34,8 @@ export default function CustomersList() {
           <CustomersListTable
             {...customerData}
             setIsLoading={customerData.setIsLoading}
+            statusFilter={customerData.statusFilter} // Pass statusFilter
+            setStatusFilter={customerData.setStatusFilter} // Pass setStatusFilter
           />
         ) : (
           <CustomersListCards {...customerData} />

@@ -1,44 +1,43 @@
-
 /* Main container */
 .container {
-  padding: 1.5rem;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-radius: 12px;
+  padding: var(--spacing-lg);
+  background: var(--surface);
+  border-radius: var(--radius-lg);
   max-width: 1200px;
   margin: 0 auto;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 6px 20px var(--shadow);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 .container:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 24px var(--shadow), 0 0 16px var(--glow);
 }
 
 /* Section container */
 .section {
-  margin-bottom: 2rem;
-  background: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: var(--spacing-lg);
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 12px var(--shadow);
   overflow: hidden;
-  transition: box-shadow 0.3s ease;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 /* Section header */
 .sectionHeader {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  background: linear-gradient(to right, #e9ecef, #d3d8de);
-  border-radius: 10px 10px 0 0;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--input-bg);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: background-color 0.3s ease;
 }
 
 .sectionHeader:hover {
-  background: linear-gradient(to right, #dee2e6, #c8ced6);
+  background: var(--input-border);
 }
 
 /* Toggle button */
@@ -46,67 +45,67 @@
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 1.125rem;
-  color: #1a1a1a;
-  padding: 0.25rem;
+  font-size: var(--font-size-lg);
+  color: var(--text);
+  padding: var(--spacing-xs);
   transition: color 0.2s ease, transform 0.2s ease;
 }
 
 .toggleButton:hover,
 .toggleButton:focus-visible {
-  color: #007bff;
+  color: var(--secondary);
   transform: scale(1.15);
 }
 
 .toggleButton:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.3);
-  border-radius: 4px;
+  box-shadow: 0 0 0 3px var(--glow);
+  border-radius: var(--radius-sm);
 }
 
 /* Section title */
 .sectionTitle {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1a1a1a;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text);
   margin: 0;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  gap: var(--spacing-sm);
+  font-family: var(--font-family);
 }
 
 /* Categories container */
 .categories {
-  margin-top: 1.25rem;
-  padding: 0 1rem;
+  margin-top: var(--spacing-md);
+  padding: 0 var(--spacing-md);
 }
 
 /* Category input wrapper */
 .categoryInputWrapper {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-bottom: 1.25rem;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
 }
 
 /* Category select dropdown */
 .categorySelect {
   flex: 1;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #b0b8c1;
-  border-radius: 6px;
-  font-size: 1rem;
-  background: #ffffff;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-base);
+  background: var(--input-bg);
   min-width: 160px;
-  color: #1a1a1a;
+  color: var(--text);
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .categorySelect:focus {
-  border-color: #007bff;
+  border-color: var(--secondary);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+  box-shadow: 0 0 0 3px var(--glow);
   transform: translateY(-2px);
 }
 
@@ -121,89 +120,90 @@
 .categoryInput,
 .workInput {
   width: 100%;
-  padding: 0.5rem 0.5rem 0.5rem 2.25rem;
-  border: 1px solid #b0b8c1;
-  border-radius: 6px;
-  font-size: 1rem;
-  background: #ffffff;
-  color: #1a1a1a;
+  padding: var(--spacing-sm) var(--spacing-sm) var(--spacing-sm) 2.25rem;
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-base);
+  background: var(--input-bg);
+  color: var(--text);
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .categoryInput:focus,
 .workInput:focus {
-  border-color: #007bff;
+  border-color: var(--secondary);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+  box-shadow: 0 0 0 3px var(--glow);
   transform: translateY(-2px);
 }
 
 /* Input icon */
 .inputIcon {
   position: absolute;
-  left: 0.75rem;
+  left: var(--spacing-sm);
   top: 50%;
   transform: translateY(-50%);
-  color: #6c757d;
-  font-size: 1rem;
+  color: var(--text-light);
+  font-size: var(--font-size-base);
 }
 
 /* Add button */
 .addButton {
-  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-  color: #ffffff;
+  background: var(--secondary);
+  color: var(--surface);
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .addButton:hover:not(:disabled) {
+  background: var(--secondary-dark, var(--secondary));
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+  box-shadow: 0 4px 12px var(--glow);
 }
 
 .addButton:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4);
+  box-shadow: 0 0 0 3px var(--glow);
 }
 
 .addButton:disabled {
-  background: #6c757d;
+  background: var(--text-light);
   cursor: not-allowed;
   transform: none;
 }
 
 /* Category container */
 .category {
-  background: #ffffff;
-  border: 1px solid #d1d9e0;
-  border-radius: 8px;
-  margin-bottom: 1.25rem;
-  padding: 0.75rem;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: var(--surface);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-sm);
+  box-shadow: 0 3px 8px var(--shadow);
+  transition: background-color 0.3s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .category:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 5px 12px var(--shadow), 0 0 8px var(--glow);
 }
 
 /* Category header */
 .categoryHeader {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 0.75rem;
-  background: linear-gradient(to right, #f1f3f5, #e6e9ec);
-  border-radius: 6px;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--input-bg);
+  border-radius: var(--radius-sm);
 }
 
 /* Category number badge */
@@ -213,65 +213,79 @@
   justify-content: center;
   width: 30px;
   height: 30px;
-  background: #007bff;
-  color: #ffffff;
+  background: var(--secondary);
+  color: var(--surface);
   border-radius: 50%;
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
   line-height: 1;
 }
 
 /* Remove button */
 .removeButton {
-  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-  color: #ffffff;
+  background: var(--error);
+  color: var(--surface);
   border: none;
-  padding: 0.5rem;
-  border-radius: 6px;
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  font-size: 1rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  font-size: var(--font-size-base);
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .removeButton:hover:not(:disabled) {
+  background: var(--error-dark, var(--error));
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+  box-shadow: 0 4px 12px var(--glow);
 }
 
 .removeButton:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.4);
+  box-shadow: 0 0 0 3px var(--glow);
 }
 
 /* Work items container */
 .workItems {
-  margin-top: 1.25rem;
-  padding: 0.5rem;
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-sm);
 }
 
 /* Work controls for adding work items */
 .workControls {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 1.25rem;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+}
+
+/* Error message */
+.errorMessage {
+  color: var(--error);
+  background: var(--input-bg);
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-sm);
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
   .container {
-    padding: 1rem;
-    margin: 0 0.5rem;
+    padding: var(--spacing-md);
+    margin: 0 var(--spacing-sm);
   }
 
   .section {
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--spacing-md);
   }
 
   .categoryInputWrapper,
   .workControls {
     flex-direction: column;
-    gap: 0.5rem;
+    gap: var(--spacing-sm);
   }
 
   .categorySelect,
@@ -286,37 +300,26 @@
   }
 }
 
-.errorMessage {
-  color: #d32f2f;
-  background-color: #ffebee;
-  padding: 8px;
-  border-radius: 4px;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
 @media (max-width: 480px) {
   .sectionTitle {
-    font-size: 1.25rem;
+    font-size: var(--font-size-lg);
   }
 
   .categoryNumber {
     width: 26px;
     height: 26px;
-    font-size: 0.9rem;
+    font-size: var(--font-size-sm);
   }
 
   .categoryInput,
   .workInput,
   .categorySelect {
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
   }
 
   .addButton,
   .removeButton {
-    padding: 0.5rem;
-    font-size: 0.875rem;
+    padding: var(--spacing-sm);
+    font-size: var(--font-size-sm);
   }
 }
