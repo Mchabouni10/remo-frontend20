@@ -117,9 +117,9 @@ export default function CategoryList({
         const newWorkItem = {
           name: newWorkName.trim(),
           category: categoryName,
-          type: '', // Initialize as empty to require manual selection
+          type: '',
           subtype: '',
-          surfaces: [], // Initialize empty; surface added in WorkItem.jsx
+          surfaces: [],
           materialCost: '0.00',
           laborCost: '0.00',
           notes: '',
@@ -267,7 +267,7 @@ export default function CategoryList({
             {categories.map((cat, catIndex) => (
               <div key={cat.key} className={styles.category}>
                 <div className={styles.categoryHeader}>
-                  <span className={styles.categoryNumber}>{cat.number}</span>
+                  <span className={styles.categoryNumber}>{cat.number || catIndex + 1}</span>
                   <button
                     className={styles.toggleButton}
                     onClick={() => toggleCategory(catIndex)}
@@ -288,14 +288,14 @@ export default function CategoryList({
                     className={styles.categoryInput}
                     placeholder="Room or Phase Name"
                     disabled={disabled}
-                    aria-label={`Category ${cat.number} name`}
+                    aria-label={`Category ${cat.number || catIndex + 1} name`}
                   />
                   {!disabled && (
                     <button
                       onClick={() => removeCategory(catIndex)}
                       className={styles.removeButton}
                       title="Remove Category"
-                      aria-label={`Remove category ${cat.number}`}
+                      aria-label={`Remove category ${cat.number || catIndex + 1}`}
                     >
                       <i className="fas fa-trash-alt"></i>
                     </button>
